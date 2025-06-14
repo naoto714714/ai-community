@@ -15,6 +15,144 @@
 
 # このプロジェクトについて
 
+## プロジェクト概要
+
+**AI Community** は、モダンでカジュアルなデザインのリアルタイムチャットアプリケーションです。
+React + TypeScript + Mantineを使用したフロントエンドプロトタイプの開発プロジェクトで、
+段階的な開発手順に従って機能を追加していく方式で進めています。
+
+### 主要機能
+- 複数チャンネルでのチャット機能
+- リアルタイムメッセージ送受信（フロントエンドのみ）
+- レスポンシブデザイン（PC版優先）
+- ダークモード対応
+- 自動返信機能（デバッグ用）
+
+### 技術スタック
+- **Frontend**: React 18.x + TypeScript 5.x + Mantine 7.x + Vite
+- **Icons**: Tabler Icons
+- **Date**: dayjs
+- **Development**: ESLint + Prettier + pre-commit
+
+## プロジェクト構成
+
+```
+ai-community/
+├── docs/                      # ドキュメント
+│   ├── chat-app-spec.md      # 仕様書
+│   └── chat-app-guide.md     # 実装手順書
+├── src/
+│   ├── backend/              # バックエンド（将来実装予定）
+│   └── frontend/             # フロントエンド
+│       ├── public/           # 静的ファイル
+│       │   └── vite.svg
+│       ├── src/              # ソースコード
+│       │   ├── assets/       # アセット
+│       │   │   └── react.svg
+│       │   ├── components/   # Reactコンポーネント（将来追加）
+│       │   ├── types/        # TypeScript型定義（将来追加）
+│       │   ├── data/         # 初期データ（将来追加）
+│       │   ├── App.tsx       # メインアプリケーション
+│       │   ├── App.css       # アプリケーションCSS
+│       │   ├── main.tsx      # エントリーポイント
+│       │   ├── index.css     # グローバルCSS
+│       │   └── vite-env.d.ts # Vite型定義
+│       ├── package.json      # 依存関係
+│       ├── package-lock.json # ロックファイル
+│       ├── tsconfig.json     # TypeScript設定
+│       ├── tsconfig.app.json # アプリケーション用TS設定
+│       ├── tsconfig.node.json# Node.js用TS設定
+│       ├── vite.config.ts    # Vite設定
+│       ├── eslint.config.js  # ESLint設定
+│       └── index.html        # HTMLテンプレート
+├── tests/                    # テスト（Python）
+├── prompts/                  # プロンプトテンプレート
+├── z/                        # 一時ファイル
+├── CLAUDE.md                 # AI開発ガイドライン（このファイル）
+├── README.md                 # プロジェクトREADME
+├── .gitignore               # Git除外設定
+├── .pre-commit-config.yaml  # pre-commit設定
+├── pyproject.toml           # Python設定
+└── uv.lock                  # UV依存関係ロック
+```
+
+## 起動方法
+
+### 1. 前提条件
+- Node.js 18.x以上
+- npm
+
+### 2. フロントエンド起動
+```bash
+# フロントエンドディレクトリに移動
+cd src/frontend
+
+# 依存関係インストール（初回のみ）
+npm install
+
+# 開発サーバー起動
+npm run dev
+```
+
+ブラウザで `http://localhost:5173` にアクセス
+
+### 3. その他のコマンド
+```bash
+# ビルド
+npm run build
+
+# プレビュー
+npm run preview
+
+# ESLintチェック
+npm run lint
+```
+
+## 開発状況
+
+### ✅ 完了済み
+- [x] プロジェクト初期セットアップ
+- [x] Vite + React + TypeScript環境構築
+- [x] Mantine UIライブラリ導入
+- [x] 基本設定・動作確認
+
+### 🚧 実装予定
+- [ ] 基本レイアウト構築（AppShell）
+- [ ] チャンネル一覧実装
+- [ ] メッセージ入力欄実装
+- [ ] メッセージ表示機能
+- [ ] メッセージ送信・自動返信機能
+- [ ] 最終調整とスタイリング
+
+## デザイン仕様
+
+- **レイアウト**: 左サイドバー（280px）+ メインエリア
+- **カラーテーマ**: ダークモード対応（Mantineデフォルト）
+- **アクセントカラー**: blue/violet系
+- **フォント**: システムフォント（-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP'）
+- **最小幅**: 1024px（PC版優先）
+
+## Frontend固有のルール
+
+1. **フレームワーク・ライブラリ**
+   - パッケージ管理: npm（frontendディレクトリ内）
+   - インストール: `npm install package`
+   - 起動: `npm run dev`
+
+2. **コンポーネント設計**
+   - 関数コンポーネント + TypeScript
+   - props型定義は必須
+   - Mantineコンポーネントを優先使用
+
+3. **状態管理**
+   - 初期段階はReact useState
+   - 将来的にContext API追加予定
+
+4. **スタイリング**
+   - Mantineテーマシステム使用
+   - グローバルCSS最小限
+   - CSS-in-JSアプローチ
+
 # 開発ガイドライン
 
 このドキュメントには、このコードベースでの作業に関する重要な情報が含まれています。これらのガイドラインに正確に従ってください。
