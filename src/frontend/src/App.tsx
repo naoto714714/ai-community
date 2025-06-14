@@ -1,34 +1,22 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Container, Title, Text, Stack } from '@mantine/core'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <Container size="sm" py="xl">
+      <Stack align="center" gap="lg">
+        <Title order={1} ta="center">
+          AI Community
+        </Title>
+        <Text size="lg" ta="center" c="dimmed">
+          モダンでカジュアルなリアルタイムチャットアプリケーション
+        </Text>
+        <Text ta="center">
+          現在、ステップ1（初期セットアップ）が完了しました。
+          <br />
+          次のステップでチャットアプリの機能を実装していきます。
+        </Text>
+      </Stack>
+    </Container>
   )
 }
 
