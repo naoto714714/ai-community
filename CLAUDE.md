@@ -44,27 +44,6 @@ ai-community/
 ├── src/
 │   ├── backend/              # バックエンド（将来実装予定）
 │   └── frontend/             # フロントエンド
-│       ├── public/           # 静的ファイル
-│       │   └── vite.svg
-│       ├── src/              # ソースコード
-│       │   ├── assets/       # アセット
-│       │   │   └── react.svg
-│       │   ├── components/   # Reactコンポーネント（将来追加）
-│       │   ├── types/        # TypeScript型定義（将来追加）
-│       │   ├── data/         # 初期データ（将来追加）
-│       │   ├── App.tsx       # メインアプリケーション
-│       │   ├── App.css       # アプリケーションCSS
-│       │   ├── main.tsx      # エントリーポイント
-│       │   ├── index.css     # グローバルCSS
-│       │   └── vite-env.d.ts # Vite型定義
-│       ├── package.json      # 依存関係
-│       ├── package-lock.json # ロックファイル
-│       ├── tsconfig.json     # TypeScript設定
-│       ├── tsconfig.app.json # アプリケーション用TS設定
-│       ├── tsconfig.node.json# Node.js用TS設定
-│       ├── vite.config.ts    # Vite設定
-│       ├── eslint.config.js  # ESLint設定
-│       └── index.html        # HTMLテンプレート
 ├── tests/                    # テスト（Python）
 ├── prompts/                  # プロンプトテンプレート
 ├── z/                        # 一時ファイル
