@@ -45,6 +45,20 @@ export function Layout() {
       };
 
       setMessages((prev) => [...prev, userMessage]);
+
+      // 1秒後にbotが返信
+      setTimeout(() => {
+        const botMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          channelId: activeChannelId,
+          userId: 'bot',
+          userName: 'bot',
+          content: 'こんにちは',
+          timestamp: new Date(),
+          isOwnMessage: false,
+        };
+        setMessages((prev) => [...prev, botMessage]);
+      }, 1000);
     },
     [activeChannelId],
   );
