@@ -4,9 +4,10 @@ from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
+import crud
 from database import SessionLocal, engine, get_db
 from models import Base, Channel, Message
-from schemas import ChannelResponse, MessagesListResponse
+from schemas import ChannelResponse, MessageResponse, MessagesListResponse
 
 # 初期チャンネルデータ
 INITIAL_CHANNELS = [
@@ -66,8 +67,7 @@ async def root():
 @app.get("/api/channels", response_model=list[ChannelResponse])
 async def get_channels(db: Session = Depends(get_db)):  # noqa: B008
     """チャンネル一覧取得"""
-    channels = db.query(Channel).all()
-    return channels
+    return crud.get_channels(db)
 
 
 @app.get("/api/channels/{channel_id}/messages", response_model=MessagesListResponse)
@@ -84,14 +84,8 @@ async def get_channel_messages(
         raise HTTPException(status_code=404, detail="Channel not found")
 
     # メッセージ取得
-    messages = (
-        db.query(Message)
-        .filter(Message.channel_id == channel_id)
-        .order_by(Message.created_at.asc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    message_models = crud.get_channel_messages(db, channel_id, offset, limit)
+    messages = [MessageResponse.model_validate(msg) for msg in message_models]
 
     # 総数取得
     total = db.query(Message).filter(Message.channel_id == channel_id).count()
