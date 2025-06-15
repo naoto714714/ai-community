@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class MessageBase(BaseModel):
@@ -18,10 +18,9 @@ class MessageCreate(MessageBase):
 
 
 class MessageResponse(MessageBase):
-    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    created_at: datetime
 
 
 class ChannelBase(BaseModel):
@@ -30,10 +29,9 @@ class ChannelBase(BaseModel):
 
 
 class ChannelResponse(ChannelBase):
-    created_at: datetime
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        from_attributes = True
+    created_at: datetime
 
 
 class MessagesListResponse(BaseModel):
