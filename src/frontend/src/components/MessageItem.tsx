@@ -1,6 +1,6 @@
 import { Box, Text, Group } from '@mantine/core';
 import dayjs from 'dayjs';
-import { Message } from '../types/chat';
+import type { Message } from '../types/chat';
 
 interface MessageItemProps {
   message: Message;

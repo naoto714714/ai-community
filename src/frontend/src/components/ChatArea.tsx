@@ -1,7 +1,7 @@
 import { Stack } from '@mantine/core';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
-import { Message } from '../types/chat';
+import type { Message } from '../types/chat';
 
 interface ChatAreaProps {
   channelId: string;

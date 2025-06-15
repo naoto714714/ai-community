@@ -1,5 +1,5 @@
 import { ScrollArea, Text } from '@mantine/core';
-import { Message } from '../types/chat';
+import type { Message } from '../types/chat';
 import { MessageItem } from './MessageItem';
 import { useEffect, useRef } from 'react';
 

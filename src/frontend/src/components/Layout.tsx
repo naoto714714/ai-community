@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
-import { Message } from '../types/chat';
+import type { Message } from '../types/chat';
 
 export function Layout() {
   const [activeChannelId, setActiveChannelId] = useState(
