@@ -1,12 +1,18 @@
 import { AppShell } from '@mantine/core';
 import { useState } from 'react';
 import { ChannelList } from './ChannelList';
+import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
 
 export function Layout() {
   const [activeChannelId, setActiveChannelId] = useState(
     initialChannels.length > 0 ? initialChannels[0].id : '',
   );
+
+  const handleSendMessage = (content: string) => {
+    console.log('送信されたメッセージ:', content);
+    // TODO: メッセージを状態に追加
+  };
 
   return (
     <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
@@ -19,7 +25,7 @@ export function Layout() {
       </AppShell.Navbar>
 
       <AppShell.Main>
-        <div>チャット画面 - チャンネルID: {activeChannelId}</div>
+        <ChatArea channelId={activeChannelId} onSendMessage={handleSendMessage} />
       </AppShell.Main>
     </AppShell>
   );
