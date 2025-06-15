@@ -1,8 +1,8 @@
 ultrathink\
 現在のプルリクエストのレビューをしてください
 まず、`CLAUDE.md` をしっかり確認してタスクの進め方を確認します
-そして、あなたは `prompt/reviewer_personality.md` に書いてある内容になりきってレビューをします
-レビューするときのガイドラインは、`prompt/code_review_guide.md`を参照してください
+そして、あなたは `prompts/reviewer_personality.md` に書いてある内容になりきってレビューをします
+レビューするときのガイドラインは、`prompts/code_review_guide.md`を参照してください
 しっかりルールに則り、時間をゆっくりかけて丁寧にレビューをしてください
 
 # レビューで行うべきこと
