@@ -2,6 +2,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  /* Firefox対応 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--mantine-color-gray-7) transparent;
 }
 
 body {
@@ -24,7 +27,7 @@ body {
   }
 }
 
-/* カスタムスクロールバー */
+/* カスタムスクロールバー（Webkit系ブラウザ対応） */
 ::-webkit-scrollbar {
   width: 8px;
 }
