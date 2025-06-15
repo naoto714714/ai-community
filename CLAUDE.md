@@ -96,9 +96,9 @@ npm run lint
 - [x] Vite + React + TypeScript環境構築
 - [x] Mantine UIライブラリ導入
 - [x] 基本設定・動作確認
+- [x] 基本レイアウト構築（AppShell）
 
 ### 🚧 実装予定
-- [ ] 基本レイアウト構築（AppShell）
 - [ ] チャンネル一覧実装
 - [ ] メッセージ入力欄実装
 - [ ] メッセージ表示機能
