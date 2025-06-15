@@ -84,8 +84,8 @@ async def get_channel_messages(
         raise HTTPException(status_code=404, detail="Channel not found")
 
     # メッセージ取得
-    db_messages = crud.get_channel_messages(db, channel_id, offset, limit)
-    messages = [MessageResponse.model_validate(msg) for msg in db_messages]
+    message_models = crud.get_channel_messages(db, channel_id, offset, limit)
+    messages = [MessageResponse.model_validate(msg) for msg in message_models]
 
     # 総数取得
     total = db.query(Message).filter(Message.channel_id == channel_id).count()

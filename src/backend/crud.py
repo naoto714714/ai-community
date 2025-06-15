@@ -5,26 +5,33 @@ from schemas import MessageCreate
 
 
 def create_message(db: Session, message: MessageCreate) -> Message:
-    """Create a new message"""
-    timestamp = message.timestamp
-
+    """メッセージを作成"""
     db_message = Message(
         id=message.id,
         channel_id=message.channel_id,
         user_id=message.user_id,
         user_name=message.user_name,
         content=message.content,
-        timestamp=timestamp,
+        timestamp=message.timestamp,
         is_own_message=message.is_own_message,
     )
-    db.add(db_message)
-    db.commit()
-    db.refresh(db_message)
-    return db_message
+    try:
+        db.add(db_message)
+        db.commit()
+        db.refresh(db_message)
+        return db_message
+    except Exception:
+        db.rollback()
+        raise
 
 
-def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int = 100):
-    """Get messages for a specific channel"""
+def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int = 100) -> list[Message]:
+    """チャンネルの メッセージを取得"""
+    if skip < 0:
+        raise ValueError("skip parameter must be non-negative")
+    if limit <= 0:
+        raise ValueError("limit parameter must be positive")
+
     return (
         db.query(Message)
         .filter(Message.channel_id == channel_id)
@@ -35,6 +42,6 @@ def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int
     )
 
 
-def get_channels(db: Session):
-    """Get all channels"""
+def get_channels(db: Session) -> list[Channel]:
+    """全チャンネルを取得"""
     return db.query(Channel).all()
