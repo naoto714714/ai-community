@@ -1,6 +1,7 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-from sqlalchemy import Boolean, Column, DateTime, String, Text
+from sqlalchemy import String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
 
@@ -8,19 +9,19 @@ from database import Base
 class Channel(Base):
     __tablename__ = "channels"
 
-    id = Column(String, primary_key=True)
-    name = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    name: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
 
 
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(String, primary_key=True)
-    channel_id = Column(String, nullable=False, index=True)
-    user_id = Column(String, nullable=False)
-    user_name = Column(String, nullable=False)
-    content = Column(Text, nullable=False)
-    timestamp = Column(DateTime, nullable=False)
-    is_own_message = Column(Boolean, default=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    channel_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
+    user_id: Mapped[str] = mapped_column(String, nullable=False)
+    user_name: Mapped[str] = mapped_column(String, nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    timestamp: Mapped[datetime] = mapped_column(nullable=False)
+    is_own_message: Mapped[bool] = mapped_column(default=False)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
