@@ -39,7 +39,7 @@ repos:
       - id: pyright
         name: pyright
         entry: uv run pyright
-        args: [src]
+        args: [src/backend]
         language: system
         types: [python]
         pass_filenames: false
