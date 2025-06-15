@@ -2,6 +2,11 @@
 z/*
 !z/.gitkeep
 
+# バックエンド関連
+src/backend/chat.db
+src/backend/*.sqlite
+src/backend/*.sqlite3
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
