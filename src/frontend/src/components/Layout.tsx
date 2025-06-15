@@ -1,5 +1,5 @@
 import { AppShell } from '@mantine/core';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
@@ -10,6 +10,11 @@ export function Layout() {
     initialChannels.length > 0 ? initialChannels[0].id : '',
   );
   const [messages, setMessages] = useState<Message[]>([]);
+
+  const currentChannel = useMemo(
+    () => initialChannels.find((ch) => ch.id === activeChannelId),
+    [activeChannelId],
+  );
 
   const handleSendMessage = useCallback(
     (content: string) => {
@@ -56,6 +61,7 @@ export function Layout() {
       <AppShell.Main>
         <ChatArea
           channelId={activeChannelId}
+          currentChannel={currentChannel}
           messages={messages}
           onSendMessage={handleSendMessage}
         />
