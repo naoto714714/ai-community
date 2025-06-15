@@ -5,11 +5,23 @@ repos:
     rev: v3.1.0
     hooks:
       - id: prettier
-        types_or: [yaml, json5]
+        files: ^(.*\.(ya?ml|json5?)|src/frontend/.*\.(ts|tsx|js|jsx|css|md))$
         exclude: "node_modules/.*"
+        additional_dependencies:
+          - prettier@3.5.3
 
   - repo: local
     hooks:
+      # Frontend Code Quality
+      - id: eslint
+        name: ESLint
+        entry: bash -c 'cd src/frontend && npm run lint:fix'
+        language: system
+        files: ^src/frontend/src/.*\.(ts|tsx|js|jsx)$
+        pass_filenames: false
+        stages: [pre-commit]
+
+      # Python Code Quality
       - id: ruff-format
         name: Ruff Format
         entry: uv run ruff
