@@ -1,5 +1,5 @@
 import { AppShell } from '@mantine/core';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
@@ -31,15 +31,18 @@ export function Layout() {
     },
   ]);
 
-  const handleSendMessage = (content: string) => {
-    console.log('送信されたメッセージ:', content);
-    // TODO: メッセージを状態に追加（ステップ6で実装予定）
-    // 以下のようにsetMessagesを使用予定:
-    // setMessages(prev => [...prev, newMessage]);
+  const handleSendMessage = useCallback(
+    (content: string) => {
+      console.log('送信されたメッセージ:', content);
+      // TODO: メッセージを状態に追加（ステップ6で実装予定）
+      // 以下のようにsetMessagesを使用予定:
+      // setMessages(prev => [...prev, newMessage]);
 
-    // 一時的にsetMessagesを参照してESLintエラーを回避
-    void setMessages;
-  };
+      // 一時的にsetMessagesを参照してESLintエラーを回避
+      void setMessages;
+    },
+    [activeChannelId],
+  );
 
   return (
     <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
