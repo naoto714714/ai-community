@@ -10,7 +10,7 @@ def to_camel(string: str) -> str:
 
 
 class MessageBase(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     id: str
     channel_id: str
@@ -26,26 +26,30 @@ class MessageCreate(MessageBase):
 
 
 class MessageResponse(MessageBase):
-    model_config = ConfigDict(from_attributes=True, alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(
+        from_attributes=True, alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
+    )
 
     created_at: datetime
 
 
 class ChannelBase(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     id: str
     name: str
 
 
 class ChannelResponse(ChannelBase):
-    model_config = ConfigDict(from_attributes=True, alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(
+        from_attributes=True, alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
+    )
 
     created_at: datetime
 
 
 class MessagesListResponse(BaseModel):
-    model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
+    model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     messages: list[MessageResponse]
     total: int
