@@ -22,9 +22,9 @@ export function ChannelList({ channels, activeChannelId, onChannelSelect }: Chan
           label={channel.name}
           leftSection={<IconHash size='1.2rem' />}
           onClick={() => onChannelSelect(channel.id)}
-          styles={{
-            root: { borderRadius: '8px' },
-          }}
+          styles={(theme) => ({
+            root: { borderRadius: theme.radius.sm },
+          })}
         />
       ))}
     </Stack>
