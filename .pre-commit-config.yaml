@@ -21,31 +21,28 @@ repos:
         pass_filenames: false
         stages: [pre-commit]
 
-      # Python Code Quality
-      - id: ruff-format
-        name: Ruff Format
-        entry: uv run ruff
-        args: [format]
+      # Python Code Quality (Backend)
+      - id: ruff-format-backend
+        name: Ruff Format (Backend)
+        entry: bash -c 'cd src/backend && uv run ruff format'
         language: system
-        types: [python]
+        files: ^src/backend/.*\.py$
         pass_filenames: false
-      - id: ruff
-        name: Ruff
-        entry: uv run ruff
-        args: ["check", "--fix", "--exit-non-zero-on-fix"]
-        types: [python]
+      - id: ruff-backend
+        name: Ruff (Backend)
+        entry: bash -c 'cd src/backend && uv run ruff check --fix --exit-non-zero-on-fix'
+        files: ^src/backend/.*\.py$
         language: system
         pass_filenames: false
-      - id: pyright
-        name: pyright
-        entry: uv run pyright
-        args: [src/backend]
+      - id: pyright-backend
+        name: pyright (Backend)
+        entry: bash -c 'cd src/backend && uv run pyright .'
         language: system
-        types: [python]
+        files: ^src/backend/.*\.py$
         pass_filenames: false
-      - id: uv-lock-check
-        name: Check uv.lock is up to date
-        entry: uv lock --check
+      - id: uv-lock-check-backend
+        name: Check backend uv.lock is up to date
+        entry: bash -c 'cd src/backend && uv lock --check'
         language: system
-        files: ^(pyproject\.toml|uv\.lock)$
+        files: ^src/backend/(pyproject\.toml|uv\.lock)$
         pass_filenames: false
