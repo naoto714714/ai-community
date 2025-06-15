@@ -9,27 +9,7 @@ export function Layout() {
   const [activeChannelId, setActiveChannelId] = useState(
     initialChannels.length > 0 ? initialChannels[0].id : '',
   );
-  const [messages, setMessages] = useState<Message[]>([
-    // テスト用のダミーメッセージ
-    {
-      id: '1',
-      channelId: '1',
-      userId: 'user1',
-      userName: 'ユーザー',
-      content: 'こんにちは！',
-      timestamp: new Date(Date.now() - 60000),
-      isOwnMessage: true,
-    },
-    {
-      id: '2',
-      channelId: '1',
-      userId: 'bot',
-      userName: 'bot',
-      content: 'こんにちは',
-      timestamp: new Date(Date.now() - 30000),
-      isOwnMessage: false,
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const handleSendMessage = useCallback(
     (content: string) => {
