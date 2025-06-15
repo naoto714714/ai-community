@@ -1,4 +1,4 @@
-import { Channel } from '../types/chat';
+import type { Channel } from '../types/chat';
 
 export const initialChannels: Channel[] = [
   { id: '1', name: '雑談' },

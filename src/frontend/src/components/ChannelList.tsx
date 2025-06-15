@@ -1,6 +1,6 @@
 import { Stack, NavLink } from '@mantine/core';
 import { IconHash } from '@tabler/icons-react';
-import { Channel } from '../types/chat';
+import type { Channel } from '../types/chat';
 
 interface ChannelListProps {
   channels: Channel[];
