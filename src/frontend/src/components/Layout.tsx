@@ -4,7 +4,9 @@ import { ChannelList } from './ChannelList';
 import { initialChannels } from '../data/channels';
 
 export function Layout() {
-  const [activeChannelId, setActiveChannelId] = useState(initialChannels[0].id);
+  const [activeChannelId, setActiveChannelId] = useState(
+    initialChannels.length > 0 ? initialChannels[0].id : '',
+  );
 
   return (
     <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
