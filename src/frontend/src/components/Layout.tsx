@@ -33,13 +33,18 @@ export function Layout() {
 
   const handleSendMessage = useCallback(
     (content: string) => {
-      console.log('送信されたメッセージ:', content);
-      // TODO: メッセージを状態に追加（ステップ6で実装予定）
-      // 以下のようにsetMessagesを使用予定:
-      // setMessages(prev => [...prev, newMessage]);
+      // ユーザーのメッセージを追加
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        channelId: activeChannelId,
+        userId: 'user',
+        userName: 'ユーザー',
+        content,
+        timestamp: new Date(),
+        isOwnMessage: true,
+      };
 
-      // 一時的にsetMessagesを参照してESLintエラーを回避
-      void setMessages;
+      setMessages((prev) => [...prev, userMessage]);
     },
     [activeChannelId],
   );
