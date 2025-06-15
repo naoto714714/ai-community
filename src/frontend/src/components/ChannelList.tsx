@@ -1,4 +1,4 @@
-import { Stack, NavLink } from '@mantine/core';
+import { Stack, NavLink, Title } from '@mantine/core';
 import { IconHash } from '@tabler/icons-react';
 import type { Channel } from '../types/chat';
 
@@ -11,7 +11,9 @@ interface ChannelListProps {
 export function ChannelList({ channels, activeChannelId, onChannelSelect }: ChannelListProps) {
   return (
     <Stack gap='xs'>
-      <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>チャンネル</h2>
+      <Title order={3} mb='md'>
+        チャンネル
+      </Title>
       {channels.map((channel) => (
         <NavLink
           key={channel.id}
