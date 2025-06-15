@@ -2,8 +2,8 @@ import { AppShell } from '@mantine/core';
 
 export function Layout() {
   return (
-    <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding="md">
-      <AppShell.Navbar p="md">
+    <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
+      <AppShell.Navbar p='md'>
         {/* チャンネル一覧がここに入る */}
         <div>チャンネル一覧</div>
       </AppShell.Navbar>

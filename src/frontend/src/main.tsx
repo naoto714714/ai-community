@@ -7,8 +7,8 @@ import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MantineProvider defaultColorScheme="dark">
+    <MantineProvider defaultColorScheme='dark'>
       <App />
     </MantineProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );
