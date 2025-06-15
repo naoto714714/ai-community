@@ -1,6 +1,6 @@
 import { AppShell } from '@mantine/core';
 
-export function Layout() {
+export function Layout(): JSX.Element {
   return (
     <AppShell
       navbar={{ width: 280, breakpoint: 'sm' }}
