@@ -19,34 +19,51 @@ export function Layout() {
 
   // WebSocket接続の初期化
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8000/ws');
-    wsRef.current = ws;
+    // バックエンドの起動を待ってからWebSocket接続
+    const connectWebSocket = async () => {
+      try {
+        // バックエンドの動作確認
+        await fetch('http://localhost:8000/');
+        console.log('Backend is ready, connecting WebSocket...');
 
-    ws.onopen = () => {
-      console.log('WebSocket connected');
-    };
+        const ws = new WebSocket('ws://localhost:8000/ws');
+        wsRef.current = ws;
 
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      console.log('WebSocket message received:', data);
+        ws.onopen = () => {
+          console.log('WebSocket connected');
+        };
 
-      if (data.type === 'message:saved') {
-        console.log('Message saved confirmation:', data.data);
-      } else if (data.type === 'message:error') {
-        console.error('Message save error:', data.data);
+        ws.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log('WebSocket message received:', data);
+
+          if (data.type === 'message:saved') {
+            console.log('Message saved confirmation:', data.data);
+          } else if (data.type === 'message:error') {
+            console.error('Message save error:', data.data);
+          }
+        };
+
+        ws.onclose = () => {
+          console.log('WebSocket disconnected');
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error:', error);
+        };
+      } catch (error) {
+        console.error('Failed to connect to backend:', error);
+        // 3秒後に再試行
+        setTimeout(connectWebSocket, 3000);
       }
     };
 
-    ws.onclose = () => {
-      console.log('WebSocket disconnected');
-    };
-
-    ws.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+    connectWebSocket();
 
     return () => {
-      ws.close();
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
     };
   }, []);
 
@@ -57,26 +74,31 @@ export function Layout() {
         .then((res) => res.json())
         .then((data) => {
           console.log('Loaded messages:', data);
+          console.log('Messages array length:', data.messages?.length || 0);
+          console.log('First message:', data.messages?.[0]);
           // バックエンドから取得したメッセージを適合させる
+          // PydanticスキーマでcamelCaseに変換されているため、camelCaseで参照
           const adaptedMessages: Message[] = data.messages.map(
             (msg: {
               id: string;
-              channel_id: string;
-              user_id: string;
-              user_name: string;
+              channelId: string;
+              userId: string;
+              userName: string;
               content: string;
               timestamp: string;
-              is_own_message: boolean;
+              isOwnMessage: boolean;
             }) => ({
               id: msg.id,
-              channelId: msg.channel_id,
-              userId: msg.user_id,
-              userName: msg.user_name,
+              channelId: msg.channelId,
+              userId: msg.userId,
+              userName: msg.userName,
               content: msg.content,
               timestamp: new Date(msg.timestamp),
-              isOwnMessage: msg.is_own_message,
+              isOwnMessage: msg.isOwnMessage,
             }),
           );
+          console.log('Adapted messages:', adaptedMessages);
+          console.log('Setting messages state with', adaptedMessages.length, 'messages');
           setMessages(adaptedMessages);
         })
         .catch((err) => console.error('Error loading messages:', err));
