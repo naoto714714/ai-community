@@ -33,7 +33,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   };
 
   return (
-    <Group gap='sm' style={{ padding: '1rem 1rem 1.5rem 1rem' }}>
+    <Group gap='sm' style={{ padding: '1.5rem 1.5rem 3rem 1.5rem' }}>
       <TextInput
         placeholder='メッセージを入力...'
         value={message}
