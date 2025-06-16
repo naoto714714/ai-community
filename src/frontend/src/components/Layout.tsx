@@ -1,16 +1,21 @@
-import { AppShell } from '@mantine/core';
+import { AppShell, Burger } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { nanoid } from 'nanoid';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
 import type { Message } from '../types/chat';
 
 export function Layout() {
+  const [opened, { toggle, close }] = useDisclosure();
   const [activeChannelId, setActiveChannelId] = useState(
     initialChannels.length > 0 ? initialChannels[0].id : '',
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
+  const retryCountRef = useRef(0);
 
   const currentChannel = useMemo(
     () => initialChannels.find((ch) => ch.id === activeChannelId),
@@ -19,33 +24,50 @@ export function Layout() {
 
   // WebSocket接続の初期化
   useEffect(() => {
+    const MAX_RETRY_COUNT = 5;
+    const RETRY_DELAY = 3000;
+
     // バックエンドの起動を待ってからWebSocket接続
     const connectWebSocket = async () => {
       try {
         // バックエンドの動作確認
         await fetch('http://localhost:8000/');
-        console.log('Backend is ready, connecting WebSocket...');
 
         const ws = new WebSocket('ws://localhost:8000/ws');
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log('WebSocket connected');
+          // 接続成功時は再試行カウントをリセット
+          retryCountRef.current = 0;
         };
 
         ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
+          try {
+            const data = JSON.parse(event.data);
 
-          if (data.type === 'message:saved') {
-            console.log('Message saved confirmation:', data.data);
-          } else if (data.type === 'message:error') {
-            console.error('Message save error:', data.data);
+            if (data.type === 'message:saved') {
+              // メッセージ保存成功 - 特に処理不要（楽観的更新のため）
+            } else if (data.type === 'message:error') {
+              console.error('Message save error:', data.data);
+              // 送信失敗時のロールバック処理
+              if (data.data?.id) {
+                setMessages((prev) => prev.filter((msg) => msg.id !== data.data.id));
+              }
+            }
+          } catch (error) {
+            console.error('Failed to parse WebSocket message:', error, 'Raw data:', event.data);
           }
         };
 
-        ws.onclose = () => {
-          console.log('WebSocket disconnected');
+        ws.onclose = (event) => {
+          // 接続が予期せず閉じられた場合の再接続処理
+          if (!event.wasClean && retryCountRef.current < MAX_RETRY_COUNT) {
+            console.log(
+              `WebSocket disconnected unexpectedly. Retry ${retryCountRef.current + 1}/${MAX_RETRY_COUNT}`,
+            );
+            retryCountRef.current += 1;
+            retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
+          }
         };
 
         ws.onerror = (error) => {
@@ -53,16 +75,26 @@ export function Layout() {
         };
       } catch (error) {
         console.error('Failed to connect to backend:', error);
-        // 3秒後に再試行
-        setTimeout(connectWebSocket, 3000);
+
+        // 最大再試行回数に達していない場合のみ再試行
+        if (retryCountRef.current < MAX_RETRY_COUNT) {
+          retryCountRef.current += 1;
+          retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
+        } else {
+          console.error('Max retry count reached. WebSocket connection failed.');
+        }
       }
     };
 
     connectWebSocket();
 
     return () => {
+      // クリーンアップ
       if (wsRef.current) {
         wsRef.current.close();
+      }
+      if (retryTimeoutRef.current) {
+        window.clearTimeout(retryTimeoutRef.current);
       }
     };
   }, []);
@@ -73,9 +105,6 @@ export function Layout() {
       fetch(`http://localhost:8000/api/channels/${activeChannelId}/messages`)
         .then((res) => res.json())
         .then((data) => {
-          console.log('Loaded messages:', data);
-          console.log('Messages array length:', data.messages?.length || 0);
-          console.log('First message:', data.messages?.[0]);
           // バックエンドから取得したメッセージを適合させる
           // PydanticスキーマでcamelCaseに変換されているため、camelCaseで参照
           const adaptedMessages: Message[] = data.messages.map(
@@ -97,18 +126,27 @@ export function Layout() {
               isOwnMessage: msg.isOwnMessage,
             }),
           );
-          console.log('Adapted messages:', adaptedMessages);
-          console.log('Setting messages state with', adaptedMessages.length, 'messages');
           setMessages(adaptedMessages);
         })
         .catch((err) => console.error('Error loading messages:', err));
     }
   }, [activeChannelId]);
 
+  const handleChannelSelect = useCallback(
+    (channelId: string) => {
+      setActiveChannelId(channelId);
+      close(); // モバイル時にナビゲーションを閉じる
+    },
+    [close],
+  );
+
   const handleSendMessage = useCallback(
     (content: string) => {
+      // nanoidを使用してより安全で標準的なID生成
+      const messageId = nanoid();
+
       const userMessage: Message = {
-        id: Date.now().toString(),
+        id: messageId,
         channelId: activeChannelId,
         userId: 'user',
         userName: 'ユーザー',
@@ -117,7 +155,7 @@ export function Layout() {
         isOwnMessage: true,
       };
 
-      // ローカルステートを即座に更新
+      // ローカルステートを即座に更新（楽観的更新）
       setMessages((prev) => [...prev, userMessage]);
 
       // WebSocketでバックエンドに送信
@@ -135,19 +173,41 @@ export function Layout() {
           },
         };
 
-        wsRef.current.send(JSON.stringify(wsMessage));
+        try {
+          wsRef.current.send(JSON.stringify(wsMessage));
+        } catch (error) {
+          console.error('Failed to send message via WebSocket:', error);
+          // 送信失敗時のロールバック
+          setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
+        }
+      } else {
+        console.error('WebSocket is not connected');
+        // WebSocket未接続時のロールバック
+        setMessages((prev) => prev.filter((msg) => msg.id !== userMessage.id));
       }
     },
     [activeChannelId],
   );
 
   return (
-    <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
+    <AppShell
+      navbar={{
+        width: 280,
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
+      header={{ height: { base: 50, md: 0 } }}
+      padding='md'
+    >
+      <AppShell.Header p='sm' hiddenFrom='md'>
+        <Burger opened={opened} onClick={toggle} size='sm' />
+      </AppShell.Header>
+
       <AppShell.Navbar p='md'>
         <ChannelList
           channels={initialChannels}
           activeChannelId={activeChannelId}
-          onChannelSelect={setActiveChannelId}
+          onChannelSelect={handleChannelSelect}
         />
       </AppShell.Navbar>
 

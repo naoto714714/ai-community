@@ -8,20 +8,36 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    // 新しいメッセージが追加されたら自動スクロール
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({
-        top: scrollAreaRef.current.scrollHeight,
+  const scrollToBottom = () => {
+    if (viewport.current) {
+      viewport.current.scrollTo({
+        top: viewport.current.scrollHeight,
         behavior: 'smooth',
       });
     }
+  };
+
+  useEffect(() => {
+    // 既存のタイマーをクリア
+    if (scrollTimerRef.current) {
+      window.clearTimeout(scrollTimerRef.current);
+    }
+
+    // メッセージが変更されたら少し遅延してスクロール
+    scrollTimerRef.current = window.setTimeout(scrollToBottom, 100);
+
+    return () => {
+      if (scrollTimerRef.current) {
+        window.clearTimeout(scrollTimerRef.current);
+      }
+    };
   }, [messages]);
 
   return (
-    <ScrollArea h='100%' viewportRef={scrollAreaRef}>
+    <ScrollArea h='100%' viewportRef={viewport}>
       <div style={{ padding: '1rem' }}>
         {messages.length === 0 ? (
           <Text ta='center' c='dimmed'>
