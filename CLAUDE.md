@@ -20,50 +20,82 @@
 ## プロジェクト概要
 
 **AI Community** は、モダンでカジュアルなデザインのリアルタイムチャットアプリケーションです。
-React + TypeScript + Mantineを使用したフロントエンドプロトタイプの開発プロジェクトで、
-段階的な開発手順に従って機能を追加していく方式で進めています。
+フロントエンド（React + TypeScript + Mantine）とバックエンド（FastAPI + SQLAlchemy + WebSocket）の
+フルスタック構成で実装されており、リアルタイム通信とメッセージ永続化を実現しています。
 
 ### 主要機能
 - 複数チャンネルでのチャット機能
-- リアルタイムメッセージ送受信（フロントエンドのみ）
+- リアルタイムメッセージ送受信（WebSocket）
+- メッセージの永続化（SQLite）
 - レスポンシブデザイン（PC版優先）
 - ダークモード対応
-- 自動返信機能（デバッグ用）
 
 ### 技術スタック
 - **Frontend**: React 18.x + TypeScript 5.x + Mantine 7.x + Vite
+- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite
 - **Icons**: Tabler Icons
 - **Date**: dayjs
-- **Development**: ESLint + Prettier + pre-commit
+- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright
 
 ## プロジェクト構成
 
 ```
 ai-community/
 ├── docs/                      # ドキュメント
-│   ├── chat-app-spec.md      # 仕様書
-│   └── chat-app-guide.md     # 実装手順書
+│   ├── chat-app-spec.md      # フロントエンド仕様書
+│   ├── backend-implementation-guide.md  # バックエンド実装手順書
+│   ├── simple-backend-spec.md           # バックエンド仕様書
+│   ├── frontend-guideline.md           # フロントエンド開発ガイドライン
+│   └── backend-guideline.md            # バックエンド開発ガイドライン
 ├── src/
-│   ├── backend/              # バックエンド（将来実装予定）
-│   └── frontend/             # フロントエンド
-├── tests/                    # テスト（Python）
-├── prompts/                  # プロンプトテンプレート
-├── z/                        # 一時ファイル
-├── CLAUDE.md                 # AI開発ガイドライン（このファイル）
-├── README.md                 # プロジェクトREADME
-├── .gitignore               # Git除外設定
-├── .pre-commit-config.yaml  # pre-commit設定
-├── pyproject.toml           # Python設定
-└── uv.lock                  # UV依存関係ロック
+│   ├── backend/              # バックエンド（FastAPI + SQLite）
+│   │   ├── main.py          # FastAPIアプリケーション
+│   │   ├── models.py        # SQLAlchemyモデル
+│   │   ├── database.py      # データベース設定
+│   │   ├── schemas.py       # Pydanticスキーマ
+│   │   ├── websocket.py     # WebSocket処理
+│   │   ├── crud.py          # データベース操作
+│   │   └── chat.db          # SQLiteデータベース
+│   └── frontend/            # フロントエンド（React + Mantine）
+│       ├── src/
+│       │   ├── components/  # Reactコンポーネント
+│       │   ├── types/       # TypeScript型定義
+│       │   └── data/        # 初期データ
+│       └── package.json     # NPM設定
+├── tests/                   # テスト（Python）
+├── prompts/                 # プロンプトテンプレート
+├── z/                       # 一時ファイル
+├── CLAUDE.md                # AI開発ガイドライン（このファイル）
+├── README.md                # プロジェクトREADME
+├── .gitignore              # Git除外設定
+├── .pre-commit-config.yaml # pre-commit設定
+├── pyproject.toml          # Python設定
+└── uv.lock                 # UV依存関系ロック
 ```
 
 ## 起動方法
 
 ### 1. 前提条件
 - Node.js 18.x以上
+- Python 3.13以上
 - npm
+- uv (Python package manager)
 
-### 2. フロントエンド起動
+### 2. バックエンド起動
+```bash
+# バックエンドディレクトリに移動
+cd src/backend
+
+# 依存関係インストール（初回のみ）
+uv sync
+
+# 開発サーバー起動
+uv run python main.py
+```
+
+バックエンドAPI: `http://localhost:8000`
+
+### 3. フロントエンド起動（別ターミナル）
 ```bash
 # フロントエンドディレクトリに移動
 cd src/frontend
@@ -75,35 +107,54 @@ npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5173` にアクセス
+フロントエンド: `http://localhost:5173`
 
-### 3. その他のコマンド
+### 4. その他のコマンド
+
+#### フロントエンド
 ```bash
-# ビルド
-npm run build
+npm run build      # ビルド
+npm run preview    # プレビュー
+npm run lint       # ESLintチェック
+```
 
-# プレビュー
-npm run preview
-
-# ESLintチェック
-npm run lint
+#### バックエンド
+```bash
+uv run --frozen ruff format .    # コードフォーマット
+uv run --frozen ruff check .     # リントチェック
+uv run --frozen pyright          # 型チェック
 ```
 
 ## 開発状況
 
-### ✅ 完了済み
+### ✅ フロントエンド（完了済み）
 - [x] プロジェクト初期セットアップ
 - [x] Vite + React + TypeScript環境構築
 - [x] Mantine UIライブラリ導入
 - [x] 基本設定・動作確認
 - [x] 基本レイアウト構築（AppShell）
+- [x] チャンネル一覧実装
+- [x] メッセージ入力欄実装
+- [x] メッセージ表示機能
+- [x] WebSocket通信実装
+- [x] 最終調整とスタイリング
 
-### 🚧 実装予定
-- [ ] チャンネル一覧実装
-- [ ] メッセージ入力欄実装
-- [ ] メッセージ表示機能
-- [ ] メッセージ送信・自動返信機能
-- [ ] 最終調整とスタイリング
+### ✅ バックエンド（完了済み）
+- [x] FastAPI環境セットアップ
+- [x] SQLAlchemy + SQLiteデータベース構築
+- [x] データモデル設計（Channel, Message）
+- [x] REST API実装（チャンネル一覧、メッセージ履歴）
+- [x] WebSocket通信実装
+- [x] メッセージ永続化機能
+- [x] フロントエンドとの連携
+- [x] 総合テスト
+
+### 🚧 今後の拡張予定
+- [ ] ユーザー認証機能
+- [ ] メッセージ検索機能
+- [ ] ファイルアップロード機能
+- [ ] 絵文字リアクション機能
+- [ ] スマートフォン対応
 
 ## デザイン仕様
 
