@@ -93,6 +93,8 @@ def get_connection_manager() -> ConnectionManager:
 
 async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
     """WebSocketメッセージの処理"""
+    # 型安全性のためにWebSocketMessage型を想定しているが、
+    # 実行時は辞書として扱う（TypedDictは実行時は通常の辞書）
     message_type = data.get("type")
     message_data = data.get("data")
 
