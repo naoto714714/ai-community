@@ -122,10 +122,15 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
             logger.error(f"Error saving message: {str(e)}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）
+            # メッセージIDを安全に取得（None値の場合も考慮）
+            message_id = None
+            if message_data and isinstance(message_data, dict):
+                message_id = message_data.get("id")
+
             error_response = {
                 "type": "message:error",
                 "data": {
-                    "id": message_data.get("id") if message_data else None,
+                    "id": message_id,
                     "success": False,
                     "error": "Message save failed",  # 詳細なエラー情報を隠蔽
                 },
