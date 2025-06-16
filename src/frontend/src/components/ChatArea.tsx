@@ -22,7 +22,7 @@ export function ChatArea({ channelId, currentChannel, messages, onSendMessage }:
           <Title order={3}>{currentChannel?.name ?? 'チャンネルが見つかりません'}</Title>
         </Group>
       </Box>
-      <Box style={{ flex: 1, overflow: 'hidden', paddingBottom: '80px' }}>
+      <Box style={{ flex: 1, overflow: 'hidden', paddingBottom: '100px' }}>
         <MessageList messages={channelMessages} />
       </Box>
       <Box
