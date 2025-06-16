@@ -77,10 +77,14 @@ async def get_channels(db: Session = Depends(get_db)):  # noqa: B008
     return crud.get_channels(db)
 
 
+# デフォルト値の定数定義
+DEFAULT_MESSAGE_LIMIT = 100
+
+
 @app.get("/api/channels/{channel_id}/messages", response_model=MessagesListResponse)
 async def get_channel_messages(
     channel_id: str,
-    limit: int = 100,
+    limit: int = DEFAULT_MESSAGE_LIMIT,
     offset: int = 0,
     db: Session = Depends(get_db),  # noqa: B008
 ):
