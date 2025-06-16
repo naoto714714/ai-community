@@ -26,7 +26,7 @@ def create_message(db: Session, message: MessageCreate) -> Message:
 
 
 def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int = 100) -> list[Message]:
-    """チャンネルの メッセージを取得"""
+    """チャンネルのメッセージを取得"""
     if skip < 0:
         raise ValueError("skip parameter must be non-negative")
     if limit <= 0:
@@ -40,6 +40,11 @@ def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int
         .limit(limit)
         .all()
     )
+
+
+def get_channel_messages_count(db: Session, channel_id: str) -> int:
+    """チャンネルのメッセージ総数を取得"""
+    return db.query(Message).filter(Message.channel_id == channel_id).count()
 
 
 def get_channels(db: Session) -> list[Channel]:

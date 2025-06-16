@@ -1,13 +1,16 @@
+import json
+import logging
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
 import crud
 from database import SessionLocal, engine, get_db
-from models import Base, Channel, Message
+from models import Base, Channel
 from schemas import ChannelResponse, MessageResponse, MessagesListResponse
+from websocket import handle_websocket_message, manager
 
 # 初期チャンネルデータ
 INITIAL_CHANNELS = [
@@ -49,6 +52,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # CORS設定
 app.add_middleware(
     CORSMiddleware,
@@ -88,10 +95,29 @@ async def get_channel_messages(
     messages = [MessageResponse.model_validate(msg) for msg in message_models]
 
     # 総数取得
-    total = db.query(Message).filter(Message.channel_id == channel_id).count()
+    total = crud.get_channel_messages_count(db, channel_id)
     has_more = (offset + limit) < total
 
     return MessagesListResponse(messages=messages, total=total, has_more=has_more)
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                message = json.loads(data)
+                await handle_websocket_message(websocket, message)
+            except json.JSONDecodeError:
+                logger.error(f"Invalid JSON received: {data}")
+            except Exception as e:
+                logger.error(f"Error handling WebSocket message: {str(e)}")
+
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
+        logger.info("WebSocket connection closed")
 
 
 if __name__ == "__main__":
