@@ -127,7 +127,7 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
                 "data": {
                     "id": message_data.get("id") if message_data else None,
                     "success": False,
-                    "error": "Failed to save message",  # 詳細なエラー情報を隠蔽
+                    "error": "Message save failed",  # 詳細なエラー情報を隠蔽
                 },
             }
             await manager.send_personal_message(json.dumps(error_response), websocket)
