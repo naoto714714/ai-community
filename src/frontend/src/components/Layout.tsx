@@ -1,6 +1,7 @@
 import { AppShell, Burger } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
+import { nanoid } from 'nanoid';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
@@ -141,8 +142,8 @@ export function Layout() {
 
   const handleSendMessage = useCallback(
     (content: string) => {
-      // 衝突を避けるため、タイムスタンプ + ランダム値でIDを生成
-      const messageId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      // nanoidを使用してより安全で標準的なID生成
+      const messageId = nanoid();
 
       const userMessage: Message = {
         id: messageId,
