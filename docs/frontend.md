@@ -76,13 +76,20 @@ export interface Channel {
 - メッセージ配列の状態管理
 - チャンネル変更時のメッセージ履歴取得
 - メッセージ送信処理
+- モバイルナビゲーション状態管理
 
 **状態管理:**
 ```typescript
+const [opened, { toggle, close }] = useDisclosure(); // モバイルナビゲーション
 const [activeChannelId, setActiveChannelId] = useState<string>('1');
 const [messages, setMessages] = useState<Message[]>([]);
 const wsRef = useRef<WebSocket | null>(null);
 ```
+
+**モバイル対応:**
+- ハンバーガーメニューボタン（モバイル時のみ表示）
+- チャンネル選択時の自動ナビゲーション閉じ
+- レスポンシブレイアウト（breakpoint: 'sm'）
 
 **WebSocket処理:**
 - 接続：`ws://localhost:8000/ws`
@@ -136,6 +143,20 @@ const wsRef = useRef<WebSocket | null>(null);
 - Enter キーでの送信
 - 送信ボタンクリック
 - 入力後のフィールドクリア
+- 日本語入力（IME）対応
+
+**日本語入力対応:**
+```typescript
+const isComposingRef = useRef(false); // IME入力状態管理
+
+// IME入力中のEnterキー送信を防止
+const handleKeyPress = (e: React.KeyboardEvent) => {
+  if (e.key === 'Enter' && !e.shiftKey && !isComposingRef.current) {
+    e.preventDefault();
+    handleSend();
+  }
+};
+```
 
 ## データフロー
 
@@ -204,7 +225,8 @@ ws.send(JSON.stringify(wsMessage));
 - **カラーテーマ**: ダークモード対応
 - **レイアウト**: `AppShell` コンポーネント
 - **サイドバー幅**: 280px
-- **レスポンシブ**: PC版優先（最小幅1024px）
+- **レスポンシブ**: PC・モバイル対応（breakpoint: 'sm'）
+- **モバイル対応**: ハンバーガーメニュー・折りたたみナビゲーション
 
 ### コンポーネントスタイル
 
