@@ -1,4 +1,5 @@
-import { AppShell } from '@mantine/core';
+import { AppShell, Burger } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
 import { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
@@ -6,6 +7,7 @@ import { initialChannels } from '../data/channels';
 import type { Message } from '../types/chat';
 
 export function Layout() {
+  const [opened, { toggle, close }] = useDisclosure();
   const [activeChannelId, setActiveChannelId] = useState(
     initialChannels.length > 0 ? initialChannels[0].id : '',
   );
@@ -105,6 +107,14 @@ export function Layout() {
     }
   }, [activeChannelId]);
 
+  const handleChannelSelect = useCallback(
+    (channelId: string) => {
+      setActiveChannelId(channelId);
+      close(); // モバイル時にナビゲーションを閉じる
+    },
+    [close],
+  );
+
   const handleSendMessage = useCallback(
     (content: string) => {
       const userMessage: Message = {
@@ -142,12 +152,24 @@ export function Layout() {
   );
 
   return (
-    <AppShell navbar={{ width: 280, breakpoint: 'sm' }} padding='md'>
+    <AppShell
+      navbar={{
+        width: 280,
+        breakpoint: 'sm',
+        collapsed: { mobile: !opened },
+      }}
+      header={{ height: { base: 50, md: 0 } }}
+      padding='md'
+    >
+      <AppShell.Header p='sm' hiddenFrom='md'>
+        <Burger opened={opened} onClick={toggle} size='sm' />
+      </AppShell.Header>
+
       <AppShell.Navbar p='md'>
         <ChannelList
           channels={initialChannels}
           activeChannelId={activeChannelId}
-          onChannelSelect={setActiveChannelId}
+          onChannelSelect={handleChannelSelect}
         />
       </AppShell.Navbar>
 
