@@ -1,10 +1,31 @@
 import json
 import logging
+from typing import Any, TypedDict
 
 from fastapi import WebSocket
 
 import crud
 from schemas import MessageCreate
+
+
+class WebSocketMessageData(TypedDict):
+    """WebSocketメッセージのdata部分の型定義"""
+
+    id: str
+    channel_id: str
+    user_id: str
+    user_name: str
+    content: str
+    timestamp: str
+    is_own_message: bool
+
+
+class WebSocketMessage(TypedDict):
+    """WebSocketメッセージの型定義"""
+
+    type: str
+    data: WebSocketMessageData | None
+
 
 logger = logging.getLogger(__name__)
 
@@ -31,19 +52,19 @@ class ConnectionManager:
             self.disconnect(websocket)
 
     async def broadcast(self, message: str):
-        disconnected = []
+        connections_to_remove = []
         for connection in self.active_connections.copy():  # リストのコピーを作成して安全にイテレート
             try:
                 # WebSocket接続状態を厳密にチェック
                 if connection.client_state.name == "DISCONNECTED":
-                    disconnected.append(connection)
+                    connections_to_remove.append(connection)
                     continue
                 await connection.send_text(message)
             except Exception:
-                disconnected.append(connection)
+                connections_to_remove.append(connection)
 
         # 切断された接続を削除
-        for conn in disconnected:
+        for conn in connections_to_remove:
             self.disconnect(conn)
 
 
@@ -55,7 +76,7 @@ def get_connection_manager() -> ConnectionManager:
     return manager
 
 
-async def handle_websocket_message(websocket: WebSocket, data: dict):
+async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
     """WebSocketメッセージの処理"""
     message_type = data.get("type")
     message_data = data.get("data")
