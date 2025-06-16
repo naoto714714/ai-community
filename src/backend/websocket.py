@@ -4,7 +4,6 @@ import logging
 from fastapi import WebSocket
 
 import crud
-from database import SessionLocal
 from schemas import MessageCreate
 
 logger = logging.getLogger(__name__)
@@ -25,20 +24,27 @@ class ConnectionManager:
         logger.info(f"WebSocket disconnected. Total: {len(self.active_connections)}")
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
+        try:
+            await websocket.send_text(message)
+        except Exception:
+            # 接続が切断されている場合は削除
+            self.disconnect(websocket)
 
     async def broadcast(self, message: str):
         disconnected = []
-        for connection in self.active_connections:
+        for connection in self.active_connections.copy():  # リストのコピーを作成して安全にイテレート
             try:
+                # WebSocket接続状態を厳密にチェック
+                if connection.client_state.name == "DISCONNECTED":
+                    disconnected.append(connection)
+                    continue
                 await connection.send_text(message)
             except Exception:
                 disconnected.append(connection)
 
+        # 切断された接続を削除
         for conn in disconnected:
-            if conn in self.active_connections:
-                self.active_connections.remove(conn)
-                logger.info(f"WebSocket disconnected during broadcast. Total: {len(self.active_connections)}")
+            self.disconnect(conn)
 
 
 manager = ConnectionManager()
@@ -55,11 +61,20 @@ async def handle_websocket_message(websocket: WebSocket, data: dict):
     message_data = data.get("data")
 
     if message_type == "message:send":
-        # データベースにメッセージを保存
-        db = SessionLocal()
+        # データベースセッションをコンテキストマネージャーで安全に管理
+        from database import SessionLocal
+
+        async def save_message_with_session():
+            db = SessionLocal()
+            try:
+                message_create = MessageCreate.model_validate(message_data)
+                saved_message = crud.create_message(db, message_create)
+                return saved_message
+            finally:
+                db.close()
+
         try:
-            message_create = MessageCreate.model_validate(message_data)
-            saved_message = crud.create_message(db, message_create)
+            saved_message = await save_message_with_session()
 
             # 保存成功をクライアントに通知
             response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
@@ -70,15 +85,16 @@ async def handle_websocket_message(websocket: WebSocket, data: dict):
         except Exception as e:
             logger.error(f"Error saving message: {str(e)}")
 
-            # エラーをクライアントに通知
+            # エラーをクライアントに通知（情報漏洩対策済み）
             error_response = {
                 "type": "message:error",
-                "data": {"id": message_data.get("id") if message_data else None, "success": False, "error": str(e)},
+                "data": {
+                    "id": message_data.get("id") if message_data else None,
+                    "success": False,
+                    "error": "Failed to save message",  # 詳細なエラー情報を隠蔽
+                },
             }
             await manager.send_personal_message(json.dumps(error_response), websocket)
-
-        finally:
-            db.close()
 
     else:
         logger.warning(f"Unknown message type: {message_type}")

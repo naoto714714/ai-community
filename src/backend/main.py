@@ -112,8 +112,14 @@ async def websocket_endpoint(websocket: WebSocket):
                 await handle_websocket_message(websocket, message)
             except json.JSONDecodeError:
                 logger.error(f"Invalid JSON received: {data}")
+                # クライアントにエラー応答を送信
+                error_response = {"type": "error", "data": {"success": False, "error": "Invalid JSON format"}}
+                await websocket.send_text(json.dumps(error_response))
             except Exception as e:
                 logger.error(f"Error handling WebSocket message: {str(e)}")
+                # 一般的なエラー応答を送信
+                error_response = {"type": "error", "data": {"success": False, "error": "Internal server error"}}
+                await websocket.send_text(json.dumps(error_response))
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
