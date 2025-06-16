@@ -13,7 +13,7 @@ export function Layout() {
   );
   const [messages, setMessages] = useState<Message[]>([]);
   const wsRef = useRef<WebSocket | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<number | null>(null);
   const retryCountRef = useRef(0);
 
   const currentChannel = useMemo(
@@ -41,21 +41,32 @@ export function Layout() {
         };
 
         ws.onmessage = (event) => {
-          const data = JSON.parse(event.data);
+          try {
+            const data = JSON.parse(event.data);
 
-          if (data.type === 'message:saved') {
-            // メッセージ保存成功 - 特に処理不要（楽観的更新のため）
-          } else if (data.type === 'message:error') {
-            console.error('Message save error:', data.data);
-            // 送信失敗時のロールバック処理
-            if (data.data?.id) {
-              setMessages((prev) => prev.filter((msg) => msg.id !== data.data.id));
+            if (data.type === 'message:saved') {
+              // メッセージ保存成功 - 特に処理不要（楽観的更新のため）
+            } else if (data.type === 'message:error') {
+              console.error('Message save error:', data.data);
+              // 送信失敗時のロールバック処理
+              if (data.data?.id) {
+                setMessages((prev) => prev.filter((msg) => msg.id !== data.data.id));
+              }
             }
+          } catch (error) {
+            console.error('Failed to parse WebSocket message:', error, 'Raw data:', event.data);
           }
         };
 
-        ws.onclose = () => {
+        ws.onclose = (event) => {
           // 接続が予期せず閉じられた場合の再接続処理
+          if (!event.wasClean && retryCountRef.current < MAX_RETRY_COUNT) {
+            console.log(
+              `WebSocket disconnected unexpectedly. Retry ${retryCountRef.current + 1}/${MAX_RETRY_COUNT}`,
+            );
+            retryCountRef.current += 1;
+            retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
+          }
         };
 
         ws.onerror = (error) => {
@@ -67,7 +78,7 @@ export function Layout() {
         // 最大再試行回数に達していない場合のみ再試行
         if (retryCountRef.current < MAX_RETRY_COUNT) {
           retryCountRef.current += 1;
-          retryTimeoutRef.current = setTimeout(connectWebSocket, RETRY_DELAY);
+          retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
         } else {
           console.error('Max retry count reached. WebSocket connection failed.');
         }
@@ -82,7 +93,7 @@ export function Layout() {
         wsRef.current.close();
       }
       if (retryTimeoutRef.current) {
-        clearTimeout(retryTimeoutRef.current);
+        window.clearTimeout(retryTimeoutRef.current);
       }
     };
   }, []);
@@ -130,8 +141,11 @@ export function Layout() {
 
   const handleSendMessage = useCallback(
     (content: string) => {
+      // 衝突を避けるため、タイムスタンプ + ランダム値でIDを生成
+      const messageId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+
       const userMessage: Message = {
-        id: Date.now().toString(),
+        id: messageId,
         channelId: activeChannelId,
         userId: 'user',
         userName: 'ユーザー',
