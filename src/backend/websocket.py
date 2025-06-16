@@ -28,15 +28,25 @@ class ConnectionManager:
         await websocket.send_text(message)
 
     async def broadcast(self, message: str):
+        disconnected = []
         for connection in self.active_connections:
             try:
                 await connection.send_text(message)
             except Exception:
-                # 接続が切れている場合は削除
-                self.disconnect(connection)
+                disconnected.append(connection)
+
+        for conn in disconnected:
+            if conn in self.active_connections:
+                self.active_connections.remove(conn)
+                logger.info(f"WebSocket disconnected during broadcast. Total: {len(self.active_connections)}")
 
 
 manager = ConnectionManager()
+
+
+def get_connection_manager() -> ConnectionManager:
+    """ConnectionManagerのインスタンスを取得（テスト用）"""
+    return manager
 
 
 async def handle_websocket_message(websocket: WebSocket, data: dict):

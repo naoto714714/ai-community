@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 import crud
 from database import SessionLocal, engine, get_db
-from models import Base, Channel, Message
+from models import Base, Channel
 from schemas import ChannelResponse, MessageResponse, MessagesListResponse
 from websocket import handle_websocket_message, manager
 
@@ -95,7 +95,7 @@ async def get_channel_messages(
     messages = [MessageResponse.model_validate(msg) for msg in message_models]
 
     # 総数取得
-    total = db.query(Message).filter(Message.channel_id == channel_id).count()
+    total = crud.get_channel_messages_count(db, channel_id)
     has_more = (offset + limit) < total
 
     return MessagesListResponse(messages=messages, total=total, has_more=has_more)
