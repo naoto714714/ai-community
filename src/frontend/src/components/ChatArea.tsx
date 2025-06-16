@@ -1,5 +1,6 @@
 import { Stack, Box, Group, Title } from '@mantine/core';
 import { IconHash } from '@tabler/icons-react';
+import { useMemo } from 'react';
 import { MessageInput } from './MessageInput';
 import { MessageList } from './MessageList';
 import type { Message, Channel } from '../types/chat';
@@ -12,7 +13,10 @@ interface ChatAreaProps {
 }
 
 export function ChatArea({ channelId, currentChannel, messages, onSendMessage }: ChatAreaProps) {
-  const channelMessages = messages.filter((m) => m.channelId === channelId);
+  const channelMessages = useMemo(
+    () => messages.filter((m) => m.channelId === channelId),
+    [messages, channelId],
+  );
 
   return (
     <Stack h='100vh' gap={0} style={{ position: 'relative' }}>

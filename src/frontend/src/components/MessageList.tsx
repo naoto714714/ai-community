@@ -9,6 +9,7 @@ interface MessageListProps {
 
 export function MessageList({ messages }: MessageListProps) {
   const viewport = useRef<HTMLDivElement>(null);
+  const scrollTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = () => {
     if (viewport.current) {
@@ -20,9 +21,19 @@ export function MessageList({ messages }: MessageListProps) {
   };
 
   useEffect(() => {
+    // 既存のタイマーをクリア
+    if (scrollTimerRef.current) {
+      clearTimeout(scrollTimerRef.current);
+    }
+
     // メッセージが変更されたら少し遅延してスクロール
-    const timer = setTimeout(scrollToBottom, 100);
-    return () => clearTimeout(timer);
+    scrollTimerRef.current = setTimeout(scrollToBottom, 100);
+
+    return () => {
+      if (scrollTimerRef.current) {
+        clearTimeout(scrollTimerRef.current);
+      }
+    };
   }, [messages]);
 
   return (
