@@ -106,6 +106,10 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
                 message_create = MessageCreate.model_validate(message_data)
                 saved_message = crud.create_message(db, message_create)
                 return saved_message
+            except Exception:
+                # crud.create_message内でrollbackは実行されるが、明示的に確認
+                db.rollback()
+                raise
             finally:
                 db.close()
 
