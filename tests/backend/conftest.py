@@ -1,7 +1,8 @@
 """バックエンドテスト専用のfixture定義"""
 
-import pytest
 from datetime import datetime
+
+import pytest
 
 
 @pytest.fixture
@@ -21,9 +22,10 @@ def sample_message_data():
 @pytest.fixture
 def create_test_messages(test_db):
     """テストメッセージを作成するヘルパー関数"""
+
     def _create_messages(channel_id: str, count: int = 5):
         from src.backend.models import Message
-        
+
         messages = []
         for i in range(count):
             message = Message(
@@ -37,8 +39,8 @@ def create_test_messages(test_db):
             )
             test_db.add(message)
             messages.append(message)
-        
+
         test_db.commit()
         return messages
-    
+
     return _create_messages
