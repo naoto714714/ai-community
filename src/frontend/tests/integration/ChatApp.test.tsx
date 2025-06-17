@@ -1,51 +1,29 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
+import {
+  mockFetch,
+  mockWebSocket,
+  MockWebSocketClass,
+  resetWebSocketState,
+  setupBackendConnectionMock,
+  mockChannelMessages,
+} from '../helpers/test-setup';
 
-// フェッチのモック
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
-
-// WebSocketのモック
-const mockWebSocket = {
-  send: vi.fn(),
-  close: vi.fn(),
-  readyState: WebSocket.OPEN,
-  onopen: null as ((event: Event) => void) | null,
-  onmessage: null as ((event: MessageEvent) => void) | null,
-  onclose: null as ((event: CloseEvent) => void) | null,
-  onerror: null as ((event: Event) => void) | null,
-};
-
-const MockWebSocketClass = vi.fn().mockImplementation(() => mockWebSocket);
-vi.stubGlobal('WebSocket', MockWebSocketClass);
+// オリジナルのfetchを保存
+const originalFetch = global.fetch;
 
 describe('ChatApp Integration', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch.mockClear();
-
-    // WebSocketの状態をリセット
-    mockWebSocket.readyState = WebSocket.OPEN;
-
-    // バックエンド接続確認のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () => Promise.resolve({ message: 'AI Community Backend API' }),
-    });
+    resetWebSocketState();
+    setupBackendConnectionMock();
   });
 
   it('アプリケーションが正常に初期化される', async () => {
     // チャンネルメッセージ取得のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [],
-          total: 0,
-          hasMore: false,
-        }),
-    });
+    mockChannelMessages();
 
     render(<Layout />);
 
@@ -128,15 +106,7 @@ describe('ChatApp Integration', () => {
 
   it('メッセージ送信フローが正常に動作する', async () => {
     // 初期メッセージ取得のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [],
-          total: 0,
-          hasMore: false,
-        }),
-    });
+    mockChannelMessages();
 
     render(<Layout />);
 
@@ -168,15 +138,7 @@ describe('ChatApp Integration', () => {
 
   it('WebSocket経由でメッセージが受信される', async () => {
     // 初期メッセージ取得のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [],
-          total: 0,
-          hasMore: false,
-        }),
-    });
+    mockChannelMessages();
 
     render(<Layout />);
 
@@ -212,15 +174,7 @@ describe('ChatApp Integration', () => {
 
   it('WebSocketエラー時にメッセージがロールバックされる', async () => {
     // 初期メッセージ取得のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [],
-          total: 0,
-          hasMore: false,
-        }),
-    });
+    mockChannelMessages();
 
     render(<Layout />);
 
@@ -276,15 +230,7 @@ describe('ChatApp Integration', () => {
     mockWebSocket.readyState = WebSocket.CLOSED;
 
     // 初期メッセージ取得のモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [],
-          total: 0,
-          hasMore: false,
-        }),
-    });
+    mockChannelMessages();
 
     render(<Layout />);
 
@@ -309,5 +255,13 @@ describe('ChatApp Integration', () => {
 
     // WebSocketのsendは呼ばれない
     expect(mockWebSocket.send).not.toHaveBeenCalled();
+  });
+
+  afterAll(() => {
+    // グローバルのfetchを元に戻す
+    vi.unstubAllGlobals();
+    if (originalFetch) {
+      global.fetch = originalFetch;
+    }
   });
 });
