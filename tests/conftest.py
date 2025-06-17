@@ -7,9 +7,9 @@ from sqlalchemy.pool import StaticPool
 from httpx import AsyncClient
 from fastapi.testclient import TestClient
 
+# テーブル重複定義エラーを回避するため、モデルは使用時にimportする
 from src.backend.main import app
 from src.backend.database import Base, get_db
-from src.backend.models import Channel
 
 # テスト用データベース設定
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -61,6 +61,8 @@ async def async_client(test_db) -> AsyncGenerator[AsyncClient, None]:
 @pytest.fixture
 def seed_channels(test_db):
     """初期チャンネルデータの投入"""
+    from src.backend.models import Channel
+    
     channels = [
         Channel(id="1", name="雑談"),
         Channel(id="2", name="ゲーム"),

@@ -2,7 +2,6 @@
 
 import pytest
 from datetime import datetime
-from src.backend.models import Message
 
 
 @pytest.fixture
@@ -23,6 +22,8 @@ def sample_message_data():
 def create_test_messages(test_db):
     """テストメッセージを作成するヘルパー関数"""
     def _create_messages(channel_id: str, count: int = 5):
+        from src.backend.models import Message
+        
         messages = []
         for i in range(count):
             message = Message(
