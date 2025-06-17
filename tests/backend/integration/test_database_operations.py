@@ -131,7 +131,12 @@ def test_channel_message_cascade(test_db):
 
 def test_database_session_isolation(test_db, seed_channels):
     """データベースセッションの分離テスト"""
+    from sqlalchemy.orm import sessionmaker
+    
     channel = seed_channels[0]
+    # テストセッションからエンジンを取得
+    engine = test_db.bind
+    SessionLocal = sessionmaker(bind=engine)
 
     # セッション1でメッセージを作成（コミットしない）
     message1 = Message(
@@ -150,9 +155,22 @@ def test_database_session_isolation(test_db, seed_channels):
     found = test_db.query(Message).filter(Message.id == "isolation_test_1").first()
     assert found is not None
 
+    # 新しい別のセッションを作成してトランザクション分離をテスト
+    separate_db = SessionLocal()
+    try:
+        # 別のセッションからはコミット前は見えない
+        not_found = separate_db.query(Message).filter(Message.id == "isolation_test_1").first()
+        assert not_found is None
+    finally:
+        separate_db.close()
+
     # コミット
     test_db.commit()
 
-    # コミット後も見える
-    found_after = test_db.query(Message).filter(Message.id == "isolation_test_1").first()
-    assert found_after is not None
+    # コミット後は別のセッションからも見える
+    another_db = SessionLocal()
+    try:
+        found_after = another_db.query(Message).filter(Message.id == "isolation_test_1").first()
+        assert found_after is not None
+    finally:
+        another_db.close()
