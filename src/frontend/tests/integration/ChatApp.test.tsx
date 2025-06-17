@@ -4,7 +4,7 @@ import { Layout } from '@/components/Layout';
 
 // フェッチのモック
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 // WebSocketのモック
 const mockWebSocket = {
@@ -18,7 +18,7 @@ const mockWebSocket = {
 };
 
 const MockWebSocketClass = vi.fn().mockImplementation(() => mockWebSocket);
-global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
+vi.stubGlobal('WebSocket', MockWebSocketClass);
 
 describe('ChatApp Integration', () => {
   beforeEach(() => {

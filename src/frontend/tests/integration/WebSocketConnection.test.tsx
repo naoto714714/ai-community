@@ -4,7 +4,7 @@ import { Layout } from '@/components/Layout';
 
 // フェッチのモック
 const mockFetch = vi.fn();
-global.fetch = mockFetch;
+vi.stubGlobal('fetch', mockFetch);
 
 // WebSocketのモック
 let mockWebSocket: {
@@ -34,7 +34,7 @@ const MockWebSocketClass = vi.fn().mockImplementation((url: string) => {
   return mockWebSocket;
 });
 
-global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
+vi.stubGlobal('WebSocket', MockWebSocketClass);
 
 describe('WebSocket Connection Integration', () => {
   beforeEach(() => {
