@@ -1,10 +1,11 @@
 import pytest
 from datetime import datetime
-from src.backend.models import Channel, Message
 
 
 def test_channel_creation(test_db):
     """チャンネルモデルの作成テスト"""
+    from src.backend.models import Channel
+    
     channel = Channel(
         id="test_channel",
         name="テストチャンネル"
@@ -19,6 +20,8 @@ def test_channel_creation(test_db):
 
 def test_message_creation(test_db, seed_channels):
     """メッセージモデルの作成テスト"""
+    from src.backend.models import Message
+    
     channel = seed_channels[0]
     message = Message(
         id="test_msg_001",
@@ -44,6 +47,8 @@ def test_message_creation(test_db, seed_channels):
 
 def test_channel_messages_relationship(test_db, seed_channels):
     """チャンネルとメッセージのリレーションテスト"""
+    from src.backend.models import Message
+    
     channel = seed_channels[0]
     
     # 複数のメッセージを作成
@@ -69,6 +74,8 @@ def test_channel_messages_relationship(test_db, seed_channels):
 
 def test_message_ordering(test_db, seed_channels):
     """メッセージの作成日時順ソートテスト"""
+    from src.backend.models import Message
+    
     channel = seed_channels[0]
     
     # 時系列でメッセージを作成
