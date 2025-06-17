@@ -17,7 +17,7 @@ repos:
         name: ESLint
         entry: bash -c 'cd src/frontend && npm run lint:fix'
         language: system
-        files: ^src/frontend/src/.*\.(ts|tsx|js|jsx)$
+        files: ^src/frontend/(src|tests)/.*\.(ts|tsx|js|jsx)$
         pass_filenames: false
         stages: [pre-commit]
 
