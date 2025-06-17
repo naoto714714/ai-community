@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '../utils/test-utils';
+import { render, screen, fireEvent, waitFor, act } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
 import {
   mockFetch,
@@ -240,11 +240,13 @@ describe('ChatApp Integration', () => {
   });
 
   it('WebSocket未接続時にメッセージ送信が失敗する', async () => {
-    // WebSocketが閉じている状態をシミュレート
-    mockWebSocket.readyState = WebSocket.CLOSED;
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     // 初期メッセージ取得のモック
     mockChannelMessages();
+
+    // WebSocketを未接続状態で開始
+    mockWebSocket.readyState = WebSocket.CLOSED;
 
     render(<Layout />);
 
@@ -254,25 +256,35 @@ describe('ChatApp Integration', () => {
 
     // メッセージを送信しようとする
     const input = screen.getByPlaceholderText('メッセージを入力...');
-    fireEvent.change(input, { target: { value: 'Disconnected message' } });
-    const sendButton = screen
-      .getAllByRole('button')
-      .find((btn) => btn.querySelector('svg.tabler-icon-send'));
-    if (sendButton) {
-      fireEvent.click(sendButton);
-    }
 
-    // WebSocketが閉じている場合、メッセージは一瞬表示されてからロールバックされる
-    // そのため、最終的にメッセージが表示されないことを確認
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'Disconnected message' } });
+      const sendButton = screen
+        .getAllByRole('button')
+        .find((btn) => btn.querySelector('svg.tabler-icon-send'));
+      if (sendButton) {
+        fireEvent.click(sendButton);
+      }
+    });
+
+    // エラーログが出力されることを確認
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalledWith('WebSocket is not connected');
+    });
+
+    // WebSocketが閉じている場合、メッセージは楽観的更新で一瞬表示されてからロールバックされる
+    // ロールバック処理の完了を待つ
     await waitFor(
       () => {
         expect(screen.queryByText('Disconnected message')).not.toBeInTheDocument();
       },
-      { timeout: 2000 },
+      { timeout: 3000 },
     );
 
     // WebSocketのsendは呼ばれない
     expect(mockWebSocket.send).not.toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
   });
 
   afterAll(() => {

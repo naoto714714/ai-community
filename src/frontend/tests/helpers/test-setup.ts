@@ -1,5 +1,16 @@
 import { vi } from 'vitest';
 
+// DOM scrollTo メソッドのモック
+Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', {
+  value: vi.fn(),
+  writable: true,
+});
+
+Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
+  value: 1000,
+  writable: true,
+});
+
 // フェッチのモック
 export const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
