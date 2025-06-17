@@ -25,6 +25,9 @@ describe('ChatApp Integration', () => {
     vi.clearAllMocks();
     mockFetch.mockClear();
 
+    // WebSocketの状態をリセット
+    mockWebSocket.readyState = WebSocket.OPEN;
+
     // バックエンド接続確認のモック
     mockFetch.mockResolvedValueOnce({
       ok: true,
