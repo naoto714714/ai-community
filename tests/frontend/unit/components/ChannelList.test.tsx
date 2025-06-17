@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '../../utils/test-utils'
 import { ChannelList } from '@/components/ChannelList'
 import type { Channel } from '@/types/chat'
@@ -45,7 +45,8 @@ describe('ChannelList', () => {
 
     // アクティブなチャンネルは`active`クラスまたはデータ属性を持つ
     expect(activeChannel).toHaveAttribute('data-active', 'true')
-    expect(inactiveChannel).toHaveAttribute('data-active', 'false')
+    // 非アクティブなチャンネルは`data-active`属性を持たない
+    expect(inactiveChannel).not.toHaveAttribute('data-active')
   })
 
   it('チャンネルクリック時にコールバックが呼ばれる', () => {
