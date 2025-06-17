@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, act } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
-import {
-  mockFetch,
-  WebSocketInstances,
-  resetMocks,
-} from '../utils/mocks';
+import { mockFetch, WebSocketInstances, resetMocks } from '../utils/mocks';
 
 describe('WebSocket Connection Integration', () => {
   beforeEach(() => {
@@ -42,13 +38,33 @@ describe('WebSocket Connection Integration', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+
+    // テスト後にmockFetchが正常に動作するよう再設定
+    if (mockFetch.getMockImplementation() === undefined) {
+      // バックエンド接続確認の成功モック
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ message: 'AI Community Backend API' }),
+      });
+
+      // チャンネルメッセージ取得のモック
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () =>
+          Promise.resolve({
+            messages: [],
+            total: 0,
+            hasMore: false,
+          }),
+      });
+    }
   });
 
   it('WebSocket接続が正常に確立される', async () => {
     render(<Layout />);
 
     await waitFor(() => {
-      expect(MockWebSocketClass).toHaveBeenCalledWith('ws://localhost:8000/ws');
+      expect(vi.mocked(WebSocket)).toHaveBeenCalledWith('ws://localhost:8000/ws');
     });
 
     expect(WebSocketInstances).toHaveLength(1);
@@ -63,7 +79,7 @@ describe('WebSocket Connection Integration', () => {
     });
 
     await waitFor(() => {
-      expect(MockWebSocketClass).toHaveBeenCalled();
+      expect(vi.mocked(WebSocket)).toHaveBeenCalled();
     });
   });
 
@@ -150,18 +166,19 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('最大再試行回数（5回）に達すると再接続を停止する', async () => {
-    // mockFetchを完全に新しくセットアップ
-    mockFetch.mockReset();
+    // beforeEachのmockFetchをクリアして新しく設定
+    mockFetch.mockClear();
 
-    // バックエンド接続を失敗させる
-    for (let i = 0; i < 6; i++) {
+    // バックエンド接続を失敗させる（バックエンド確認＋メッセージ取得の両方で失敗）
+    for (let i = 0; i < 12; i++) {
       mockFetch.mockRejectedValueOnce(new Error('Connection failed'));
     }
 
     render(<Layout />);
 
+    // 初回は2回呼ばれる（バックエンド確認 + メッセージ取得）
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
     // 実際のタイマーを使って再試行を待つ
@@ -169,13 +186,13 @@ describe('WebSocket Connection Integration', () => {
       await new Promise((resolve) => setTimeout(resolve, 3100));
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(i + 2);
+        expect(mockFetch).toHaveBeenCalledTimes(2 + (i + 1) * 1); // 初回2回 + 再試行毎に1回（バックエンド確認のみ）
       });
     }
 
     // 6回目の再試行は行われない（少し待っても呼ばれない）
     await new Promise((resolve) => setTimeout(resolve, 3100));
-    expect(mockFetch).toHaveBeenCalledTimes(6); // 最大6回（初回+再試行5回）
+    expect(mockFetch).toHaveBeenCalledTimes(7); // 初回2回 + 再試行5回
   }, 25000);
 
   it('WebSocketエラー時にエラーハンドラが呼ばれる', async () => {
