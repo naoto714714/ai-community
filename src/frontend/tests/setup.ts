@@ -24,6 +24,12 @@ const MockWebSocket = vi.fn().mockImplementation((url: string) => ({
   close: vi.fn(),
 }));
 
+// WebSocket定数をMockWebSocketに追加
+MockWebSocket.CONNECTING = 0;
+MockWebSocket.OPEN = 1;
+MockWebSocket.CLOSING = 2;
+MockWebSocket.CLOSED = 3;
+
 vi.stubGlobal('WebSocket', MockWebSocket);
 
 // fetchのグローバルモック

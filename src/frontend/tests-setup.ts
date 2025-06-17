@@ -1,10 +1,13 @@
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
+import { MockWebSocket } from './tests/utils/websocket-mock';
 
 // 各テスト後にクリーンアップ
 afterEach(() => {
   cleanup();
+  // fetchモックのみリセット（他のグローバルモックは維持）
+  vi.mocked(global.fetch).mockClear();
 });
 
 // matchMediaのモック
@@ -34,19 +37,8 @@ vi.mock('nanoid', () => ({
   nanoid: () => 'test-id-12345',
 }));
 
-// WebSocketのグローバルモック
-const MockWebSocket = vi.fn().mockImplementation((url: string) => ({
-  url,
-  readyState: WebSocket.CONNECTING,
-  onopen: null,
-  onclose: null,
-  onmessage: null,
-  onerror: null,
-  send: vi.fn(),
-  close: vi.fn(),
-}));
-
+// WebSocketのグローバルモック（既存の高機能なMockWebSocketクラスを使用）
 vi.stubGlobal('WebSocket', MockWebSocket);
 
 // fetchのグローバルモック
-global.fetch = vi.fn();
+vi.stubGlobal('fetch', vi.fn());

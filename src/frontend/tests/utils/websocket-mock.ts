@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 
 export class MockWebSocket {
   url: string;
-  readyState: number = WebSocket.CONNECTING;
+  readyState: number = 0; // WebSocket.CONNECTING
   onopen: ((event: Event) => void) | null = null;
   onclose: ((event: CloseEvent) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
@@ -11,22 +11,22 @@ export class MockWebSocket {
   constructor(url: string) {
     this.url = url;
     setTimeout(() => {
-      this.readyState = WebSocket.OPEN;
+      this.readyState = 1; // WebSocket.OPEN
       this.onopen?.(new Event('open'));
     }, 0);
   }
 
-  send = vi.fn((data: string) => {
+  send = vi.fn(() => {
     // メッセージ送信のモック
   });
 
   close = vi.fn(() => {
-    this.readyState = WebSocket.CLOSED;
+    this.readyState = 3; // WebSocket.CLOSED
     this.onclose?.(new CloseEvent('close'));
   });
 
   // テスト用ヘルパー
-  simulateMessage(data: any) {
+  simulateMessage(data: unknown) {
     this.onmessage?.(new MessageEvent('message', { data: JSON.stringify(data) }));
   }
 
@@ -35,10 +35,10 @@ export class MockWebSocket {
   }
 
   simulateClose() {
-    this.readyState = WebSocket.CLOSED;
+    this.readyState = 3; // WebSocket.CLOSED
     this.onclose?.(new CloseEvent('close'));
   }
 }
 
 // グローバルWebSocketのモック
-global.WebSocket = MockWebSocket as any;
+global.WebSocket = MockWebSocket as typeof WebSocket;

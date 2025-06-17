@@ -2,15 +2,26 @@ import { describe, it, expect } from 'vitest'
 import { render, screen } from '../../utils/test-utils'
 import { MessageItem } from '@/components/MessageItem'
 import type { Message } from '@/types/chat'
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+// dayjsプラグインを設定
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 describe('MessageItem', () => {
+  // UTC時間でタイムスタンプを作成し、コンポーネントと同じ方法でローカル時間での期待値を計算
+  const utcTimestamp = new Date('2025-01-16T10:00:00.000Z')
+  const expectedTimeString = dayjs(utcTimestamp).format('HH:mm')
+  
   const mockMessage: Message = {
     id: '1',
     channelId: '1',
     userId: 'user1',
     userName: 'Test User',
     content: 'Hello, World!',
-    timestamp: new Date('2025-01-16T10:00:00.000Z'),
+    timestamp: utcTimestamp,
     isOwnMessage: false
   }
 
@@ -25,36 +36,40 @@ describe('MessageItem', () => {
     const ownMessage = { ...mockMessage, isOwnMessage: true }
     render(<MessageItem message={ownMessage} />)
 
-    const messageContainer = screen.getByText('Hello, World!').closest('div')?.parentElement?.parentElement
+    const messageContainer = screen.getByTestId('message-container')
+    expect(messageContainer).not.toBeNull()
     expect(messageContainer).toHaveStyle({ justifyContent: 'flex-end' })
   })
 
   it('他人のメッセージは左寄せで表示される', () => {
     render(<MessageItem message={mockMessage} />)
 
-    const messageContainer = screen.getByText('Hello, World!').closest('div')?.parentElement?.parentElement
+    const messageContainer = screen.getByTestId('message-container')
+    expect(messageContainer).not.toBeNull()
     expect(messageContainer).toHaveStyle({ justifyContent: 'flex-start' })
   })
 
   it('タイムスタンプが正しくフォーマットされる', () => {
     render(<MessageItem message={mockMessage} />)
 
-    // dayjs形式で表示されることを確認（HH:mm形式）
-    expect(screen.getByText('10:00')).toBeInTheDocument()
+    // UTC時間でフォーマットした期待値を使用してテスト
+    expect(screen.getByText(expectedTimeString)).toBeInTheDocument()
   })
 
   it('自分のメッセージと他人のメッセージで色が異なる', () => {
     // 他人のメッセージ
     const { rerender } = render(<MessageItem message={mockMessage} />)
     
-    const otherMessageBubble = screen.getByText('Hello, World!').parentElement
+    const otherMessageBubble = screen.getByTestId('message-bubble')
+    expect(otherMessageBubble).not.toBeNull()
     expect(otherMessageBubble).toHaveStyle({ backgroundColor: 'var(--mantine-color-gray-7)' })
 
     // 自分のメッセージ
     const ownMessage = { ...mockMessage, isOwnMessage: true }
     rerender(<MessageItem message={ownMessage} />)
     
-    const ownMessageBubble = screen.getByText('Hello, World!').parentElement
+    const ownMessageBubble = screen.getByTestId('message-bubble')
+    expect(ownMessageBubble).not.toBeNull()
     expect(ownMessageBubble).toHaveStyle({ backgroundColor: 'var(--mantine-color-blue-6)' })
   })
 
