@@ -1,16 +1,30 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor } from '../../utils/test-utils';
 import { MessageList } from '@/components/MessageList';
 import type { Message } from '@/types/chat';
 
 // scrollToのモック
 const mockScrollTo = vi.fn();
-Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
-  value: mockScrollTo,
-  writable: true,
-});
+let originalScrollTo: typeof HTMLElement.prototype.scrollTo;
 
 describe('MessageList', () => {
+  beforeAll(() => {
+    // scrollToのスタブを設定
+    originalScrollTo = HTMLElement.prototype.scrollTo;
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      value: mockScrollTo,
+      writable: true,
+    });
+  });
+
+  afterAll(() => {
+    // scrollToのスタブを復元
+    Object.defineProperty(HTMLElement.prototype, 'scrollTo', {
+      value: originalScrollTo,
+      writable: true,
+    });
+  });
+
   const mockMessages: Message[] = [
     {
       id: 'msg-1',
@@ -39,7 +53,6 @@ describe('MessageList', () => {
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
     vi.useRealTimers();
   });
 
