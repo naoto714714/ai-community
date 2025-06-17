@@ -87,7 +87,10 @@ describe('ChatApp Integration', () => {
     });
 
     // APIが正しい URL で呼ばれる
-    expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/api/channels/2/messages');
+    expect(mockFetch).toHaveBeenCalledWith(
+      'http://localhost:8000/api/channels/2/messages',
+      expect.anything(),
+    );
   });
 
   it('メッセージ送信フローが正常に動作する', async () => {
