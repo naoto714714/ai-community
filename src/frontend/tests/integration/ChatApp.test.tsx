@@ -3,21 +3,19 @@ import { render, screen, fireEvent, waitFor, act } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
 import {
   mockFetch,
-  mockWebSocket,
-  MockWebSocketClass,
-  resetWebSocketState,
+  WebSocketInstances,
+  resetMocks,
   setupBackendConnectionMock,
   mockChannelMessages,
-} from '../helpers/test-setup';
+} from '../utils/mocks';
+import { createMockMessage } from '../factories';
 
 // オリジナルのfetchを保存
 const originalFetch = global.fetch;
 
 describe('ChatApp Integration', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockFetch.mockClear();
-    resetWebSocketState();
+    resetMocks();
     setupBackendConnectionMock();
   });
 
@@ -38,30 +36,25 @@ describe('ChatApp Integration', () => {
     expect(screen.getByPlaceholderText('メッセージを入力...')).toBeInTheDocument();
 
     // WebSocket接続が確立される
-    expect(MockWebSocketClass).toHaveBeenCalledWith('ws://localhost:8000/ws');
+    await waitFor(() => {
+      expect(WebSocketInstances).toHaveLength(1);
+      expect(WebSocketInstances[0].url).toBe('ws://localhost:8000/ws');
+    });
   });
 
   it('チャンネル切り替えでメッセージが更新される', async () => {
     // 初期チャンネル（雑談）のメッセージ
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [
-            {
-              id: 'msg-1',
-              channelId: '1',
-              userId: 'user-1',
-              userName: 'ユーザー1',
-              content: '雑談メッセージ',
-              timestamp: '2025-01-16T10:00:00.000Z',
-              isOwnMessage: false,
-            },
-          ],
-          total: 1,
-          hasMore: false,
-        }),
+    const chatMessage = createMockMessage({
+      id: 'msg-1',
+      channelId: '1',
+      userId: 'user-1',
+      userName: 'ユーザー1',
+      content: '雑談メッセージ',
+      timestamp: new Date('2025-01-16T10:00:00.000Z'),
+      isOwnMessage: false,
     });
+
+    mockChannelMessages([chatMessage], 1, false);
 
     render(<Layout />);
 
@@ -71,25 +64,17 @@ describe('ChatApp Integration', () => {
     });
 
     // ゲームチャンネルのメッセージモック
-    mockFetch.mockResolvedValueOnce({
-      ok: true,
-      json: () =>
-        Promise.resolve({
-          messages: [
-            {
-              id: 'msg-2',
-              channelId: '2',
-              userId: 'user-2',
-              userName: 'ユーザー2',
-              content: 'ゲームメッセージ',
-              timestamp: '2025-01-16T10:05:00.000Z',
-              isOwnMessage: false,
-            },
-          ],
-          total: 1,
-          hasMore: false,
-        }),
+    const gameMessage = createMockMessage({
+      id: 'msg-2',
+      channelId: '2',
+      userId: 'user-2',
+      userName: 'ユーザー2',
+      content: 'ゲームメッセージ',
+      timestamp: new Date('2025-01-16T10:05:00.000Z'),
+      isOwnMessage: false,
     });
+
+    mockChannelMessages([gameMessage], 1, false);
 
     // ゲームチャンネルをクリック
     const gameChannels = screen.getAllByText('ゲーム');
@@ -118,10 +103,10 @@ describe('ChatApp Integration', () => {
       expect(screen.getByPlaceholderText('メッセージを入力...')).toBeInTheDocument();
     });
 
-    // WebSocket接続を確立
-    if (mockWebSocket.onopen) {
-      mockWebSocket.onopen(new Event('open'));
-    }
+    // WebSocket接続を確立（非同期で接続が確立されるまで待つ）
+    await waitFor(() => {
+      expect(WebSocketInstances).toHaveLength(1);
+    });
 
     // メッセージを入力して送信
     const input = screen.getByPlaceholderText('メッセージを入力...');
@@ -139,7 +124,9 @@ describe('ChatApp Integration', () => {
     });
 
     // WebSocketでメッセージが送信される
-    expect(mockWebSocket.send).toHaveBeenCalledWith(expect.stringContaining('Test message'));
+    expect(WebSocketInstances[0].send).toHaveBeenCalledWith(
+      expect.stringContaining('Test message'),
+    );
 
     // 入力フィールドがクリアされる
     expect(input).toHaveValue('');
@@ -155,10 +142,10 @@ describe('ChatApp Integration', () => {
       expect(screen.getByPlaceholderText('メッセージを入力...')).toBeInTheDocument();
     });
 
-    // WebSocket接続を確立
-    if (mockWebSocket.onopen) {
-      mockWebSocket.onopen(new Event('open'));
-    }
+    // WebSocket接続を確立（非同期で接続が確立されるまで待つ）
+    await waitFor(() => {
+      expect(WebSocketInstances).toHaveLength(1);
+    });
 
     // サーバーからのメッセージ保存成功レスポンスをシミュレート
     const saveResponse = {
@@ -169,12 +156,9 @@ describe('ChatApp Integration', () => {
       },
     };
 
-    if (mockWebSocket.onmessage) {
-      const messageEvent = new MessageEvent('message', {
-        data: JSON.stringify(saveResponse),
-      });
-      mockWebSocket.onmessage(messageEvent);
-    }
+    // WebSocketメッセージシミュレーション
+    const webSocket = WebSocketInstances[0];
+    webSocket.simulateMessage(saveResponse);
 
     // エラーが発生しないことを確認（コンソールエラーがないこと）
     // 楽観的更新のため、特に UI 変更はない
@@ -191,10 +175,10 @@ describe('ChatApp Integration', () => {
       expect(screen.getByPlaceholderText('メッセージを入力...')).toBeInTheDocument();
     });
 
-    // WebSocket接続を確立
-    if (mockWebSocket.onopen) {
-      mockWebSocket.onopen(new Event('open'));
-    }
+    // WebSocket接続を確立（非同期で接続が確立されるまで待つ）
+    await waitFor(() => {
+      expect(WebSocketInstances).toHaveLength(1);
+    });
 
     // メッセージを送信
     const input = screen.getByPlaceholderText('メッセージを入力...');
@@ -221,16 +205,17 @@ describe('ChatApp Integration', () => {
       },
     };
 
-    if (mockWebSocket.onmessage) {
+    const webSocket = WebSocketInstances[0];
+    if (webSocket.onmessage) {
       // 送信されたメッセージのIDを取得
-      const sendCall = mockWebSocket.send.mock.calls[0][0];
+      const sendCall = webSocket.send.mock.calls[0][0];
       const sentData = JSON.parse(sendCall);
       errorResponse.data.id = sentData.data.id;
 
       const messageEvent = new MessageEvent('message', {
         data: JSON.stringify(errorResponse),
       });
-      mockWebSocket.onmessage(messageEvent);
+      webSocket.onmessage(messageEvent);
     }
 
     // メッセージがロールバックされて削除される
@@ -245,10 +230,15 @@ describe('ChatApp Integration', () => {
     // 初期メッセージ取得のモック
     mockChannelMessages();
 
-    // WebSocketを未接続状態で開始
-    mockWebSocket.readyState = WebSocket.CLOSED;
-
     render(<Layout />);
+
+    // WebSocket接続を待ってから未接続状態に設定
+    await waitFor(() => {
+      expect(WebSocketInstances).toHaveLength(1);
+    });
+
+    // WebSocketを未接続状態で開始
+    WebSocketInstances[0].readyState = WebSocket.CLOSED;
 
     await waitFor(() => {
       expect(screen.getByPlaceholderText('メッセージを入力...')).toBeInTheDocument();
@@ -282,7 +272,7 @@ describe('ChatApp Integration', () => {
     );
 
     // WebSocketのsendは呼ばれない
-    expect(mockWebSocket.send).not.toHaveBeenCalled();
+    expect(WebSocketInstances[0].send).not.toHaveBeenCalled();
 
     consoleSpy.mockRestore();
   });

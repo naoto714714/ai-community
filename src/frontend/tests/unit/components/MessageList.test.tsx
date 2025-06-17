@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest';
 import { render, screen, waitFor } from '../../utils/test-utils';
 import { MessageList } from '@/components/MessageList';
 import type { Message } from '@/types/chat';
+import { createMockMessage } from '../../factories';
 
 // scrollToのモック
 const mockScrollTo = vi.fn();
@@ -26,7 +27,7 @@ describe('MessageList', () => {
   });
 
   const mockMessages: Message[] = [
-    {
+    createMockMessage({
       id: 'msg-1',
       channelId: '1',
       userId: 'user-1',
@@ -34,8 +35,8 @@ describe('MessageList', () => {
       content: 'こんにちは！',
       timestamp: new Date('2025-01-16T10:00:00.000Z'),
       isOwnMessage: false,
-    },
-    {
+    }),
+    createMockMessage({
       id: 'msg-2',
       channelId: '1',
       userId: 'user-2',
@@ -43,7 +44,7 @@ describe('MessageList', () => {
       content: 'お疲れ様です',
       timestamp: new Date('2025-01-16T10:01:00.000Z'),
       isOwnMessage: true,
-    },
+    }),
   ];
 
   beforeEach(() => {

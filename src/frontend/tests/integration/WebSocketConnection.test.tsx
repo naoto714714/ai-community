@@ -1,57 +1,15 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, waitFor, act } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
-
-// フェッチのモック
-const mockFetch = vi.fn();
-vi.stubGlobal('fetch', mockFetch);
-
-// WebSocketのモック
-interface MockWebSocket {
-  url: string;
-  readyState: number;
-  onopen: ((event: Event) => void) | null;
-  onmessage: ((event: MessageEvent) => void) | null;
-  onclose: ((event: CloseEvent) => void) | null;
-  onerror: ((event: Event) => void) | null;
-  send: ReturnType<typeof vi.fn>;
-  close: ReturnType<typeof vi.fn>;
-}
-
-let WebSocketInstances: MockWebSocket[] = [];
-
-const MockWebSocketClass = vi.fn().mockImplementation((url: string) => {
-  const mockWebSocket: MockWebSocket = {
-    url,
-    readyState: WebSocket.CONNECTING,
-    onopen: null,
-    onmessage: null,
-    onclose: null,
-    onerror: null,
-    send: vi.fn(),
-    close: vi.fn(),
-  };
-
-  WebSocketInstances.push(mockWebSocket);
-
-  // 即座に接続成功としてシミュレート
-  Promise.resolve().then(() => {
-    if (mockWebSocket.onopen) {
-      mockWebSocket.readyState = WebSocket.OPEN;
-      mockWebSocket.onopen(new Event('open'));
-    }
-  });
-
-  return mockWebSocket;
-});
-
-vi.stubGlobal('WebSocket', MockWebSocketClass);
+import {
+  mockFetch,
+  WebSocketInstances,
+  resetMocks,
+} from '../utils/mocks';
 
 describe('WebSocket Connection Integration', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockFetch.mockClear();
-    WebSocketInstances = [];
+    resetMocks();
 
     // DOM scrollTo メソッドのモック
     Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', {
