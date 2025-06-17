@@ -2,6 +2,7 @@ import json
 from unittest.mock import AsyncMock, Mock
 
 import pytest
+from starlette.websockets import WebSocket
 
 from src.backend.websocket import ConnectionManager
 
@@ -19,7 +20,7 @@ async def test_connection_manager_connect():
     manager = ConnectionManager()
 
     # モックWebSocketを作成
-    mock_websocket = Mock()
+    mock_websocket = Mock(spec=WebSocket)
     mock_websocket.accept = AsyncMock()
 
     await manager.connect(mock_websocket)
@@ -37,8 +38,8 @@ def test_connection_manager_disconnect():
     manager = ConnectionManager()
 
     # モックWebSocketを作成して追加
-    mock_websocket1 = Mock()
-    mock_websocket2 = Mock()
+    mock_websocket1 = Mock(spec=WebSocket)
+    mock_websocket2 = Mock(spec=WebSocket)
     manager.active_connections = [mock_websocket1, mock_websocket2]
 
     # websocket1を切断
@@ -56,7 +57,7 @@ async def test_connection_manager_send_personal_message():
     manager = ConnectionManager()
 
     # モックWebSocketを作成
-    mock_websocket = Mock()
+    mock_websocket = Mock(spec=WebSocket)
     mock_websocket.send_text = AsyncMock()
 
     test_message = {"type": "test", "data": "hello"}
@@ -70,14 +71,14 @@ async def test_connection_manager_send_personal_message():
 async def test_connection_manager_broadcast():
     """ブロードキャストテスト"""
     from starlette.websockets import WebSocketState
-    
+
     manager = ConnectionManager()
 
     # 複数のモックWebSocketを作成
-    mock_websocket1 = Mock()
+    mock_websocket1 = Mock(spec=WebSocket)
     mock_websocket1.send_text = AsyncMock()
     mock_websocket1.client_state = WebSocketState.CONNECTED
-    mock_websocket2 = Mock()
+    mock_websocket2 = Mock(spec=WebSocket)
     mock_websocket2.send_text = AsyncMock()
     mock_websocket2.client_state = WebSocketState.CONNECTED
 
@@ -95,15 +96,15 @@ async def test_connection_manager_broadcast():
 async def test_connection_manager_broadcast_with_error():
     """ブロードキャスト中のエラーハンドリングテスト"""
     from starlette.websockets import WebSocketState
-    
+
     manager = ConnectionManager()
 
     # 正常なWebSocketとエラーを起こすWebSocketを作成
-    mock_websocket1 = Mock()
+    mock_websocket1 = Mock(spec=WebSocket)
     mock_websocket1.send_text = AsyncMock()
     mock_websocket1.client_state = WebSocketState.CONNECTED
 
-    mock_websocket2 = Mock()
+    mock_websocket2 = Mock(spec=WebSocket)
     mock_websocket2.send_text = AsyncMock(side_effect=Exception("Connection closed"))
     mock_websocket2.client_state = WebSocketState.CONNECTED
 
