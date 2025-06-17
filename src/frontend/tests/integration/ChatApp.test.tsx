@@ -10,9 +10,6 @@ import {
 } from '../utils/mocks';
 import { createMockMessage } from '../factories';
 
-// オリジナルのfetchを保存
-const originalFetch = global.fetch;
-
 describe('ChatApp Integration', () => {
   beforeEach(() => {
     resetMocks();
@@ -280,8 +277,5 @@ describe('ChatApp Integration', () => {
   afterAll(() => {
     // グローバルのfetchを元に戻す
     vi.unstubAllGlobals();
-    if (originalFetch) {
-      global.fetch = originalFetch;
-    }
   });
 });
