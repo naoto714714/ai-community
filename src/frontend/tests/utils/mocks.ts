@@ -156,7 +156,7 @@ export const mockMessages: Message[] = [
 
 // モック状態のリセット
 export const resetMocks = () => {
-  mockFetch.mockClear();
+  mockFetch.mockReset();
   WebSocketInstances.length = 0;
 };
 

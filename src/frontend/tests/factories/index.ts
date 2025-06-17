@@ -55,7 +55,7 @@ export const createWebSocketMessage = (overrides: Record<string, unknown> = {}) 
     userId: 'test-user-1',
     userName: 'テストユーザー',
     content: 'WebSocketテストメッセージ',
-    timestamp: new Date().toISOString(),
+    timestamp: '2025-01-16T10:00:00.000Z',
   },
   ...overrides,
 });
