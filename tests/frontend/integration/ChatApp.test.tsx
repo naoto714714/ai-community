@@ -278,7 +278,7 @@ describe('ChatApp Integration', () => {
   });
 
   afterAll(() => {
-    // グローバルのfetchを元に戻す
-    vi.unstubAllGlobals();
+    // fetchモックをリセット
+    mockFetch.mockReset();
   });
 });
