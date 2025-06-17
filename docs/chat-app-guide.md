@@ -355,8 +355,8 @@ export function MessageItem({ message }: MessageItemProps) {
       <Box
         style={{
           maxWidth: '70%',
-          backgroundColor: message.isOwnMessage 
-            ? 'var(--mantine-color-blue-6)' 
+          backgroundColor: message.isOwnMessage
+            ? 'var(--mantine-color-blue-6)'
             : 'var(--mantine-color-gray-7)',
           color: 'white',
           padding: '0.75rem 1rem',

@@ -34,7 +34,7 @@ src/backend/
 ```python
 class Message(Base):
     __tablename__ = "messages"
-    
+
     id = Column(String, primary_key=True)  # フロントエンドから送られてくるID
     channel_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False)
@@ -50,7 +50,7 @@ class Message(Base):
 ```python
 class Channel(Base):
     __tablename__ = "channels"
-    
+
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -145,7 +145,7 @@ from sqlalchemy.orm import sessionmaker
 SQLALCHEMY_DATABASE_URL = "sqlite:///./chat.db"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
+    SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False}  # SQLite用設定
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -193,11 +193,11 @@ async def websocket_endpoint(websocket: WebSocket):
         while True:
             data = await websocket.receive_text()
             message = json.loads(data)
-            
+
             if message["type"] == "message:send":
                 # メッセージを保存
                 save_message(message["data"])
-                
+
                 # 保存完了を通知
                 await websocket.send_json({
                     "type": "message:saved",
@@ -222,13 +222,13 @@ def init_channels():
         {"id": "4", "name": "趣味"},
         {"id": "5", "name": "ニュース"}
     ]
-    
+
     for channel_data in channels:
         existing = db.query(Channel).filter(Channel.id == channel_data["id"]).first()
         if not existing:
             channel = Channel(**channel_data)
             db.add(channel)
-    
+
     db.commit()
     db.close()
 ```
@@ -255,10 +255,10 @@ const handleSendMessage = (content: string) => {
       isOwnMessage: true
     }
   };
-  
+
   // WebSocketで送信
   ws.send(JSON.stringify(message));
-  
+
   // ローカルステートも更新
   setMessages(prev => [...prev, message.data]);
 };

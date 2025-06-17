@@ -184,7 +184,7 @@ describe('ChatMessage', () => {
 
   it('メッセージを正しく表示する', () => {
     render(<ChatMessage message={mockMessage} />)
-    
+
     expect(screen.getByText('Hello, World!')).toBeInTheDocument()
     expect(screen.getByText('Test User')).toBeInTheDocument()
   })
@@ -192,14 +192,14 @@ describe('ChatMessage', () => {
   it('自分のメッセージは右寄せで表示される', () => {
     const ownMessage = { ...mockMessage, is_own_message: true }
     render(<ChatMessage message={ownMessage} />)
-    
+
     const messageElement = screen.getByText('Hello, World!').closest('div')
     expect(messageElement).toHaveStyle({ textAlign: 'right' })
   })
 
   it('タイムスタンプが正しくフォーマットされる', () => {
     render(<ChatMessage message={mockMessage} />)
-    
+
     // dayjs形式で表示されることを確認
     expect(screen.getByText(/10:00/)).toBeInTheDocument()
   })
@@ -216,7 +216,7 @@ import { MockWebSocket } from '../utils/websocket-mock'
 describe('ChatApp Integration', () => {
   it('チャンネル切り替えでメッセージが更新される', async () => {
     render(<App />)
-    
+
     // チャンネル一覧が表示される
     await waitFor(() => {
       expect(screen.getByText('雑談')).toBeInTheDocument()
@@ -352,20 +352,20 @@ def test_db():
         poolclass=StaticPool,
     )
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    
+
     Base.metadata.create_all(bind=engine)
-    
+
     def override_get_db():
         try:
             db = TestingSessionLocal()
             yield db
         finally:
             db.close()
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     yield TestingSessionLocal()
-    
+
     Base.metadata.drop_all(bind=engine)
     app.dependency_overrides.clear()
 
@@ -390,10 +390,10 @@ def seed_channels(test_db):
         Channel(id=4, name="趣味", description="趣味の共有"),
         Channel(id=5, name="ニュース", description="最新情報をシェア"),
     ]
-    
+
     test_db.add_all(channels)
     test_db.commit()
-    
+
     return channels
 ```
 
@@ -411,7 +411,7 @@ def test_channel_creation(test_db):
     )
     test_db.add(channel)
     test_db.commit()
-    
+
     assert channel.id is not None
     assert channel.name == "テストチャンネル"
     assert channel.description == "テスト用のチャンネル"
@@ -428,7 +428,7 @@ def test_message_creation(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     assert message.id is not None
     assert message.channel_id == channel.id
     assert message.user_id == "test_user"
@@ -438,7 +438,7 @@ def test_message_creation(test_db, seed_channels):
 def test_channel_messages_relationship(test_db, seed_channels):
     """チャンネルとメッセージのリレーションテスト"""
     channel = seed_channels[0]
-    
+
     # 複数のメッセージを作成
     for i in range(3):
         message = Message(
@@ -448,10 +448,10 @@ def test_channel_messages_relationship(test_db, seed_channels):
             content=f"メッセージ{i}"
         )
         test_db.add(message)
-    
+
     test_db.commit()
     test_db.refresh(channel)
-    
+
     assert len(channel.messages) == 3
     assert all(msg.channel_id == channel.id for msg in channel.messages)
 ```
@@ -465,10 +465,10 @@ from httpx import AsyncClient
 async def test_get_channels(async_client: AsyncClient, seed_channels):
     """チャンネル一覧取得APIのテスト"""
     response = await async_client.get("/api/channels")
-    
+
     assert response.status_code == 200
     data = response.json()
-    
+
     assert len(data) == 5
     assert data[0]["name"] == "雑談"
     assert all("id" in channel and "name" in channel for channel in data)
@@ -477,7 +477,7 @@ async def test_get_channels(async_client: AsyncClient, seed_channels):
 async def test_get_channel_messages(async_client: AsyncClient, seed_channels, test_db):
     """チャンネルメッセージ取得APIのテスト"""
     from src.backend.models import Message
-    
+
     # テストメッセージを作成
     channel = seed_channels[0]
     for i in range(15):
@@ -489,22 +489,22 @@ async def test_get_channel_messages(async_client: AsyncClient, seed_channels, te
         )
         test_db.add(message)
     test_db.commit()
-    
+
     # ページネーションなし
     response = await async_client.get(f"/api/channels/{channel.id}/messages")
     assert response.status_code == 200
     data = response.json()
-    
+
     assert data["total"] == 15
     assert len(data["messages"]) == 15
-    
+
     # ページネーションあり
     response = await async_client.get(
         f"/api/channels/{channel.id}/messages?limit=10&offset=5"
     )
     assert response.status_code == 200
     data = response.json()
-    
+
     assert data["total"] == 15
     assert len(data["messages"]) == 10
 
@@ -512,7 +512,7 @@ async def test_get_channel_messages(async_client: AsyncClient, seed_channels, te
 async def test_get_channel_messages_invalid_channel(async_client: AsyncClient):
     """存在しないチャンネルのメッセージ取得テスト"""
     response = await async_client.get("/api/channels/999/messages")
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Channel not found"
 ```
@@ -536,7 +536,7 @@ def test_websocket_message_send(client: TestClient, seed_channels):
     with client.websocket_connect("/ws") as websocket:
         # 接続確認メッセージを受信
         websocket.receive_json()
-        
+
         # メッセージを送信
         test_message = {
             "type": "message:send",
@@ -550,14 +550,14 @@ def test_websocket_message_send(client: TestClient, seed_channels):
                 "is_own_message": True
             }
         }
-        
+
         websocket.send_json(test_message)
-        
+
         # 保存確認メッセージを受信
         response = websocket.receive_json()
         assert response["type"] == "message:saved"
         assert response["data"]["success"] is True
-        
+
         # ブロードキャストメッセージを受信
         broadcast = websocket.receive_json()
         assert broadcast["type"] == "message:broadcast"
@@ -568,7 +568,7 @@ def test_websocket_invalid_message(client: TestClient):
     with client.websocket_connect("/ws") as websocket:
         # 接続確認メッセージを受信
         websocket.receive_json()
-        
+
         # 無効なメッセージを送信（必須フィールドが不足）
         invalid_message = {
             "type": "message:send",
@@ -576,9 +576,9 @@ def test_websocket_invalid_message(client: TestClient):
                 "content": "不完全なメッセージ"
             }
         }
-        
+
         websocket.send_json(invalid_message)
-        
+
         # エラーレスポンスを確認
         response = websocket.receive_json()
         assert response["type"] == "error"
@@ -589,13 +589,13 @@ async def test_websocket_multiple_clients():
     """複数クライアント間のメッセージブロードキャストテスト"""
     client1 = TestClient(app)
     client2 = TestClient(app)
-    
+
     with client1.websocket_connect("/ws") as ws1:
         with client2.websocket_connect("/ws") as ws2:
             # 両方のクライアントで接続確認
             ws1.receive_json()
             ws2.receive_json()
-            
+
             # クライアント1からメッセージ送信
             message = {
                 "type": "message:send",
@@ -609,16 +609,16 @@ async def test_websocket_multiple_clients():
                     "is_own_message": True
                 }
             }
-            
+
             ws1.send_json(message)
-            
+
             # クライアント1で保存確認とブロードキャストを受信
             ws1.receive_json()  # saved
             broadcast1 = ws1.receive_json()  # broadcast
-            
+
             # クライアント2でブロードキャストを受信
             broadcast2 = ws2.receive_json()
-            
+
             assert broadcast1["type"] == "message:broadcast"
             assert broadcast2["type"] == "message:broadcast"
             assert broadcast1["data"]["content"] == broadcast2["data"]["content"]
@@ -639,11 +639,11 @@ async def test_complete_chat_flow(async_client: AsyncClient, client: TestClient,
     assert response.status_code == 200
     channels = response.json()
     channel_id = channels[0]["id"]
-    
+
     # 2. WebSocket接続を確立
     with client.websocket_connect("/ws") as websocket:
         websocket.receive_json()  # 接続確認
-        
+
         # 3. メッセージを送信
         message_data = {
             "type": "message:send",
@@ -657,22 +657,22 @@ async def test_complete_chat_flow(async_client: AsyncClient, client: TestClient,
                 "is_own_message": True
             }
         }
-        
+
         websocket.send_json(message_data)
-        
+
         # 4. 保存確認を受信
         saved_response = websocket.receive_json()
         assert saved_response["type"] == "message:saved"
-        
+
         # 5. ブロードキャストを受信
         broadcast = websocket.receive_json()
         assert broadcast["type"] == "message:broadcast"
-    
+
     # 6. メッセージ履歴を確認
     response = await async_client.get(f"/api/channels/{channel_id}/messages")
     assert response.status_code == 200
     messages = response.json()["messages"]
-    
+
     # 送信したメッセージが含まれていることを確認
     assert any(msg["content"] == "E2Eテストメッセージ" for msg in messages)
 ```
@@ -698,7 +698,7 @@ async def full_stack_app():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    
+
     # フロントエンドサーバー起動
     frontend_process = subprocess.Popen(
         ["npm", "run", "dev"],
@@ -706,7 +706,7 @@ async def full_stack_app():
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE
     )
-    
+
     # サーバー起動を待機
     for _ in range(30):
         try:
@@ -715,9 +715,9 @@ async def full_stack_app():
             break
         except:
             time.sleep(1)
-    
+
     yield
-    
+
     # クリーンアップ
     backend_process.terminate()
     frontend_process.terminate()
@@ -731,43 +731,43 @@ async def test_full_chat_experience(full_stack_app):
         # 2つのブラウザを起動（2人のユーザーをシミュレート）
         browser1 = await p.chromium.launch()
         browser2 = await p.chromium.launch()
-        
+
         page1 = await browser1.new_page()
         page2 = await browser2.new_page()
-        
+
         # 両方のユーザーがアプリにアクセス
         await page1.goto("http://localhost:5173")
         await page2.goto("http://localhost:5173")
-        
+
         # チャンネル一覧が表示されるまで待機
         await page1.wait_for_selector("text=雑談")
         await page2.wait_for_selector("text=雑談")
-        
+
         # ユーザー1がメッセージを送信
         await page1.fill('input[placeholder="メッセージを入力..."]', 'こんにちは！')
         await page1.keyboard.press('Enter')
-        
+
         # 両方のユーザーでメッセージが表示されることを確認
         await page1.wait_for_selector('text=こんにちは！')
         await page2.wait_for_selector('text=こんにちは！')
-        
+
         # ユーザー2が返信
         await page2.fill('input[placeholder="メッセージを入力..."]', 'こんにちは！元気ですか？')
         await page2.keyboard.press('Enter')
-        
+
         # 両方のユーザーで返信が表示されることを確認
         await page1.wait_for_selector('text=こんにちは！元気ですか？')
         await page2.wait_for_selector('text=こんにちは！元気ですか？')
-        
+
         # チャンネル切り替えテスト
         await page1.click('text=ゲーム')
         await page1.fill('input[placeholder="メッセージを入力..."]', 'ゲームチャンネルです')
         await page1.keyboard.press('Enter')
-        
+
         # ユーザー2もゲームチャンネルに切り替え
         await page2.click('text=ゲーム')
         await page2.wait_for_selector('text=ゲームチャンネルです')
-        
+
         # クリーンアップ
         await browser1.close()
         await browser2.close()
@@ -849,24 +849,24 @@ on:
 jobs:
   backend-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.13'
-    
+
     - name: Install uv
       run: pip install uv
-    
+
     - name: Install dependencies
       run: uv sync
-    
+
     - name: Run backend tests
       run: uv run pytest tests/backend/ --cov=src/backend --cov-report=xml
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -875,23 +875,23 @@ jobs:
 
   frontend-tests:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-    
+
     - name: Install dependencies
       working-directory: ./src/frontend
       run: npm ci
-    
+
     - name: Run frontend tests
       working-directory: ./src/frontend
       run: npm run test:coverage
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
       with:
@@ -901,27 +901,27 @@ jobs:
   e2e-tests:
     runs-on: ubuntu-latest
     needs: [backend-tests, frontend-tests]
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.13'
-    
+
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
-    
+
     - name: Install dependencies
       run: |
         pip install uv
         uv sync
         cd src/frontend && npm ci
         npx playwright install
-    
+
     - name: Run E2E tests
       run: |
         # バックエンド起動

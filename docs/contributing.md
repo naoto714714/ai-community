@@ -3,7 +3,7 @@
 ## 開発環境セットアップ
 
 ### 前提条件
-- Node.js 18+ 
+- Node.js 18+
 - Python 3.13+
 - uv (`curl -LsSf https://astral.sh/uv/install.sh | sh`)
 
