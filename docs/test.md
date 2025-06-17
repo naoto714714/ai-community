@@ -18,12 +18,10 @@
 1. **テスト駆動開発（TDD）**: 新機能開発時はテストファーストで実装
 2. **継続的インテグレーション（CI）**: すべてのプルリクエストでテスト実行
 3. **カバレッジ目標**: コード全体で80%以上、重要機能は100%
-4. **E2Eテスト**: ユーザー視点での統合動作確認
 
 ### テストレベル
 1. **ユニットテスト**: 個々の関数・コンポーネントの動作確認
 2. **統合テスト**: モジュール間連携の確認
-3. **E2Eテスト**: アプリケーション全体の動作確認
 
 ## ディレクトリ構成
 
@@ -41,40 +39,29 @@ ai-community/
 │   │   │   ├── test_schemas.py
 │   │   │   ├── test_crud.py
 │   │   │   └── test_websocket_handlers.py
-│   │   ├── integration/        # 統合テスト
-│   │   │   ├── __init__.py
-│   │   │   ├── test_api_channels.py
-│   │   │   ├── test_api_messages.py
-│   │   │   ├── test_websocket_flow.py
-│   │   │   └── test_database_operations.py
-│   │   └── e2e/               # E2Eテスト（API全体）
+│   │   └── integration/        # 統合テスト
 │   │       ├── __init__.py
-│   │       └── test_chat_flow.py
-│   ├── frontend/               # フロントエンドテスト
-│   │   ├── setup.ts            # Vitest設定
-│   │   ├── utils/              # テストユーティリティ
-│   │   │   ├── test-utils.tsx
-│   │   │   ├── mocks.ts
-│   │   │   └── websocket-mock.ts
-│   │   ├── unit/               # ユニットテスト
-│   │   │   ├── components/
-│   │   │   │   ├── ChatMessage.test.tsx
-│   │   │   │   ├── ChannelList.test.tsx
-│   │   │   │   ├── MessageInput.test.tsx
-│   │   │   │   └── MessageList.test.tsx
-│   │   │   └── hooks/
-│   │   │       └── useWebSocket.test.ts
-│   │   ├── integration/        # 統合テスト
-│   │   │   ├── ChatApp.test.tsx
-│   │   │   └── WebSocketConnection.test.tsx
-│   │   └── e2e/               # E2Eテスト（Playwright）
-│   │       ├── playwright.config.ts
-│   │       ├── chat.spec.ts
-│   │       └── websocket.spec.ts
-│   └── e2e/                    # フルスタックE2Eテスト
-│       ├── __init__.py
-│       ├── conftest.py
-│       └── test_full_chat_experience.py
+│   │       ├── test_api_channels.py
+│   │       ├── test_api_messages.py
+│   │       ├── test_websocket_flow.py
+│   │       └── test_database_operations.py
+│   └── frontend/               # フロントエンドテスト
+│       ├── setup.ts            # Vitest設定
+│       ├── utils/              # テストユーティリティ
+│       │   ├── test-utils.tsx
+│       │   ├── mocks.ts
+│       │   └── websocket-mock.ts
+│       ├── unit/               # ユニットテスト
+│       │   ├── components/
+│       │   │   ├── ChatMessage.test.tsx
+│       │   │   ├── ChannelList.test.tsx
+│       │   │   ├── MessageInput.test.tsx
+│       │   │   └── MessageList.test.tsx
+│       │   └── hooks/
+│       │       └── useWebSocket.test.ts
+│       └── integration/        # 統合テスト
+│           ├── ChatApp.test.tsx
+│           └── WebSocketConnection.test.tsx
 ```
 
 ## フロントエンドテスト
@@ -83,7 +70,6 @@ ai-community/
 - **テストランナー**: Vitest
 - **テストライブラリ**: React Testing Library
 - **モック**: Mock Service Worker (MSW)
-- **E2Eテスト**: Playwright
 - **カバレッジ**: Vitest内蔵
 
 ### 実装詳細
@@ -272,40 +258,6 @@ describe('ChatApp Integration', () => {
 })
 ```
 
-#### 6. E2Eテスト例（tests/frontend/e2e/chat.spec.ts）
-```typescript
-import { test, expect } from '@playwright/test'
-
-test.describe('チャット機能', () => {
-  test('メッセージの送受信が正常に動作する', async ({ page }) => {
-    // アプリケーションにアクセス
-    await page.goto('http://localhost:5173')
-
-    // チャンネル一覧が表示されるまで待機
-    await page.waitForSelector('text=雑談')
-
-    // メッセージを入力
-    await page.fill('input[placeholder="メッセージを入力..."]', 'E2Eテストメッセージ')
-    await page.keyboard.press('Enter')
-
-    // メッセージが表示されることを確認
-    await expect(page.locator('text=E2Eテストメッセージ')).toBeVisible()
-  })
-
-  test('チャンネル切り替えが正常に動作する', async ({ page }) => {
-    await page.goto('http://localhost:5173')
-
-    // ゲームチャンネルをクリック
-    await page.click('text=ゲーム')
-
-    // チャンネルがアクティブになることを確認
-    await expect(page.locator('button:has-text("ゲーム")')).toHaveClass(/active/)
-
-    // 異なるメッセージが表示されることを確認
-    await expect(page.locator('text=ゲームチャンネルへようこそ')).toBeVisible()
-  })
-})
-```
 
 ## バックエンドテスト
 
@@ -624,154 +576,6 @@ async def test_websocket_multiple_clients():
             assert broadcast1["data"]["content"] == broadcast2["data"]["content"]
 ```
 
-#### 5. E2Eテスト（tests/backend/e2e/test_chat_flow.py）
-```python
-import pytest
-import asyncio
-from httpx import AsyncClient
-from fastapi.testclient import TestClient
-
-@pytest.mark.asyncio
-async def test_complete_chat_flow(async_client: AsyncClient, client: TestClient, seed_channels):
-    """完全なチャットフローのE2Eテスト"""
-    # 1. チャンネル一覧を取得
-    response = await async_client.get("/api/channels")
-    assert response.status_code == 200
-    channels = response.json()
-    channel_id = channels[0]["id"]
-    
-    # 2. WebSocket接続を確立
-    with client.websocket_connect("/ws") as websocket:
-        websocket.receive_json()  # 接続確認
-        
-        # 3. メッセージを送信
-        message_data = {
-            "type": "message:send",
-            "data": {
-                "id": "e2e_test_msg",
-                "channel_id": str(channel_id),
-                "user_id": "e2e_user",
-                "user_name": "E2Eテストユーザー",
-                "content": "E2Eテストメッセージ",
-                "timestamp": "2025-01-16T10:00:00.000Z",
-                "is_own_message": True
-            }
-        }
-        
-        websocket.send_json(message_data)
-        
-        # 4. 保存確認を受信
-        saved_response = websocket.receive_json()
-        assert saved_response["type"] == "message:saved"
-        
-        # 5. ブロードキャストを受信
-        broadcast = websocket.receive_json()
-        assert broadcast["type"] == "message:broadcast"
-    
-    # 6. メッセージ履歴を確認
-    response = await async_client.get(f"/api/channels/{channel_id}/messages")
-    assert response.status_code == 200
-    messages = response.json()["messages"]
-    
-    # 送信したメッセージが含まれていることを確認
-    assert any(msg["content"] == "E2Eテストメッセージ" for msg in messages)
-```
-
-## フルスタックE2Eテスト
-
-### 実装詳細（tests/e2e/test_full_chat_experience.py）
-```python
-import pytest
-import asyncio
-import subprocess
-import time
-from playwright.async_api import async_playwright
-import requests
-
-@pytest.fixture(scope="module")
-async def full_stack_app():
-    """フルスタックアプリケーションの起動"""
-    # バックエンドサーバー起動
-    backend_process = subprocess.Popen(
-        ["uv", "run", "python", "main.py"],
-        cwd="src/backend",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    
-    # フロントエンドサーバー起動
-    frontend_process = subprocess.Popen(
-        ["npm", "run", "dev"],
-        cwd="src/frontend",
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
-    
-    # サーバー起動を待機
-    for _ in range(30):
-        try:
-            requests.get("http://localhost:8000")
-            requests.get("http://localhost:5173")
-            break
-        except:
-            time.sleep(1)
-    
-    yield
-    
-    # クリーンアップ
-    backend_process.terminate()
-    frontend_process.terminate()
-    backend_process.wait()
-    frontend_process.wait()
-
-@pytest.mark.asyncio
-async def test_full_chat_experience(full_stack_app):
-    """フルスタックチャット体験のE2Eテスト"""
-    async with async_playwright() as p:
-        # 2つのブラウザを起動（2人のユーザーをシミュレート）
-        browser1 = await p.chromium.launch()
-        browser2 = await p.chromium.launch()
-        
-        page1 = await browser1.new_page()
-        page2 = await browser2.new_page()
-        
-        # 両方のユーザーがアプリにアクセス
-        await page1.goto("http://localhost:5173")
-        await page2.goto("http://localhost:5173")
-        
-        # チャンネル一覧が表示されるまで待機
-        await page1.wait_for_selector("text=雑談")
-        await page2.wait_for_selector("text=雑談")
-        
-        # ユーザー1がメッセージを送信
-        await page1.fill('input[placeholder="メッセージを入力..."]', 'こんにちは！')
-        await page1.keyboard.press('Enter')
-        
-        # 両方のユーザーでメッセージが表示されることを確認
-        await page1.wait_for_selector('text=こんにちは！')
-        await page2.wait_for_selector('text=こんにちは！')
-        
-        # ユーザー2が返信
-        await page2.fill('input[placeholder="メッセージを入力..."]', 'こんにちは！元気ですか？')
-        await page2.keyboard.press('Enter')
-        
-        # 両方のユーザーで返信が表示されることを確認
-        await page1.wait_for_selector('text=こんにちは！元気ですか？')
-        await page2.wait_for_selector('text=こんにちは！元気ですか？')
-        
-        # チャンネル切り替えテスト
-        await page1.click('text=ゲーム')
-        await page1.fill('input[placeholder="メッセージを入力..."]', 'ゲームチャンネルです')
-        await page1.keyboard.press('Enter')
-        
-        # ユーザー2もゲームチャンネルに切り替え
-        await page2.click('text=ゲーム')
-        await page2.wait_for_selector('text=ゲームチャンネルです')
-        
-        # クリーンアップ
-        await browser1.close()
-        await browser2.close()
-```
 
 ## テスト実行方法
 
@@ -789,9 +593,6 @@ npm run test
 
 # カバレッジ付きテスト実行
 npm run test:coverage
-
-# E2Eテスト実行
-npm run test:e2e
 
 # ウォッチモードでテスト実行
 npm run test:watch
@@ -813,7 +614,6 @@ uv run pytest --cov=src/backend --cov-report=html
 # 特定のテストのみ実行
 uv run pytest tests/backend/unit/
 uv run pytest tests/backend/integration/
-uv run pytest tests/backend/e2e/
 
 # 詳細出力付きテスト
 uv run pytest -v
@@ -822,16 +622,6 @@ uv run pytest -v
 uv run pytest --lf
 ```
 
-### フルスタックE2Eテスト
-
-```bash
-# 事前準備：両サーバーを起動しておく
-# ターミナル1: cd src/backend && uv run python main.py
-# ターミナル2: cd src/frontend && npm run dev
-
-# E2Eテスト実行
-uv run pytest tests/e2e/
-```
 
 ## CI/CD統合
 
@@ -898,40 +688,6 @@ jobs:
         file: ./src/frontend/coverage/lcov.info
         flags: frontend
 
-  e2e-tests:
-    runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13'
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Install dependencies
-      run: |
-        pip install uv
-        uv sync
-        cd src/frontend && npm ci
-        npx playwright install
-    
-    - name: Run E2E tests
-      run: |
-        # バックエンド起動
-        cd src/backend && uv run python main.py &
-        # フロントエンド起動
-        cd src/frontend && npm run dev &
-        # サーバー起動待機
-        sleep 10
-        # E2Eテスト実行
-        uv run pytest tests/e2e/
 ```
 
 ## 既存テストファイルの整理
