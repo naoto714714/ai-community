@@ -170,7 +170,7 @@ describe('ChatMessage', () => {
 
   it('メッセージを正しく表示する', () => {
     render(<ChatMessage message={mockMessage} />)
-    
+
     expect(screen.getByText('Hello, World!')).toBeInTheDocument()
     expect(screen.getByText('Test User')).toBeInTheDocument()
   })
@@ -178,14 +178,14 @@ describe('ChatMessage', () => {
   it('自分のメッセージは右寄せで表示される', () => {
     const ownMessage = { ...mockMessage, is_own_message: true }
     render(<ChatMessage message={ownMessage} />)
-    
+
     const messageElement = screen.getByText('Hello, World!').closest('div')
     expect(messageElement).toHaveStyle({ textAlign: 'right' })
   })
 
   it('タイムスタンプが正しくフォーマットされる', () => {
     render(<ChatMessage message={mockMessage} />)
-    
+
     // dayjs形式で表示されることを確認
     expect(screen.getByText(/10:00/)).toBeInTheDocument()
   })
@@ -202,7 +202,7 @@ import { MockWebSocket } from '../utils/websocket-mock'
 describe('ChatApp Integration', () => {
   it('チャンネル切り替えでメッセージが更新される', async () => {
     render(<App />)
-    
+
     // チャンネル一覧が表示される
     await waitFor(() => {
       expect(screen.getByText('雑談')).toBeInTheDocument()
@@ -304,20 +304,20 @@ def test_db():
         poolclass=StaticPool,
     )
     TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    
+
     Base.metadata.create_all(bind=engine)
-    
+
     def override_get_db():
         try:
             db = TestingSessionLocal()
             yield db
         finally:
             db.close()
-    
+
     app.dependency_overrides[get_db] = override_get_db
-    
+
     yield TestingSessionLocal()
-    
+
     Base.metadata.drop_all(bind=engine)
     app.dependency_overrides.clear()
 
@@ -342,10 +342,10 @@ def seed_channels(test_db):
         Channel(id=4, name="趣味", description="趣味の共有"),
         Channel(id=5, name="ニュース", description="最新情報をシェア"),
     ]
-    
+
     test_db.add_all(channels)
     test_db.commit()
-    
+
     return channels
 ```
 
@@ -363,7 +363,7 @@ def test_channel_creation(test_db):
     )
     test_db.add(channel)
     test_db.commit()
-    
+
     assert channel.id is not None
     assert channel.name == "テストチャンネル"
     assert channel.description == "テスト用のチャンネル"
@@ -380,7 +380,7 @@ def test_message_creation(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     assert message.id is not None
     assert message.channel_id == channel.id
     assert message.user_id == "test_user"
@@ -390,7 +390,7 @@ def test_message_creation(test_db, seed_channels):
 def test_channel_messages_relationship(test_db, seed_channels):
     """チャンネルとメッセージのリレーションテスト"""
     channel = seed_channels[0]
-    
+
     # 複数のメッセージを作成
     for i in range(3):
         message = Message(
@@ -400,10 +400,10 @@ def test_channel_messages_relationship(test_db, seed_channels):
             content=f"メッセージ{i}"
         )
         test_db.add(message)
-    
+
     test_db.commit()
     test_db.refresh(channel)
-    
+
     assert len(channel.messages) == 3
     assert all(msg.channel_id == channel.id for msg in channel.messages)
 ```
@@ -417,10 +417,10 @@ from httpx import AsyncClient
 async def test_get_channels(async_client: AsyncClient, seed_channels):
     """チャンネル一覧取得APIのテスト"""
     response = await async_client.get("/api/channels")
-    
+
     assert response.status_code == 200
     data = response.json()
-    
+
     assert len(data) == 5
     assert data[0]["name"] == "雑談"
     assert all("id" in channel and "name" in channel for channel in data)
@@ -429,7 +429,7 @@ async def test_get_channels(async_client: AsyncClient, seed_channels):
 async def test_get_channel_messages(async_client: AsyncClient, seed_channels, test_db):
     """チャンネルメッセージ取得APIのテスト"""
     from src.backend.models import Message
-    
+
     # テストメッセージを作成
     channel = seed_channels[0]
     for i in range(15):
@@ -441,22 +441,22 @@ async def test_get_channel_messages(async_client: AsyncClient, seed_channels, te
         )
         test_db.add(message)
     test_db.commit()
-    
+
     # ページネーションなし
     response = await async_client.get(f"/api/channels/{channel.id}/messages")
     assert response.status_code == 200
     data = response.json()
-    
+
     assert data["total"] == 15
     assert len(data["messages"]) == 15
-    
+
     # ページネーションあり
     response = await async_client.get(
         f"/api/channels/{channel.id}/messages?limit=10&offset=5"
     )
     assert response.status_code == 200
     data = response.json()
-    
+
     assert data["total"] == 15
     assert len(data["messages"]) == 10
 
@@ -464,7 +464,7 @@ async def test_get_channel_messages(async_client: AsyncClient, seed_channels, te
 async def test_get_channel_messages_invalid_channel(async_client: AsyncClient):
     """存在しないチャンネルのメッセージ取得テスト"""
     response = await async_client.get("/api/channels/999/messages")
-    
+
     assert response.status_code == 404
     assert response.json()["detail"] == "Channel not found"
 ```
@@ -488,7 +488,7 @@ def test_websocket_message_send(client: TestClient, seed_channels):
     with client.websocket_connect("/ws") as websocket:
         # 接続確認メッセージを受信
         websocket.receive_json()
-        
+
         # メッセージを送信
         test_message = {
             "type": "message:send",
@@ -502,14 +502,14 @@ def test_websocket_message_send(client: TestClient, seed_channels):
                 "is_own_message": True
             }
         }
-        
+
         websocket.send_json(test_message)
-        
+
         # 保存確認メッセージを受信
         response = websocket.receive_json()
         assert response["type"] == "message:saved"
         assert response["data"]["success"] is True
-        
+
         # ブロードキャストメッセージを受信
         broadcast = websocket.receive_json()
         assert broadcast["type"] == "message:broadcast"
@@ -520,7 +520,7 @@ def test_websocket_invalid_message(client: TestClient):
     with client.websocket_connect("/ws") as websocket:
         # 接続確認メッセージを受信
         websocket.receive_json()
-        
+
         # 無効なメッセージを送信（必須フィールドが不足）
         invalid_message = {
             "type": "message:send",
@@ -528,9 +528,9 @@ def test_websocket_invalid_message(client: TestClient):
                 "content": "不完全なメッセージ"
             }
         }
-        
+
         websocket.send_json(invalid_message)
-        
+
         # エラーレスポンスを確認
         response = websocket.receive_json()
         assert response["type"] == "error"
@@ -541,13 +541,13 @@ async def test_websocket_multiple_clients():
     """複数クライアント間のメッセージブロードキャストテスト"""
     client1 = TestClient(app)
     client2 = TestClient(app)
-    
+
     with client1.websocket_connect("/ws") as ws1:
         with client2.websocket_connect("/ws") as ws2:
             # 両方のクライアントで接続確認
             ws1.receive_json()
             ws2.receive_json()
-            
+
             # クライアント1からメッセージ送信
             message = {
                 "type": "message:send",
@@ -561,134 +561,19 @@ async def test_websocket_multiple_clients():
                     "is_own_message": True
                 }
             }
-            
+
             ws1.send_json(message)
-            
+
             # クライアント1で保存確認とブロードキャストを受信
             ws1.receive_json()  # saved
             broadcast1 = ws1.receive_json()  # broadcast
-            
+
             # クライアント2でブロードキャストを受信
             broadcast2 = ws2.receive_json()
-            
+
             assert broadcast1["type"] == "message:broadcast"
             assert broadcast2["type"] == "message:broadcast"
             assert broadcast1["data"]["content"] == broadcast2["data"]["content"]
-```
-
-
-## テスト実行方法
-
-### フロントエンドテスト
-
-```bash
-# フロントエンドディレクトリに移動
-cd src/frontend
-
-# 依存関係インストール（初回のみ）
-npm install --save-dev vitest @testing-library/react @testing-library/jest-dom @testing-library/user-event @playwright/test
-
-# ユニットテスト・統合テスト実行
-npm run test
-
-# カバレッジ付きテスト実行
-npm run test:coverage
-
-# ウォッチモードでテスト実行
-npm run test:watch
-```
-
-### バックエンドテスト
-
-```bash
-# プロジェクトルートディレクトリで実行
-# 依存関係インストール（初回のみ）
-uv add --dev pytest pytest-asyncio pytest-cov pytest-mock httpx
-
-# 全テスト実行
-uv run pytest
-
-# カバレッジ付きテスト実行
-uv run pytest --cov=src/backend --cov-report=html
-
-# 特定のテストのみ実行
-uv run pytest tests/backend/unit/
-uv run pytest tests/backend/integration/
-
-# 詳細出力付きテスト
-uv run pytest -v
-
-# 失敗したテストのみ再実行
-uv run pytest --lf
-```
-
-
-## CI/CD統合
-
-### GitHub Actions設定例（.github/workflows/test.yml）
-
-```yaml
-name: Tests
-
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  backend-tests:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.13'
-    
-    - name: Install uv
-      run: pip install uv
-    
-    - name: Install dependencies
-      run: uv sync
-    
-    - name: Run backend tests
-      run: uv run pytest tests/backend/ --cov=src/backend --cov-report=xml
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage.xml
-        flags: backend
-
-  frontend-tests:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Install dependencies
-      working-directory: ./src/frontend
-      run: npm ci
-    
-    - name: Run frontend tests
-      working-directory: ./src/frontend
-      run: npm run test:coverage
-    
-    - name: Upload coverage
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./src/frontend/coverage/lcov.info
-        flags: frontend
-
-```
 
 ## 既存テストファイルの整理
 
