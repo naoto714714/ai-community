@@ -1,8 +1,16 @@
 import { vi } from 'vitest';
 
+// WebSocket ready state constants
+const WEBSOCKET_READY_STATE = {
+  CONNECTING: 0,
+  OPEN: 1,
+  CLOSING: 2,
+  CLOSED: 3,
+} as const;
+
 export class MockWebSocket {
   url: string;
-  readyState: number = 0; // WebSocket.CONNECTING
+  readyState: number = WEBSOCKET_READY_STATE.CONNECTING;
   onopen: ((event: Event) => void) | null = null;
   onclose: ((event: CloseEvent) => void) | null = null;
   onmessage: ((event: MessageEvent) => void) | null = null;
@@ -11,7 +19,7 @@ export class MockWebSocket {
   constructor(url: string) {
     this.url = url;
     setTimeout(() => {
-      this.readyState = 1; // WebSocket.OPEN
+      this.readyState = WEBSOCKET_READY_STATE.OPEN;
       this.onopen?.(new Event('open'));
     }, 0);
   }
@@ -21,7 +29,7 @@ export class MockWebSocket {
   });
 
   close = vi.fn(() => {
-    this.readyState = 3; // WebSocket.CLOSED
+    this.readyState = WEBSOCKET_READY_STATE.CLOSED;
     this.onclose?.(new CloseEvent('close'));
   });
 
@@ -35,7 +43,7 @@ export class MockWebSocket {
   }
 
   simulateClose() {
-    this.readyState = 3; // WebSocket.CLOSED
+    this.readyState = WEBSOCKET_READY_STATE.CLOSED;
     this.onclose?.(new CloseEvent('close'));
   }
 }
