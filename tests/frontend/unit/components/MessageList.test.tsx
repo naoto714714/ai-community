@@ -74,9 +74,7 @@ describe('MessageList', () => {
     const { rerender } = render(<MessageList messages={[mockMessages[0]]} />)
 
     // 最初のレンダリング後のスクロール
-    await waitFor(() => {
-      vi.runAllTimers()
-    })
+    vi.runAllTimers()
 
     // メッセージを追加
     rerender(<MessageList messages={mockMessages} />)
@@ -93,11 +91,10 @@ describe('MessageList', () => {
 
     await waitFor(() => {
       vi.runAllTimers()
-    })
-
-    expect(mockScrollTo).toHaveBeenCalledWith({
-      top: expect.any(Number),
-      behavior: 'smooth',
+      expect(mockScrollTo).toHaveBeenCalledWith({
+        top: expect.any(Number),
+        behavior: 'smooth',
+      })
     })
   })
 
@@ -106,9 +103,7 @@ describe('MessageList', () => {
     const { rerender } = render(<MessageList messages={[mockMessages[0]]} />)
 
     // 最初のレンダリング
-    await waitFor(() => {
-      vi.runAllTimers()
-    })
+    vi.runAllTimers()
 
     // メッセージを更新
     rerender(<MessageList messages={mockMessages} />)
