@@ -86,7 +86,7 @@ from sqlalchemy.orm import sessionmaker
 SQLALCHEMY_DATABASE_URL = "sqlite:///./chat.db"
 
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, 
+    SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -111,14 +111,14 @@ from database import Base
 
 class Channel(Base):
     __tablename__ = "channels"
-    
+
     id = Column(String, primary_key=True)
     name = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
 class Message(Base):
     __tablename__ = "messages"
-    
+
     id = Column(String, primary_key=True)
     channel_id = Column(String, nullable=False, index=True)
     user_id = Column(String, nullable=False)
@@ -151,7 +151,7 @@ class MessageCreate(MessageBase):
 
 class MessageResponse(MessageBase):
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -161,7 +161,7 @@ class ChannelBase(BaseModel):
 
 class ChannelResponse(ChannelBase):
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -262,7 +262,7 @@ async def get_channel_messages(
     channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
-    
+
     # メッセージ取得
     messages = (
         db.query(Message)
@@ -272,11 +272,11 @@ async def get_channel_messages(
         .limit(limit)
         .all()
     )
-    
+
     # 総数取得
     total = db.query(Message).filter(Message.channel_id == channel_id).count()
     has_more = (offset + limit) < total
-    
+
     return MessagesListResponse(
         messages=messages,
         total=total,
@@ -335,7 +335,7 @@ def create_message(db: Session, message: MessageCreate) -> Message:
         timestamp = datetime.fromisoformat(message.timestamp.replace('Z', '+00:00'))
     else:
         timestamp = message.timestamp
-    
+
     db_message = Message(
         id=message.id,
         channel_id=message.channel_id,
@@ -385,14 +385,14 @@ async def get_channel_messages(
     channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
         raise HTTPException(status_code=404, detail="Channel not found")
-    
+
     # メッセージ取得
     messages = crud.get_channel_messages(db, channel_id, offset, limit)
-    
+
     # 総数取得
     total = db.query(Message).filter(Message.channel_id == channel_id).count()
     has_more = (offset + limit) < total
-    
+
     return MessagesListResponse(
         messages=messages,
         total=total,
@@ -434,20 +434,20 @@ logger = logging.getLogger(__name__)
 class ConnectionManager:
     def __init__(self):
         self.active_connections: List[WebSocket] = []
-    
+
     async def connect(self, websocket: WebSocket):
         await websocket.accept()
         self.active_connections.append(websocket)
         logger.info(f"New WebSocket connection. Total: {len(self.active_connections)}")
-    
+
     def disconnect(self, websocket: WebSocket):
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
         logger.info(f"WebSocket disconnected. Total: {len(self.active_connections)}")
-    
+
     async def send_personal_message(self, message: str, websocket: WebSocket):
         await websocket.send_text(message)
-    
+
     async def broadcast(self, message: str):
         for connection in self.active_connections:
             try:
@@ -462,14 +462,14 @@ async def handle_websocket_message(websocket: WebSocket, data: dict):
     """WebSocketメッセージの処理"""
     message_type = data.get("type")
     message_data = data.get("data")
-    
+
     if message_type == "message:send":
         # データベースにメッセージを保存
         db = SessionLocal()
         try:
             message_create = MessageCreate(**message_data)
             saved_message = crud.create_message(db, message_create)
-            
+
             # 保存成功をクライアントに通知
             response = {
                 "type": "message:saved",
@@ -479,12 +479,12 @@ async def handle_websocket_message(websocket: WebSocket, data: dict):
                 }
             }
             await manager.send_personal_message(json.dumps(response), websocket)
-            
+
             logger.info(f"Message saved: {saved_message.id}")
-            
+
         except Exception as e:
             logger.error(f"Error saving message: {str(e)}")
-            
+
             # エラーをクライアントに通知
             error_response = {
                 "type": "message:error",
@@ -495,10 +495,10 @@ async def handle_websocket_message(websocket: WebSocket, data: dict):
                 }
             }
             await manager.send_personal_message(json.dumps(error_response), websocket)
-        
+
         finally:
             db.close()
-    
+
     else:
         logger.warning(f"Unknown message type: {message_type}")
 ```
@@ -529,7 +529,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 logger.error(f"Invalid JSON received: {data}")
             except Exception as e:
                 logger.error(f"Error handling WebSocket message: {str(e)}")
-    
+
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         logger.info("WebSocket connection closed")
@@ -563,14 +563,14 @@ async def test_websocket():
                     "is_own_message": True
                 }
             }
-            
+
             await websocket.send(json.dumps(test_message))
             print(f"Sent: {test_message}")
-            
+
             # レスポンスを受信
             response = await websocket.recv()
             print(f"Received: {response}")
-            
+
     except Exception as e:
         print(f"Error: {e}")
 
@@ -636,7 +636,7 @@ export function Layout() {
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
       console.log('WebSocket message received:', data);
-      
+
       if (data.type === 'message:saved') {
         console.log('Message saved confirmation:', data.data);
       } else if (data.type === 'message:error') {
@@ -699,7 +699,7 @@ export function Layout() {
             is_own_message: userMessage.isOwnMessage,
           }
         };
-        
+
         wsRef.current.send(JSON.stringify(wsMessage));
       }
 
