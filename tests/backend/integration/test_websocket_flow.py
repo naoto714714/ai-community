@@ -35,7 +35,7 @@ def test_websocket_message_send(client: TestClient, seed_channels):
         assert response["data"]["id"] == "ws_test_msg_1"
 
 
-def test_websocket_invalid_message_type(client: TestClient):
+def test_websocket_invalid_message_type(client: TestClient, seed_channels):
     """無効なメッセージタイプのテスト"""
     with client.websocket_connect("/ws") as websocket:
         # 無効なタイプのメッセージを送信
@@ -86,7 +86,7 @@ def test_websocket_invalid_message_data(client: TestClient):
         assert "error" in response["data"]
 
 
-def test_websocket_disconnect_handling(client: TestClient):
+def test_websocket_disconnect_handling(client: TestClient, seed_channels):
     """WebSocket切断処理のテスト"""
     # 複数の接続を作成
     with client.websocket_connect("/ws") as ws1:
