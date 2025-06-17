@@ -32,7 +32,7 @@ export const mockMessages: Message[] = [
 // API モック
 export const mockFetch = vi.fn();
 
-export const createMockResponse = (data: any, status = 200) => {
+export const createMockResponse = (data: unknown, status = 200) => {
   return Promise.resolve({
     ok: status >= 200 && status < 300,
     status,
@@ -57,6 +57,6 @@ export const mockGetMessages = (channelId: string, messages = mockMessages) => {
 };
 
 // エラーレスポンスのモック
-export const mockErrorResponse = (status = 500, message = 'Internal Server Error') => {
+export const mockErrorResponse = (message = 'Internal Server Error') => {
   mockFetch.mockRejectedValueOnce(new Error(message));
 };

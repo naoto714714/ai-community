@@ -18,7 +18,7 @@ const mockWebSocket = {
 };
 
 const MockWebSocketClass = vi.fn().mockImplementation(() => mockWebSocket);
-global.WebSocket = MockWebSocketClass as any;
+global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
 
 describe('ChatApp Integration', () => {
   beforeEach(() => {

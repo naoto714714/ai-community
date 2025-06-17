@@ -7,8 +7,17 @@ const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
 // WebSocketのモック
-let mockWebSocket: any;
-let WebSocketInstances: any[] = [];
+let mockWebSocket: {
+  url: string;
+  readyState: number;
+  onopen: ((event: Event) => void) | null;
+  onmessage: ((event: MessageEvent) => void) | null;
+  onclose: ((event: CloseEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  send: ReturnType<typeof vi.fn>;
+  close: ReturnType<typeof vi.fn>;
+};
+let WebSocketInstances: (typeof mockWebSocket)[] = [];
 
 const MockWebSocketClass = vi.fn().mockImplementation((url: string) => {
   mockWebSocket = {
@@ -25,7 +34,7 @@ const MockWebSocketClass = vi.fn().mockImplementation((url: string) => {
   return mockWebSocket;
 });
 
-global.WebSocket = MockWebSocketClass as any;
+global.WebSocket = MockWebSocketClass as unknown as typeof WebSocket;
 
 describe('WebSocket Connection Integration', () => {
   beforeEach(() => {
