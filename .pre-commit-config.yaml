@@ -40,6 +40,26 @@ repos:
         language: system
         files: ^src/backend/.*\.py$
         pass_filenames: false
+
+      # Python Code Quality (Tests)
+      - id: ruff-format-tests
+        name: Ruff Format (Tests)
+        entry: bash -c 'uv run ruff format tests'
+        language: system
+        files: ^tests/.*\.py$
+        pass_filenames: false
+      - id: ruff-tests
+        name: Ruff (Tests)
+        entry: bash -c 'uv run ruff check tests --fix --exit-non-zero-on-fix'
+        files: ^tests/.*\.py$
+        language: system
+        pass_filenames: false
+      - id: pyright-tests
+        name: pyright (Tests)
+        entry: bash -c 'uv run pyright tests'
+        language: system
+        files: ^tests/.*\.py$
+        pass_filenames: false
       - id: uv-lock-check-backend
         name: Check backend uv.lock is up to date
         entry: bash -c 'cd src/backend && uv lock --check'

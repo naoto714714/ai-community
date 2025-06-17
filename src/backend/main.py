@@ -6,19 +6,19 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-import crud
-from database import SessionLocal, engine, get_db
-from models import Base, Channel
-from schemas import ChannelResponse, MessageResponse, MessagesListResponse
-from websocket import handle_websocket_message, manager
+from . import crud
+from .database import SessionLocal, engine, get_db
+from .models import Base, Channel
+from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
+from .websocket import handle_websocket_message, manager
 
 # 初期チャンネルデータ
 INITIAL_CHANNELS = [
-    {"id": "1", "name": "雑談"},
-    {"id": "2", "name": "ゲーム"},
-    {"id": "3", "name": "音楽"},
-    {"id": "4", "name": "趣味"},
-    {"id": "5", "name": "ニュース"},
+    {"id": "1", "name": "雑談", "description": "何でも話せる場所"},
+    {"id": "2", "name": "ゲーム", "description": "ゲームについて語ろう"},
+    {"id": "3", "name": "音楽", "description": "音楽の話題はこちら"},
+    {"id": "4", "name": "趣味", "description": "趣味の共有"},
+    {"id": "5", "name": "ニュース", "description": "最新情報をシェア"},
 ]
 
 

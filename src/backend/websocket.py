@@ -4,8 +4,8 @@ from typing import Any, TypedDict
 
 from fastapi import WebSocket
 
-import crud
-from schemas import MessageCreate
+from . import crud
+from .schemas import MessageCreate
 
 
 class WebSocketMessageData(TypedDict):
@@ -100,7 +100,7 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
 
     if message_type == "message:send":
         # データベースセッションをコンテキストマネージャーで安全に管理
-        from database import SessionLocal
+        from .database import SessionLocal
 
         async def save_message_with_session():
             db = SessionLocal()

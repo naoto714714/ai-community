@@ -5,13 +5,20 @@ description = "AI Community - Modern chat application with React frontend and Fa
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "fastapi>=0.115.13",
+    "sqlalchemy>=2.0.41",
+    "uvicorn[standard]>=0.34.3",
+    "websockets>=15.0.1",
 ]
 
 [tool.uv]
 dev-dependencies = [
+    "httpx>=0.28.1",
     "pre-commit>=4.2.0",
     "pyright>=1.1.402",
     "pytest>=8.4.0",
+    "pytest-asyncio>=1.0.0",
+    "pytest-mock>=3.14.1",
     "ruff>=0.11.13",
 ]
 
