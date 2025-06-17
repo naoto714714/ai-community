@@ -60,3 +60,59 @@ export const mockGetMessages = (channelId: string, messages = mockMessages) => {
 export const mockErrorResponse = (status = 500, message = 'Internal Server Error') => {
   mockFetch.mockRejectedValueOnce(new Error(message))
 }
+
+// WebSocketのモック機能
+export const WebSocketInstances: MockWebSocket[] = []
+
+export class MockWebSocket {
+  public url: string
+  public readyState: number = WebSocket.CONNECTING
+  public onopen: ((event: Event) => void) | null = null
+  public onclose: ((event: CloseEvent) => void) | null = null
+  public onmessage: ((event: MessageEvent) => void) | null = null
+  public onerror: ((event: Event) => void) | null = null
+  public close = vi.fn()
+  public send = vi.fn()
+
+  constructor(url: string) {
+    this.url = url
+    WebSocketInstances.push(this)
+    
+    // 非同期で接続成功をシミュレート
+    setTimeout(() => {
+      this.readyState = WebSocket.OPEN
+      if (this.onopen) {
+        this.onopen(new Event('open'))
+      }
+    }, 0)
+  }
+}
+
+// リセット関数
+export const resetMocks = () => {
+  mockFetch.mockClear()
+  WebSocketInstances.length = 0
+  // グローバルな fetch をモックで置き換え
+  global.fetch = mockFetch
+}
+
+// バックエンド接続確認のモック
+export const setupBackendConnectionMock = () => {
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve({ message: 'AI Community Backend API' }),
+  })
+}
+
+// チャンネルメッセージ取得のモック
+export const mockChannelMessages = (channelId: string, messages: Message[] = []) => {
+  const response = {
+    messages,
+    total: messages.length,
+    hasMore: false,
+  }
+  mockFetch.mockResolvedValueOnce({
+    ok: true,
+    json: () => Promise.resolve(response),
+  })
+}

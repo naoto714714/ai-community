@@ -5,6 +5,7 @@ import { afterEach, vi } from 'vitest';
 // 各テスト後にクリーンアップ
 afterEach(() => {
   cleanup();
+  vi.resetAllMocks(); // グローバルスタブを保持しながらモックをリセット
 });
 
 // matchMediaのモック
@@ -44,3 +45,7 @@ Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
 vi.mock('nanoid', () => ({
   nanoid: () => 'test-id-12345',
 }));
+
+// WebSocketのグローバルスタブ設定
+import { MockWebSocket } from './utils/mocks';
+vi.stubGlobal('WebSocket', MockWebSocket);
