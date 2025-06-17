@@ -141,6 +141,11 @@ describe('WebSocket Connection Integration', () => {
   it('予期しない切断時に再接続を試行する', async () => {
     render(<Layout />);
 
+    // フェイクタイマーを進めてWebSocket接続をトリガー
+    await act(async () => {
+      vi.runAllTimers();
+    });
+
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
     });
@@ -180,6 +185,11 @@ describe('WebSocket Connection Integration', () => {
 
   it('正常な切断時は再接続を試行しない', async () => {
     render(<Layout />);
+
+    // フェイクタイマーを進めてWebSocket接続をトリガー
+    await act(async () => {
+      vi.runAllTimers();
+    });
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
