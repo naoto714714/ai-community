@@ -38,6 +38,7 @@ class ChannelBase(BaseModel):
 
     id: str
     name: str
+    description: str | None = None
 
 
 class ChannelResponse(ChannelBase):
