@@ -2,11 +2,12 @@ import pytest
 from datetime import datetime
 from src.backend import crud
 from src.backend.schemas import MessageCreate
-from src.backend.models import Message, Channel
 
 
 def test_get_channels(test_db, seed_channels):
     """チャンネル一覧取得のテスト"""
+    from src.backend.models import Channel
+    
     channels = crud.get_channels(test_db)
     
     assert len(channels) == 5
@@ -41,6 +42,7 @@ def test_create_message(test_db, seed_channels):
     assert created_message.user_name == "テストユーザー"
     
     # データベースに保存されているか確認
+    from src.backend.models import Message
     saved_message = test_db.query(Message).filter(Message.id == "crud_test_msg_001").first()
     assert saved_message is not None
     assert saved_message.content == "CRUDテストメッセージ"
