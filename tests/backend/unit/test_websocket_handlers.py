@@ -69,13 +69,17 @@ async def test_connection_manager_send_personal_message():
 @pytest.mark.asyncio
 async def test_connection_manager_broadcast():
     """ブロードキャストテスト"""
+    from starlette.websockets import WebSocketState
+    
     manager = ConnectionManager()
 
     # 複数のモックWebSocketを作成
     mock_websocket1 = Mock()
     mock_websocket1.send_text = AsyncMock()
+    mock_websocket1.client_state = WebSocketState.CONNECTED
     mock_websocket2 = Mock()
     mock_websocket2.send_text = AsyncMock()
+    mock_websocket2.client_state = WebSocketState.CONNECTED
 
     manager.active_connections = [mock_websocket1, mock_websocket2]
 
@@ -90,14 +94,18 @@ async def test_connection_manager_broadcast():
 @pytest.mark.asyncio
 async def test_connection_manager_broadcast_with_error():
     """ブロードキャスト中のエラーハンドリングテスト"""
+    from starlette.websockets import WebSocketState
+    
     manager = ConnectionManager()
 
     # 正常なWebSocketとエラーを起こすWebSocketを作成
     mock_websocket1 = Mock()
     mock_websocket1.send_text = AsyncMock()
+    mock_websocket1.client_state = WebSocketState.CONNECTED
 
     mock_websocket2 = Mock()
     mock_websocket2.send_text = AsyncMock(side_effect=Exception("Connection closed"))
+    mock_websocket2.client_state = WebSocketState.CONNECTED
 
     manager.active_connections = [mock_websocket1, mock_websocket2]
 
