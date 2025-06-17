@@ -16,22 +16,26 @@ export const mockFetch = vi.fn();
 vi.stubGlobal('fetch', mockFetch);
 
 // WebSocketのモック
+export const MockWebSocketClass = vi.fn();
+MockWebSocketClass.OPEN = 1;
+MockWebSocketClass.CLOSED = 3;
+
 export const mockWebSocket = {
   send: vi.fn(),
   close: vi.fn(),
-  readyState: WebSocket.OPEN,
+  readyState: MockWebSocketClass.OPEN,
   onopen: null as ((event: Event) => void) | null,
   onmessage: null as ((event: MessageEvent) => void) | null,
   onclose: null as ((event: CloseEvent) => void) | null,
   onerror: null as ((event: Event) => void) | null,
 };
 
-export const MockWebSocketClass = vi.fn().mockImplementation(() => mockWebSocket);
+MockWebSocketClass.mockImplementation(() => mockWebSocket);
 vi.stubGlobal('WebSocket', MockWebSocketClass);
 
 // WebSocketの状態をリセット
 export const resetWebSocketState = () => {
-  mockWebSocket.readyState = WebSocket.OPEN;
+  mockWebSocket.readyState = MockWebSocketClass.OPEN;
   mockWebSocket.send.mockClear();
   mockWebSocket.close.mockClear();
   mockWebSocket.onopen = null;

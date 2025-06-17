@@ -34,13 +34,13 @@ const MockWebSocketClass = vi.fn().mockImplementation((url: string) => {
 
   WebSocketInstances.push(mockWebSocket);
 
-  // 即座に接続成功としてシミュレート
-  Promise.resolve().then(() => {
+  // フェイクタイマー環境で即座に接続成功としてシミュレート
+  setTimeout(() => {
     if (mockWebSocket.onopen) {
       mockWebSocket.readyState = WebSocket.OPEN;
       mockWebSocket.onopen(new Event('open'));
     }
-  });
+  }, 0);
 
   return mockWebSocket;
 });
@@ -49,6 +49,7 @@ vi.stubGlobal('WebSocket', MockWebSocketClass);
 
 describe('WebSocket Connection Integration', () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     vi.clearAllMocks();
     mockFetch.mockClear();
     WebSocketInstances = [];
@@ -83,11 +84,16 @@ describe('WebSocket Connection Integration', () => {
   });
 
   afterEach(() => {
-    // クリーンアップ
+    vi.useRealTimers();
   });
 
   it('WebSocket接続が正常に確立される', async () => {
     render(<Layout />);
+
+    // フェイクタイマーを進めてWebSocket接続をトリガー
+    await act(async () => {
+      vi.runAllTimers();
+    });
 
     await waitFor(() => {
       expect(MockWebSocketClass).toHaveBeenCalledWith('ws://localhost:8000/ws');
@@ -104,6 +110,11 @@ describe('WebSocket Connection Integration', () => {
       expect(mockFetch).toHaveBeenCalledWith('http://localhost:8000/');
     });
 
+    // フェイクタイマーを進めてWebSocket接続をトリガー
+    await act(async () => {
+      vi.runAllTimers();
+    });
+
     await waitFor(() => {
       expect(MockWebSocketClass).toHaveBeenCalled();
     });
@@ -111,6 +122,11 @@ describe('WebSocket Connection Integration', () => {
 
   it('WebSocket接続成功時に再試行カウントがリセットされる', async () => {
     render(<Layout />);
+
+    // フェイクタイマーを進めてWebSocket接続をトリガー
+    await act(async () => {
+      vi.runAllTimers();
+    });
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -123,13 +139,7 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('予期しない切断時に再接続を試行する', async () => {
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -160,7 +170,6 @@ describe('WebSocket Connection Integration', () => {
     // タイマーを進めて再接続をトリガー
     await act(async () => {
       vi.advanceTimersByTime(3000);
-      await vi.runAllTimersAsync();
     });
 
     await waitFor(() => {
@@ -170,13 +179,7 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('正常な切断時は再接続を試行しない', async () => {
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -198,68 +201,48 @@ describe('WebSocket Connection Integration', () => {
     expect(setTimeout).not.toHaveBeenCalledWith(expect.any(Function), 3000);
   });
 
-  it(
-    '最大再試行回数（5回）に達すると再接続を停止する',
-    async () => {
-      // バックエンド接続を失敗させる
-      mockFetch.mockClear();
-      for (let i = 0; i < 6; i++) {
-        mockFetch.mockRejectedValueOnce(new Error('Connection failed'));
-      }
+  it('最大再試行回数（5回）に達すると再接続を停止する', async () => {
+    // バックエンド接続を失敗させる
+    mockFetch.mockClear();
+    for (let i = 0; i < 6; i++) {
+      mockFetch.mockRejectedValueOnce(new Error('Connection failed'));
+    }
 
-      await act(async () => {
-        render(<Layout />);
-      });
+    render(<Layout />);
 
-      // 初回接続失敗を待機
+    await waitFor(() => {
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+    });
+
+    // 再試行を5回実行
+    for (let i = 0; i < 5; i++) {
       await act(async () => {
-        await vi.runAllTimersAsync();
+        vi.advanceTimersByTime(3000);
       });
 
       await waitFor(() => {
-        expect(mockFetch).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(i + 2);
       });
+    }
 
-      // 再試行を5回実行
-      for (let i = 0; i < 5; i++) {
-        await act(async () => {
-          vi.advanceTimersByTime(3000);
-          await vi.runAllTimersAsync();
-        });
+    // 6回目の再試行は行われない
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
 
-        await waitFor(() => {
-          expect(mockFetch).toHaveBeenCalledTimes(i + 2);
-        });
-      }
+    expect(mockFetch).toHaveBeenCalledTimes(6); // 最大6回（初回+再試行5回）
 
-      // 6回目の再試行は行われない
-      await act(async () => {
-        vi.advanceTimersByTime(3000);
-        await vi.runAllTimersAsync();
-      });
-
-      expect(mockFetch).toHaveBeenCalledTimes(6); // 最大6回（初回+再試行5回）
-
-      // さらに時間を進めても再試行されない
-      await act(async () => {
-        vi.advanceTimersByTime(10000);
-        await vi.runAllTimersAsync();
-      });
-      expect(mockFetch).toHaveBeenCalledTimes(6);
-    },
-    { timeout: 15000 },
-  );
+    // さらに時間を進めても再試行されない
+    await act(async () => {
+      vi.advanceTimersByTime(10000);
+    });
+    expect(mockFetch).toHaveBeenCalledTimes(6);
+  }, 15000);
 
   it('WebSocketエラー時にエラーハンドラが呼ばれる', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -282,13 +265,7 @@ describe('WebSocket Connection Integration', () => {
   it('無効なJSONメッセージを受信した場合エラーハンドリングされる', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -317,16 +294,7 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('コンポーネントアンマウント時にWebSocketが正常にクリーンアップされる', async () => {
-    let unmount: () => void;
-
-    await act(async () => {
-      const result = render(<Layout />);
-      unmount = result.unmount;
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    const { unmount } = render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -335,9 +303,7 @@ describe('WebSocket Connection Integration', () => {
     const firstWebSocket = WebSocketInstances[0];
 
     // アンマウント
-    await act(async () => {
-      unmount();
-    });
+    unmount();
 
     // WebSocketのcloseが呼ばれる
     expect(firstWebSocket.close).toHaveBeenCalled();
@@ -345,16 +311,7 @@ describe('WebSocket Connection Integration', () => {
 
   it('アンマウント時に再接続タイマーがクリアされる', async () => {
     const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
-    let unmount: () => void;
-
-    await act(async () => {
-      const result = render(<Layout />);
-      unmount = result.unmount;
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    const { unmount } = render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -379,13 +336,7 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('メッセージ送信時にWebSocketの状態を確認する', async () => {
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
@@ -403,13 +354,7 @@ describe('WebSocket Connection Integration', () => {
   it('複数の再接続試行が重複しないようにタイマーがクリアされる', async () => {
     const clearTimeoutSpy = vi.spyOn(window, 'clearTimeout');
 
-    await act(async () => {
-      render(<Layout />);
-    });
-
-    await act(async () => {
-      await vi.runAllTimersAsync();
-    });
+    render(<Layout />);
 
     await waitFor(() => {
       expect(WebSocketInstances[0]).toBeDefined();
