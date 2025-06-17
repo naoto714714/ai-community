@@ -25,8 +25,6 @@ def test_database_transaction_rollback(test_db):
 
         # エラーを意図的に発生させる
         raise Exception("意図的なエラー")
-
-        test_db.commit()
     except Exception:
         test_db.rollback()
 
@@ -35,19 +33,19 @@ def test_database_transaction_rollback(test_db):
     assert final_count == initial_count
 
 
-def test_concurrent_message_creation(test_db, seed_channels):
-    """同時メッセージ作成のテスト"""
+def test_bulk_message_creation(test_db, seed_channels):
+    """複数メッセージ作成のテスト"""
     channel = seed_channels[0]
 
     # 複数のメッセージを連続して作成
     message_ids = []
     for i in range(10):
         message_data = MessageCreate(
-            id=f"concurrent_msg_{i}",
+            id=f"bulk_msg_{i}",
             channel_id=channel.id,
             user_id=f"user_{i}",
             user_name=f"ユーザー{i}",
-            content=f"並行メッセージ{i}",
+            content=f"一括メッセージ{i}",
             timestamp=datetime.now(),
             is_own_message=False,
         )
@@ -132,7 +130,6 @@ def test_channel_message_cascade(test_db):
 def test_database_session_isolation(test_db, seed_channels):
     """データベースセッションの分離テスト"""
     from sqlalchemy.orm import sessionmaker
-    
     channel = seed_channels[0]
     # テストセッションからエンジンを取得
     engine = test_db.bind
