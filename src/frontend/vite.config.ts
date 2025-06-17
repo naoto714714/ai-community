@@ -10,7 +10,10 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: [resolve(__dirname, './tests-setup.ts')],
     css: true,
-    include: ['tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: [
+      'tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+      '../../tests/frontend/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}',
+    ],
   },
   resolve: {
     alias: {
