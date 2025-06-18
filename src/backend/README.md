@@ -65,8 +65,26 @@ src/backend/
 
 ### WebSocket
 - `ws://localhost:8000/ws` - リアルタイム通信
-  - メッセージ送信: `{"type": "message:send", "data": {...}}`
-  - メッセージ保存通知: `{"type": "message:saved", "data": {...}}`
+
+**メッセージ送信プロトコル:**
+```json
+{
+  "type": "message:send",
+  "data": {
+    "id": "msg_123",
+    "channel_id": "1",
+    "user_id": "user_456",
+    "user_name": "ユーザー",
+    "content": "こんにちは",
+    "timestamp": "2024-01-01T12:00:00Z",
+    "is_own_message": true
+  }
+}
+```
+
+**レスポンス:**
+- 成功: `{"type": "message:saved", "data": {"id": "msg_123", "success": true}}`
+- エラー: `{"type": "message:error", "data": {"id": "msg_123", "success": false, "error": "エラー"}}`
 
 ## 🔨 開発ルール
 
