@@ -1,4 +1,4 @@
-# AI Community Frontend
+# AI Community フロントエンド（Frontend）
 
 React + TypeScript + Mantineによるモダンなリアルタイムチャットアプリケーション
 
@@ -26,12 +26,12 @@ npm install
 npm run dev
 ```
 
-**アプリケーションURL:** `http://localhost:5173`  
-**バックエンドAPI:** `http://localhost:8000`
+**アプリケーションURL:** [http://localhost:5173](http://localhost:5173)  
+**バックエンドAPI:** [http://localhost:8000](http://localhost:8000)
 
 ## 📁 プロジェクト構造
 
-```
+```text
 src/frontend/
 ├── src/
 │   ├── App.tsx              # メインアプリケーション
@@ -68,30 +68,24 @@ src/frontend/
 
 ### Layout.tsx（メインレイアウト）
 
-```typescript
-// WebSocket接続管理
-// アクティブチャンネル状態管理
-// モバイルナビゲーション制御
-// メッセージ送信処理
-```
+- **WebSocket接続管理**: サーバーとの双方向通信を制御
+- **アクティブチャンネル状態管理**: 現在選択中のチャンネル情報を保持
+- **モバイルナビゲーション制御**: レスポンシブ対応のサイドバー表示切替
+- **メッセージ送信処理**: ユーザー入力をWebSocket経由で送信
 
 ### MessageInput.tsx（メッセージ入力）
 
-```typescript
-// 日本語IME対応（Enter送信時の変換中防止）
-// 最大2000文字制限
-// オプティミスティックアップデート
-// Enter/Shiftキー制御
-```
+- **日本語IME対応**: Enter送信時の変換中防止でUX向上
+- **最大2000文字制限**: 長文投稿の制御とバリデーション
+- **オプティミスティックアップデート**: 送信前の即時UI反映
+- **キーボード制御**: Enter送信、Shift+Enter改行対応
 
 ### MessageItem.tsx（メッセージ表示）
 
-```typescript
-// 自分/他人のメッセージ色分け
-// タイムスタンプ表示（HH:mm形式）
-// フェードインアニメーション
-// Mantineテーマ連携
-```
+- **メッセージ色分け**: 自分/他人のメッセージを視覚的に区別
+- **タイムスタンプ表示**: HH:mm形式での送信時刻表示
+- **アニメーション**: 新着メッセージのフェードイン効果
+- **テーマ連携**: Mantineダークモード対応
 
 ## 🔗 バックエンド連携
 
@@ -143,9 +137,6 @@ src/frontend/
 ## 🔍 開発コマンド
 
 ```bash
-# 開発サーバー起動
-npm run dev
-
 # プロダクションビルド
 npm run build
 
@@ -155,6 +146,8 @@ npm run preview
 # ESLintチェック
 npm run lint
 ```
+
+> **Note:** 開発サーバー起動（`npm run dev`）については、上記の[クイックスタート](#-クイックスタート)をご参照ください。
 
 ## 📋 実装済み機能
 
