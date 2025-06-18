@@ -1,7 +1,7 @@
 /**
  * 統合テスト（最小限・実用版）
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { Layout } from '../../../src/frontend/src/components/Layout'
@@ -9,7 +9,7 @@ import { Layout } from '../../../src/frontend/src/components/Layout'
 // モックWebSocket
 class MockWebSocket {
   url: string
-  readyState: number = WebSocket.OPEN
+  readyState: number = 1 // WebSocket.OPEN の標準値
   onopen: ((event: Event) => void) | null = null
   onmessage: ((event: MessageEvent) => void) | null = null
   onerror: ((event: Event) => void) | null = null
@@ -47,7 +47,7 @@ class MockWebSocket {
   }
 
   close() {
-    this.readyState = WebSocket.CLOSED
+    this.readyState = 3 // WebSocket.CLOSED の標準値
     if (this.onclose) {
       this.onclose(new Event('close'))
     }
