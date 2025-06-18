@@ -1,3 +1,6 @@
+/**
+ * フロントエンドテスト用セットアップ（最小限・実用版）
+ */
 import '@testing-library/jest-dom';
 import { cleanup } from '@testing-library/react';
 import { afterEach, vi } from 'vitest';
@@ -5,47 +8,51 @@ import { afterEach, vi } from 'vitest';
 // 各テスト後にクリーンアップ
 afterEach(() => {
   cleanup();
-  vi.resetAllMocks(); // グローバルスタブを保持しながらモックをリセット
+  vi.resetAllMocks();
 });
 
-// matchMediaのモック
+// matchMediaのモック（必要最小限）
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(), // Deprecated
-    removeListener: vi.fn(), // Deprecated
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
   })),
 });
 
-// ResizeObserverのモック
+// ResizeObserverのモック（必要最小限）
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
 
-// DOM scrollTo メソッドのモック
-Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', {
-  value: vi.fn(),
-  writable: true,
-});
+// WebSocketのモック（必要最小限）
+class MockWebSocket {
+  url: string
+  readyState: number = WebSocket.OPEN
+  onopen: ((event: Event) => void) | null = null
+  onmessage: ((event: MessageEvent) => void) | null = null
+  onerror: ((event: Event) => void) | null = null
+  onclose: ((event: CloseEvent) => void) | null = null
 
-Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', {
-  value: 1000,
-  writable: true,
-});
+  constructor(url: string) {
+    this.url = url
+  }
 
-// グローバルモック設定
-vi.mock('nanoid', () => ({
-  nanoid: () => 'test-id-12345',
-}));
+  send(data: string) {
+    // モック実装
+  }
 
-// WebSocketのグローバルスタブ設定
-import { MockWebSocket } from './utils/mocks';
+  close() {
+    this.readyState = WebSocket.CLOSED
+  }
+}
+
 vi.stubGlobal('WebSocket', MockWebSocket);
