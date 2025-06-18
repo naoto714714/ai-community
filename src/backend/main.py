@@ -6,11 +6,20 @@ from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconn
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-import crud
-from database import SessionLocal, engine, get_db
-from models import Base, Channel
-from schemas import ChannelResponse, MessageResponse, MessagesListResponse
-from websocket import handle_websocket_message, manager
+try:
+    # パッケージとして実行される場合（テスト等）
+    from . import crud
+    from .database import SessionLocal, engine, get_db
+    from .models import Base, Channel
+    from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
+    from .websocket import handle_websocket_message, manager
+except ImportError:
+    # 直接実行される場合
+    import crud
+    from database import SessionLocal, engine, get_db
+    from models import Base, Channel
+    from schemas import ChannelResponse, MessageResponse, MessagesListResponse
+    from websocket import handle_websocket_message, manager
 
 # 初期チャンネルデータ
 INITIAL_CHANNELS = [
