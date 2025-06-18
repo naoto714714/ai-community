@@ -4,6 +4,20 @@ React + TypeScript + Mantineによるモダンなリアルタイムチャット�
 
 ## 🚀 クイックスタート
 
+### 1. バックエンドサーバーを起動
+
+**⚠️ 重要:** フロントエンドを起動する前に、バックエンドサーバーが起動している必要があります。
+
+```bash
+# バックエンドディレクトリに移動
+cd ../backend
+
+# バックエンドサーバー起動
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+### 2. フロントエンドを起動
+
 ```bash
 # 依存関係インストール
 npm install
@@ -12,7 +26,8 @@ npm install
 npm run dev
 ```
 
-**アプリケーションURL:** `http://localhost:5173`
+**アプリケーションURL:** `http://localhost:5173`  
+**バックエンドAPI:** `http://localhost:8000`
 
 ## 📁 プロジェクト構造
 
