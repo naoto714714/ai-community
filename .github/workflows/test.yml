@@ -10,9 +10,6 @@ jobs:
   backend:
     name: Backend Tests & Linting
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./src/backend
 
     steps:
       - name: Checkout code
@@ -27,22 +24,22 @@ jobs:
         run: uv python install 3.13
 
       - name: Install dependencies
-        run: uv sync
+        run: uv sync --dev
 
       - name: Check uv.lock is up to date
         run: uv lock --check
 
       - name: Run ruff format check
-        run: uv run --frozen ruff format --check .
+        run: uv run --frozen ruff format src/backend --check
 
       - name: Run ruff linting
-        run: uv run --frozen ruff check .
+        run: uv run --frozen ruff check src/backend
 
       - name: Run pyright type checking
-        run: uv run --frozen pyright .
+        run: uv run --frozen pyright src/backend
 
       - name: Run pytest
-        run: uv run --frozen pytest ../../tests/backend/ -v
+        run: uv run --frozen pytest tests/backend/ -v
 
   frontend:
     name: Frontend Tests & Linting
