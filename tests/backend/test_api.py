@@ -57,16 +57,24 @@ async def test_get_messages(async_client: AsyncClient, seed_channels, test_db):
     assert len(data["messages"]) == 3
     assert data["hasMore"] is False
 
-    # メッセージ形式を確認
-    first_message = data["messages"][0]
-    assert "id" in first_message
-    assert "channelId" in first_message
-    assert "userId" in first_message
-    assert "userName" in first_message
-    assert "content" in first_message
-    assert "timestamp" in first_message
-    assert "isOwnMessage" in first_message
-    assert "createdAt" in first_message
+    # メッセージ形式を確認（順序に依存しない検証）
+    assert len(data["messages"]) > 0
+    # 全メッセージが正しい形式を持つことを確認
+    for message in data["messages"]:
+        assert "id" in message
+        assert "channelId" in message
+        assert "userId" in message
+        assert "userName" in message
+        assert "content" in message
+        assert "timestamp" in message
+        assert "isOwnMessage" in message
+        assert "createdAt" in message
+
+    # 特定のメッセージが存在することを確認（順序に依存しない）
+    message_ids = [msg["id"] for msg in data["messages"]]
+    assert "api_test_msg_0" in message_ids
+    assert "api_test_msg_1" in message_ids
+    assert "api_test_msg_2" in message_ids
 
 
 @pytest.mark.asyncio
