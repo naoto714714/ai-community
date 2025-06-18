@@ -4,10 +4,16 @@ import { Layout } from '@/components/Layout';
 import { mockFetch, WebSocketInstances, resetMocks } from '../utils/mocks';
 
 describe('WebSocket Connection Integration', () => {
+  let originalScrollTo: any;
+  let originalScrollHeight: any;
+
   beforeEach(() => {
     resetMocks();
 
-    // DOM scrollTo メソッドのモック
+    // DOM scrollTo メソッドのモック（オリジナルを保存）
+    originalScrollTo = Object.getOwnPropertyDescriptor(HTMLDivElement.prototype, 'scrollTo');
+    originalScrollHeight = Object.getOwnPropertyDescriptor(HTMLDivElement.prototype, 'scrollHeight');
+    
     Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', {
       value: vi.fn(),
       writable: true,
@@ -38,6 +44,19 @@ describe('WebSocket Connection Integration', () => {
 
   afterEach(() => {
     vi.useRealTimers();
+
+    // プロトタイプ汚染を復元
+    if (originalScrollTo) {
+      Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', originalScrollTo);
+    } else {
+      delete (HTMLDivElement.prototype as any).scrollTo;
+    }
+
+    if (originalScrollHeight) {
+      Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', originalScrollHeight);
+    } else {
+      delete (HTMLDivElement.prototype as any).scrollHeight;
+    }
 
     // テスト後にmockFetchが正常に動作するよう再設定
     if (mockFetch.getMockImplementation() === undefined) {

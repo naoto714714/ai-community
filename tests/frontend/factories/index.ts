@@ -25,14 +25,17 @@ export const createMockMessage = (overrides: Partial<Message> = {}): Message => 
 
 // 複数メッセージの生成
 export const createMockMessages = (count: number, overrides: Partial<Message> = {}): Message[] => {
-  return Array.from({ length: count }, (_, index) =>
-    createMockMessage({
+  return Array.from({ length: count }, (_, index) => {
+    const baseTime = new Date('2025-01-16T10:00:00.000Z');
+    const timestamp = new Date(baseTime.getTime() + index * 60000); // 1分ずつ加算
+    
+    return createMockMessage({
       id: `test-message-${index + 1}`,
       content: `テストメッセージ ${index + 1}`,
-      timestamp: new Date(`2025-01-16T10:${String(index).padStart(2, '0')}:00.000Z`),
+      timestamp,
       ...overrides,
-    }),
-  );
+    });
+  });
 };
 
 // 複数チャンネルの生成

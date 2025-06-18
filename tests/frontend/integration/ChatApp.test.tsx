@@ -111,12 +111,8 @@ describe('ChatApp Integration', () => {
     // メッセージを入力して送信
     const input = screen.getByPlaceholderText('メッセージを入力...');
     fireEvent.change(input, { target: { value: 'Test message' } });
-    const sendButton = screen
-      .getAllByRole('button')
-      .find((btn) => btn.querySelector('svg.tabler-icon-send'));
-    if (sendButton) {
-      fireEvent.click(sendButton);
-    }
+    const sendButton = screen.getByTestId('send-button');
+    fireEvent.click(sendButton);
 
     // メッセージが即座に表示される（楽観的更新）
     await waitFor(() => {
@@ -183,12 +179,8 @@ describe('ChatApp Integration', () => {
     // メッセージを送信
     const input = screen.getByPlaceholderText('メッセージを入力...');
     fireEvent.change(input, { target: { value: 'Failed message' } });
-    const sendButton = screen
-      .getAllByRole('button')
-      .find((btn) => btn.querySelector('svg.tabler-icon-send'));
-    if (sendButton) {
-      fireEvent.click(sendButton);
-    }
+    const sendButton = screen.getByTestId('send-button');
+    fireEvent.click(sendButton);
 
     // メッセージが表示される（楽観的更新）
     await waitFor(() => {
@@ -249,12 +241,8 @@ describe('ChatApp Integration', () => {
 
     await act(async () => {
       fireEvent.change(input, { target: { value: 'Disconnected message' } });
-      const sendButton = screen
-        .getAllByRole('button')
-        .find((btn) => btn.querySelector('svg.tabler-icon-send'));
-      if (sendButton) {
-        fireEvent.click(sendButton);
-      }
+      const sendButton = screen.getByTestId('send-button');
+      fireEvent.click(sendButton);
     });
 
     // エラーログが出力されることを確認
