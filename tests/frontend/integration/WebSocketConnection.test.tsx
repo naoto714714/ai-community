@@ -49,13 +49,13 @@ describe('WebSocket Connection Integration', () => {
     if (originalScrollTo) {
       Object.defineProperty(HTMLDivElement.prototype, 'scrollTo', originalScrollTo);
     } else {
-      delete (HTMLDivElement.prototype as any).scrollTo;
+      (HTMLDivElement.prototype as any).scrollTo = undefined;
     }
 
     if (originalScrollHeight) {
       Object.defineProperty(HTMLDivElement.prototype, 'scrollHeight', originalScrollHeight);
     } else {
-      delete (HTMLDivElement.prototype as any).scrollHeight;
+      (HTMLDivElement.prototype as any).scrollHeight = undefined;
     }
 
     // テスト後にmockFetchが正常に動作するよう再設定
