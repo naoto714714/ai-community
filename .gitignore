@@ -3,7 +3,7 @@ z/*
 !z/.gitkeep
 
 # バックエンド関連
-src/backend/chat.db
+*chat.db
 src/backend/*.sqlite
 src/backend/*.sqlite3
 

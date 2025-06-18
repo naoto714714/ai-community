@@ -1,606 +1,143 @@
-# AI Community テストフレームワーク仕様書
+# AI Community テストフレームワーク仕様書（実用版）
 
 ## 概要
 
-本ドキュメントは、AI Communityプロジェクトにおけるテストフレームワークの全体設計と実装方針を定義します。フロントエンドとバックエンドそれぞれのテスト戦略、ディレクトリ構成、および品質担保のための具体的な実装方法を記載しています。
+AI Communityプロジェクトの**最小限かつ実用的な**テストフレームワーク仕様です。
+過度な複雑さを避け、実際の開発で継続可能なテストを目標とします。
 
-## 現状の課題
+## 基本方針
 
-現在、以下のような課題があります：
-- バックエンドに雑なテストファイルが点在（test_websocket.py、test_comprehensive.py、run_step7_tests.py）
-- フロントエンドのテストが未実装
-- 統一されたテスト構成がない
-- CI/CD統合の準備ができていない
-
-## テスト全体方針
-
-### 基本原則
-1. **テスト駆動開発（TDD）**: 新機能開発時はテストファーストで実装
-2. **継続的インテグレーション（CI）**: すべてのプルリクエストでテスト実行
-3. **カバレッジ目標**: コード全体で80%以上、重要機能は100%
+### 現実的な目標
+- **品質 > 完璧性**: 重要機能の確実な動作を優先
+- **保守性 > 網羅性**: メンテナンスしやすいテストを重視
+- **段階的導入**: 必要最小限から始めて徐々に拡張
 
 ### テストレベル
-1. **ユニットテスト**: 個々の関数・コンポーネントの動作確認
-2. **統合テスト**: モジュール間連携の確認
+1. **コアテスト**: 最重要機能のテスト（必須）
+2. **拡張テスト**: 追加機能のテスト（任意）
 
-## ディレクトリ構成
+## 簡素なディレクトリ構成
 
 ```
 ai-community/
 ├── tests/
-│   ├── __init__.py
-│   ├── conftest.py              # pytest共通設定
-│   ├── backend/                 # バックエンドテスト
-│   │   ├── __init__.py
-│   │   ├── conftest.py          # バックエンド固有のfixture
-│   │   ├── unit/               # ユニットテスト
-│   │   │   ├── __init__.py
-│   │   │   ├── test_models.py
-│   │   │   ├── test_schemas.py
-│   │   │   ├── test_crud.py
-│   │   │   └── test_websocket_handlers.py
-│   │   └── integration/        # 統合テスト
-│   │       ├── __init__.py
-│   │       ├── test_api_channels.py
-│   │       ├── test_api_messages.py
-│   │       ├── test_websocket_flow.py
-│   │       └── test_database_operations.py
-│   └── frontend/               # フロントエンドテスト
+│   ├── conftest.py              # pytest設定
+│   ├── backend/                 # バックエンドテスト（3ファイル）
+│   │   ├── test_models.py       # モデルテスト
+│   │   ├── test_api.py          # API基本テスト
+│   │   └── test_websocket.py    # WebSocket基本テスト
+│   └── frontend/               # フロントエンドテスト（3ファイル）
 │       ├── setup.ts            # Vitest設定
-│       ├── utils/              # テストユーティリティ
-│       │   ├── test-utils.tsx
-│       │   ├── mocks.ts
-│       │   └── websocket-mock.ts
-│       ├── unit/               # ユニットテスト
-│       │   ├── components/
-│       │   │   ├── ChatMessage.test.tsx
-│       │   │   ├── ChannelList.test.tsx
-│       │   │   ├── MessageInput.test.tsx
-│       │   │   └── MessageList.test.tsx
-│       │   └── hooks/
-│       │       └── useWebSocket.test.ts
-│       └── integration/        # 統合テスト
-│           ├── ChatApp.test.tsx
-│           └── WebSocketConnection.test.tsx
+│       ├── components.test.tsx  # コンポーネントテスト
+│       └── integration.test.tsx # 統合テスト
 ```
 
-## フロントエンドテスト
+**総テスト数目標**: 約15個（バックエンド8個 + フロントエンド7個）
 
-### 技術スタック
-- **テストランナー**: Vitest
-- **テストライブラリ**: React Testing Library
-- **モック**: Mock Service Worker (MSW)
-- **カバレッジ**: Vitest内蔵
+## バックエンドテスト（必要最小限）
 
-### 実装詳細
-
-#### 1. セットアップ（tests/frontend/setup.ts）
-```typescript
-import '@testing-library/jest-dom'
-import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
-
-// 各テスト後にクリーンアップ
-afterEach(() => {
-  cleanup()
-})
-
-// グローバルモック設定
-vi.mock('nanoid', () => ({
-  nanoid: () => 'test-id-12345'
-}))
-```
-
-#### 2. テストユーティリティ（tests/frontend/utils/test-utils.tsx）
-```typescript
-import { render, RenderOptions } from '@testing-library/react'
-import { MantineProvider } from '@mantine/core'
-import { ReactElement } from 'react'
-
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <MantineProvider>
-      {children}
-    </MantineProvider>
-  )
-}
-
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, { wrapper: AllTheProviders, ...options })
-
-export * from '@testing-library/react'
-export { customRender as render }
-```
-
-#### 3. WebSocketモック（tests/frontend/utils/websocket-mock.ts）
-```typescript
-import { vi } from 'vitest'
-
-export class MockWebSocket {
-  url: string
-  readyState: number = WebSocket.CONNECTING
-  onopen: ((event: Event) => void) | null = null
-  onclose: ((event: CloseEvent) => void) | null = null
-  onmessage: ((event: MessageEvent) => void) | null = null
-  onerror: ((event: Event) => void) | null = null
-
-  constructor(url: string) {
-    this.url = url
-    setTimeout(() => {
-      this.readyState = WebSocket.OPEN
-      this.onopen?.(new Event('open'))
-    }, 0)
-  }
-
-  send = vi.fn((data: string) => {
-    // メッセージ送信のモック
-  })
-
-  close = vi.fn(() => {
-    this.readyState = WebSocket.CLOSED
-    this.onclose?.(new CloseEvent('close'))
-  })
-
-  // テスト用ヘルパー
-  simulateMessage(data: any) {
-    this.onmessage?.(new MessageEvent('message', { data: JSON.stringify(data) }))
-  }
-}
-
-// グローバルWebSocketのモック
-global.WebSocket = MockWebSocket as any
-```
-
-#### 4. コンポーネントテスト例（tests/frontend/unit/components/ChatMessage.test.tsx）
-```typescript
-import { describe, it, expect } from 'vitest'
-import { render, screen } from '../../utils/test-utils'
-import { ChatMessage } from '@/components/ChatMessage'
-
-describe('ChatMessage', () => {
-  const mockMessage = {
-    id: '1',
-    content: 'Hello, World!',
-    user_name: 'Test User',
-    timestamp: '2025-01-16T10:00:00.000Z',
-    is_own_message: false
-  }
-
-  it('メッセージを正しく表示する', () => {
-    render(<ChatMessage message={mockMessage} />)
-
-    expect(screen.getByText('Hello, World!')).toBeInTheDocument()
-    expect(screen.getByText('Test User')).toBeInTheDocument()
-  })
-
-  it('自分のメッセージは右寄せで表示される', () => {
-    const ownMessage = { ...mockMessage, is_own_message: true }
-    render(<ChatMessage message={ownMessage} />)
-
-    const messageElement = screen.getByText('Hello, World!').closest('div')
-    expect(messageElement).toHaveStyle({ textAlign: 'right' })
-  })
-
-  it('タイムスタンプが正しくフォーマットされる', () => {
-    render(<ChatMessage message={mockMessage} />)
-
-    // dayjs形式で表示されることを確認
-    expect(screen.getByText(/10:00/)).toBeInTheDocument()
-  })
-})
-```
-
-#### 5. 統合テスト例（tests/frontend/integration/ChatApp.test.tsx）
-```typescript
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '../utils/test-utils'
-import { App } from '@/App'
-import { MockWebSocket } from '../utils/websocket-mock'
-
-describe('ChatApp Integration', () => {
-  it('チャンネル切り替えでメッセージが更新される', async () => {
-    render(<App />)
-
-    // チャンネル一覧が表示される
-    await waitFor(() => {
-      expect(screen.getByText('雑談')).toBeInTheDocument()
-      expect(screen.getByText('ゲーム')).toBeInTheDocument()
-    })
-
-    // ゲームチャンネルをクリック
-    fireEvent.click(screen.getByText('ゲーム'))
-
-    // APIリクエストが送信される
-    await waitFor(() => {
-      expect(fetch).toHaveBeenCalledWith(
-        expect.stringContaining('/api/channels/2/messages')
-      )
-    })
-  })
-
-  it('WebSocket経由でメッセージが送受信される', async () => {
-    const mockWs = new MockWebSocket('ws://localhost:8000/ws')
-    render(<App />)
-
-    // 接続を待つ
-    await waitFor(() => {
-      expect(mockWs.readyState).toBe(WebSocket.OPEN)
-    })
-
-    // メッセージを入力して送信
-    const input = screen.getByPlaceholderText('メッセージを入力...')
-    fireEvent.change(input, { target: { value: 'Test message' } })
-    fireEvent.submit(input.closest('form')!)
-
-    // WebSocketでメッセージが送信される
-    expect(mockWs.send).toHaveBeenCalledWith(
-      expect.stringContaining('Test message')
-    )
-
-    // サーバーからのレスポンスをシミュレート
-    mockWs.simulateMessage({
-      type: 'message:broadcast',
-      data: {
-        id: 'msg-1',
-        content: 'Test message',
-        user_name: 'Test User',
-        timestamp: new Date().toISOString()
-      }
-    })
-
-    // メッセージが表示される
-    await waitFor(() => {
-      expect(screen.getByText('Test message')).toBeInTheDocument()
-    })
-  })
-})
-```
-
-
-## バックエンドテスト
-
-### 技術スタック
-- **テストランナー**: pytest
-- **非同期テスト**: pytest-asyncio
-- **HTTPクライアント**: httpx
-- **モック**: pytest-mock
-- **カバレッジ**: pytest-cov
-
-### 実装詳細
-
-#### 1. 共通設定（tests/conftest.py）
+### 1. test_models.py（3テスト）
 ```python
-import pytest
-import asyncio
-from typing import AsyncGenerator, Generator
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.pool import StaticPool
-from httpx import AsyncClient
-from fastapi.testclient import TestClient
-
-from src.backend.main import app
-from src.backend.database import Base, get_db
-from src.backend.models import Channel
-
-# テスト用データベース設定
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-@pytest.fixture(scope="session")
-def event_loop():
-    """セッション全体で使用するイベントループ"""
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-    yield loop
-    loop.close()
-
-@pytest.fixture(scope="function")
-def test_db():
-    """テスト用のインメモリデータベース"""
-    engine = create_engine(
-        SQLALCHEMY_DATABASE_URL,
-        connect_args={"check_same_thread": False},
-        poolclass=StaticPool,
-    )
-    TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-    Base.metadata.create_all(bind=engine)
-
-    def override_get_db():
-        try:
-            db = TestingSessionLocal()
-            yield db
-        finally:
-            db.close()
-
-    app.dependency_overrides[get_db] = override_get_db
-
-    yield TestingSessionLocal()
-
-    Base.metadata.drop_all(bind=engine)
-    app.dependency_overrides.clear()
-
-@pytest.fixture
-def client(test_db) -> TestClient:
-    """同期テスト用クライアント"""
-    return TestClient(app)
-
-@pytest.fixture
-async def async_client(test_db) -> AsyncGenerator[AsyncClient, None]:
-    """非同期テスト用クライアント"""
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        yield ac
-
-@pytest.fixture
-def seed_channels(test_db):
-    """初期チャンネルデータの投入"""
-    channels = [
-        Channel(id=1, name="雑談", description="何でも話せる場所"),
-        Channel(id=2, name="ゲーム", description="ゲームについて語ろう"),
-        Channel(id=3, name="音楽", description="音楽の話題はこちら"),
-        Channel(id=4, name="趣味", description="趣味の共有"),
-        Channel(id=5, name="ニュース", description="最新情報をシェア"),
-    ]
-
-    test_db.add_all(channels)
-    test_db.commit()
-
-    return channels
+def test_channel_creation():
+    """チャンネル作成テスト"""
+    
+def test_message_creation():
+    """メッセージ作成テスト"""
+    
+def test_message_channel_relationship():
+    """チャンネル-メッセージ関係テスト"""
 ```
 
-#### 2. モデルテスト（tests/backend/unit/test_models.py）
+### 2. test_api.py（3テスト）
 ```python
-import pytest
-from datetime import datetime
-from src.backend.models import Channel, Message
-
-def test_channel_creation(test_db):
-    """チャンネルモデルの作成テスト"""
-    channel = Channel(
-        name="テストチャンネル",
-        description="テスト用のチャンネル"
-    )
-    test_db.add(channel)
-    test_db.commit()
-
-    assert channel.id is not None
-    assert channel.name == "テストチャンネル"
-    assert channel.description == "テスト用のチャンネル"
-    assert isinstance(channel.created_at, datetime)
-
-def test_message_creation(test_db, seed_channels):
-    """メッセージモデルの作成テスト"""
-    channel = seed_channels[0]
-    message = Message(
-        channel_id=channel.id,
-        user_id="test_user",
-        user_name="テストユーザー",
-        content="テストメッセージ"
-    )
-    test_db.add(message)
-    test_db.commit()
-
-    assert message.id is not None
-    assert message.channel_id == channel.id
-    assert message.user_id == "test_user"
-    assert message.content == "テストメッセージ"
-    assert isinstance(message.created_at, datetime)
-
-def test_channel_messages_relationship(test_db, seed_channels):
-    """チャンネルとメッセージのリレーションテスト"""
-    channel = seed_channels[0]
-
-    # 複数のメッセージを作成
-    for i in range(3):
-        message = Message(
-            channel_id=channel.id,
-            user_id=f"user_{i}",
-            user_name=f"ユーザー{i}",
-            content=f"メッセージ{i}"
-        )
-        test_db.add(message)
-
-    test_db.commit()
-    test_db.refresh(channel)
-
-    assert len(channel.messages) == 3
-    assert all(msg.channel_id == channel.id for msg in channel.messages)
+async def test_get_channels():
+    """チャンネル一覧取得"""
+    
+async def test_get_messages():
+    """メッセージ履歴取得"""
+    
+async def test_invalid_channel():
+    """存在しないチャンネルのエラーハンドリング"""
 ```
 
-#### 3. APIテスト（tests/backend/integration/test_api_channels.py）
+### 3. test_websocket.py（2テスト）
 ```python
-import pytest
-from httpx import AsyncClient
-
-@pytest.mark.asyncio
-async def test_get_channels(async_client: AsyncClient, seed_channels):
-    """チャンネル一覧取得APIのテスト"""
-    response = await async_client.get("/api/channels")
-
-    assert response.status_code == 200
-    data = response.json()
-
-    assert len(data) == 5
-    assert data[0]["name"] == "雑談"
-    assert all("id" in channel and "name" in channel for channel in data)
-
-@pytest.mark.asyncio
-async def test_get_channel_messages(async_client: AsyncClient, seed_channels, test_db):
-    """チャンネルメッセージ取得APIのテスト"""
-    from src.backend.models import Message
-
-    # テストメッセージを作成
-    channel = seed_channels[0]
-    for i in range(15):
-        message = Message(
-            channel_id=channel.id,
-            user_id=f"user_{i}",
-            user_name=f"ユーザー{i}",
-            content=f"テストメッセージ{i}"
-        )
-        test_db.add(message)
-    test_db.commit()
-
-    # ページネーションなし
-    response = await async_client.get(f"/api/channels/{channel.id}/messages")
-    assert response.status_code == 200
-    data = response.json()
-
-    assert data["total"] == 15
-    assert len(data["messages"]) == 15
-
-    # ページネーションあり
-    response = await async_client.get(
-        f"/api/channels/{channel.id}/messages?limit=10&offset=5"
-    )
-    assert response.status_code == 200
-    data = response.json()
-
-    assert data["total"] == 15
-    assert len(data["messages"]) == 10
-
-@pytest.mark.asyncio
-async def test_get_channel_messages_invalid_channel(async_client: AsyncClient):
-    """存在しないチャンネルのメッセージ取得テスト"""
-    response = await async_client.get("/api/channels/999/messages")
-
-    assert response.status_code == 404
-    assert response.json()["detail"] == "Channel not found"
-```
-
-#### 4. WebSocketテスト（tests/backend/integration/test_websocket_flow.py）
-```python
-import pytest
-import json
-from fastapi.testclient import TestClient
-from src.backend.main import app
-
-def test_websocket_connection(client: TestClient):
-    """WebSocket接続の基本テスト"""
-    with client.websocket_connect("/ws") as websocket:
-        # 接続成功を確認
-        data = websocket.receive_json()
-        assert data["type"] == "connection:established"
-
-def test_websocket_message_send(client: TestClient, seed_channels):
+def test_websocket_connection():
+    """WebSocket接続テスト"""
+    
+def test_websocket_message_send():
     """WebSocketメッセージ送信テスト"""
-    with client.websocket_connect("/ws") as websocket:
-        # 接続確認メッセージを受信
-        websocket.receive_json()
+```
 
-        # メッセージを送信
-        test_message = {
-            "type": "message:send",
-            "data": {
-                "id": "test_msg_1",
-                "channel_id": "1",
-                "user_id": "test_user",
-                "user_name": "テストユーザー",
-                "content": "WebSocketテスト",
-                "timestamp": "2025-01-16T10:00:00.000Z",
-                "is_own_message": True
-            }
-        }
+## フロントエンドテスト（必要最小限）
 
-        websocket.send_json(test_message)
+### 1. components.test.tsx（4テスト）
+```typescript
+// 主要コンポーネントのみ
+describe('MessageItem', () => {
+  it('メッセージが正しく表示される');
+  it('自分のメッセージは右寄せで表示される');
+});
 
-        # 保存確認メッセージを受信
-        response = websocket.receive_json()
-        assert response["type"] == "message:saved"
-        assert response["data"]["success"] is True
+describe('MessageInput', () => {
+  it('テキスト入力が正常に動作する');
+  it('Enterキーでメッセージが送信される');
+});
+```
 
-        # ブロードキャストメッセージを受信
-        broadcast = websocket.receive_json()
-        assert broadcast["type"] == "message:broadcast"
-        assert broadcast["data"]["content"] == "WebSocketテスト"
+### 2. integration.test.tsx（3テスト）
+```typescript
+describe('ChatApp Integration', () => {
+  it('チャンネル切り替えでメッセージが更新される');
+  it('WebSocket経由でメッセージが送受信される');
+  it('エラー時に適切にハンドリングされる');
+});
+```
 
-def test_websocket_invalid_message(client: TestClient):
-    """無効なメッセージ送信テスト"""
-    with client.websocket_connect("/ws") as websocket:
-        # 接続確認メッセージを受信
-        websocket.receive_json()
+## テスト技術スタック
 
-        # 無効なメッセージを送信（必須フィールドが不足）
-        invalid_message = {
-            "type": "message:send",
-            "data": {
-                "content": "不完全なメッセージ"
-            }
-        }
+### バックエンド
+- **pytest**: テストランナー
+- **httpx**: 非同期HTTPクライアント
+- **SQLite**: インメモリテスト用DB
 
-        websocket.send_json(invalid_message)
+### フロントエンド
+- **Vitest**: テストランナー
+- **React Testing Library**: コンポーネントテスト
+- **MockWebSocket**: WebSocket モック
 
-        # エラーレスポンスを確認
-        response = websocket.receive_json()
-        assert response["type"] == "error"
-        assert "error" in response["data"]
+## 実装優先順位
 
-@pytest.mark.asyncio
-async def test_websocket_multiple_clients():
-    """複数クライアント間のメッセージブロードキャストテスト"""
-    client1 = TestClient(app)
-    client2 = TestClient(app)
+### Phase 1: コアテスト（必須）
+1. ✅ バックエンドモデルテスト（3個）
+2. ✅ バックエンドAPIテスト（3個）
+3. ⚠️ フロントエンドコンポーネントテスト（4個）
 
-    with client1.websocket_connect("/ws") as ws1:
-        with client2.websocket_connect("/ws") as ws2:
-            # 両方のクライアントで接続確認
-            ws1.receive_json()
-            ws2.receive_json()
+### Phase 2: 統合テスト（推奨）
+4. ⚠️ WebSocketテスト（2個）
+5. ⚠️ フロントエンド統合テスト（3個）
 
-            # クライアント1からメッセージ送信
-            message = {
-                "type": "message:send",
-                "data": {
-                    "id": "broadcast_test",
-                    "channel_id": "1",
-                    "user_id": "user1",
-                    "user_name": "ユーザー1",
-                    "content": "ブロードキャストテスト",
-                    "timestamp": "2025-01-16T10:00:00.000Z",
-                    "is_own_message": True
-                }
-            }
+### Phase 3: 拡張テスト（任意）
+- エラーハンドリング詳細テスト
+- パフォーマンステスト
+- エンドツーエンドテスト
 
-            ws1.send_json(message)
+## 品質指標
 
-            # クライアント1で保存確認とブロードキャストを受信
-            ws1.receive_json()  # saved
-            broadcast1 = ws1.receive_json()  # broadcast
+- **最低目標**: Phase 1完了（10テスト）
+- **推奨目標**: Phase 2完了（15テスト）
+- **カバレッジ**: 主要機能60%以上
 
-            # クライアント2でブロードキャストを受信
-            broadcast2 = ws2.receive_json()
+## 削除対象
 
-            assert broadcast1["type"] == "message:broadcast"
-            assert broadcast2["type"] == "message:broadcast"
-            assert broadcast1["data"]["content"] == broadcast2["data"]["content"]
-
-## 既存テストファイルの整理
-
-現在src/backend/に散在している以下のファイルは、新しいテスト構造に移行します：
-
-1. **test_websocket.py** → `tests/backend/integration/test_websocket_flow.py`に統合
-2. **test_comprehensive.py** → 各テストカテゴリに分割：
-   - サーバー接続テスト → `tests/backend/integration/test_api_health.py`
-   - チャンネルAPIテスト → `tests/backend/integration/test_api_channels.py`
-   - WebSocketテスト → `tests/backend/integration/test_websocket_flow.py`
-   - データベーステスト → `tests/backend/unit/test_database.py`
-3. **run_step7_tests.py** → CI/CD統合に置き換え
-
-移行手順：
-1. 新しいテストディレクトリ構造を作成
-2. 既存のテストコードを適切な場所に移動・リファクタリング
-3. 古いテストファイルを削除
-4. CI/CD設定を追加
+現在の過剰なテストファイルは段階的に削除：
+- 詳細なユニットテスト → 統合テストに集約
+- エッジケーステスト → 基本動作テストに集約
+- 重複テスト → 最も重要なもの1つに絞る
 
 ## まとめ
 
-このテストフレームワークにより、以下が実現されます：
-
-1. **品質保証**: 包括的なテストカバレッジによる高品質なコード
-2. **開発効率**: TDDによる迅速な開発サイクル
-3. **保守性**: 明確なテスト構造による長期的な保守性
-4. **信頼性**: CI/CDによる継続的な品質チェック
-5. **ドキュメント**: テストコードがコードの仕様書として機能
-
-定期的にテストカバレッジを確認し、重要な機能については100%のカバレッジを維持することで、プロジェクトの品質を担保します。
+**理念**: 「完璧よりも継続可能性」
+- 15個のシンプルなテストで80%の価値を得る
+- 残り20%の価値のために複雑にしない
+- 実際の開発で使われ続けるテストを目指す
