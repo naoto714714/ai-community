@@ -33,16 +33,16 @@ jobs:
         run: uv lock --check
 
       - name: Run ruff format check
-        run: uv run ruff format --check .
+        run: uv run --frozen ruff format --check .
 
       - name: Run ruff linting
-        run: uv run ruff check .
+        run: uv run --frozen ruff check .
 
       - name: Run pyright type checking
-        run: uv run pyright .
+        run: uv run --frozen pyright .
 
       - name: Run pytest
-        run: uv run pytest ../../tests/backend/ -v
+        run: uv run --frozen pytest ../../tests/backend/ -v
 
   frontend:
     name: Frontend Tests & Linting
