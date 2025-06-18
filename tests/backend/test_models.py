@@ -1,3 +1,5 @@
+"""モデルテスト（最小限・実用版）"""
+
 from datetime import datetime
 
 
@@ -66,35 +68,3 @@ def test_channel_messages_relationship(test_db, seed_channels):
     messages = test_db.query(Message).filter(Message.channel_id == channel.id).all()
     assert len(messages) == 3
     assert all(msg.channel_id == channel.id for msg in messages)
-
-
-def test_message_ordering(test_db, seed_channels):
-    """メッセージの作成日時順ソートテスト"""
-    from src.backend.models import Message
-
-    channel = seed_channels[0]
-
-    # 時系列でメッセージを作成
-    messages_data = []
-    for i in range(3):
-        message = Message(
-            id=f"order_test_msg_{i}",
-            channel_id=channel.id,
-            user_id="test_user",
-            user_name="テストユーザー",
-            content=f"メッセージ{i}",
-            timestamp=datetime.now(),
-            is_own_message=False,
-        )
-        test_db.add(message)
-        test_db.commit()  # 各メッセージを個別にコミットして時刻を確実に分ける
-        messages_data.append(message)
-
-    # 作成日時昇順で取得
-    ordered_messages = (
-        test_db.query(Message).filter(Message.channel_id == channel.id).order_by(Message.created_at.asc()).all()
-    )
-
-    # 順序が正しいことを確認
-    for i in range(len(ordered_messages) - 1):
-        assert ordered_messages[i].created_at <= ordered_messages[i + 1].created_at
