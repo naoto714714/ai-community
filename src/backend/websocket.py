@@ -5,8 +5,12 @@ from typing import Any, TypedDict
 from fastapi import WebSocket
 from sqlalchemy.orm import Session
 
-from . import crud
-from .schemas import MessageCreate
+try:
+    from . import crud
+    from .schemas import MessageCreate
+except ImportError:
+    import crud
+    from schemas import MessageCreate
 
 
 class WebSocketMessageData(TypedDict):
@@ -106,7 +110,10 @@ async def handle_websocket_message(
     if message_type == "message:send":
         # データベースセッションをコンテキストマネージャーで安全に管理
         # テスト環境では、依存性注入されたセッションを使用
-        from .database import SessionLocal
+        try:
+            from .database import SessionLocal
+        except ImportError:
+            from database import SessionLocal
 
         def save_message_with_session(session: Session | None = None):
             """

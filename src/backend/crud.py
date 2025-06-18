@@ -1,7 +1,11 @@
 from sqlalchemy.orm import Session
 
-from .models import Channel, Message
-from .schemas import MessageCreate
+try:
+    from .models import Channel, Message
+    from .schemas import MessageCreate
+except ImportError:
+    from models import Channel, Message
+    from schemas import MessageCreate
 
 
 def create_message(db: Session, message: MessageCreate) -> Message:
