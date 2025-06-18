@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '../utils/test-utils';
+import { render, screen, fireEvent, waitFor, act } from '../utils/test-utils';
 import { Layout } from '@/components/Layout';
 import {
   mockFetch,
