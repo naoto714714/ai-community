@@ -18,8 +18,8 @@ Object.defineProperty(window, 'matchMedia', {
     matches: false,
     media: query,
     onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
+    addListener: vi.fn(), // deprecated - use addEventListener instead
+    removeListener: vi.fn(), // deprecated - use removeEventListener instead
     addEventListener: vi.fn(),
     removeEventListener: vi.fn(),
     dispatchEvent: vi.fn(),
