@@ -1,96 +1,118 @@
 # AI Community Backend
 
-シンプルなチャットアプリケーションのバックエンド実装
+FastAPI + SQLAlchemy + WebSocketによるリアルタイムチャットアプリケーションのバックエンド
+
+## 🚀 クイックスタート
+
+```bash
+# 依存関係インストール
+uv sync
+
+# 開発サーバー起動
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+バックエンドAPI: `http://localhost:8000`
 
 ## 📁 プロジェクト構造
 
 ```
 src/backend/
-├── __init__.py          # パッケージ初期化
-├── main.py              # FastAPIアプリケーションのエントリーポイント
-├── database.py          # データベース接続設定
-├── models.py            # SQLAlchemyモデル定義
-├── schemas.py           # Pydanticスキーマ
-├── crud.py              # データベース操作
-├── websocket.py         # WebSocket処理
-├── constants.py         # 定数定義
-├── pyproject.toml       # プロジェクト設定
-├── uv.lock              # 依存関係ロック
-└── README.md            # このファイル
+├── main.py          # FastAPIアプリケーション
+├── database.py      # データベース設定
+├── models.py        # SQLAlchemyモデル
+├── schemas.py       # Pydanticスキーマ
+├── crud.py          # データベース操作
+├── websocket.py     # WebSocket処理
+├── pyproject.toml   # プロジェクト設定
+└── chat.db          # SQLiteデータベース
 ```
-
-## 🚀 開発環境セットアップ
-
-```bash
-# バックエンドディレクトリに移動
-cd src/backend
-
-# 依存関係をインストール
-uv sync
-
-# 開発サーバーを起動
-uv run uvicorn main:app --reload --port 8000
-```
-
-## 📋 実装予定機能
-
-### ステップ1: 環境セットアップ ✅
-- [x] プロジェクト構造作成
-- [x] Python 3.13環境設定
-- [x] 依存関係設定
-
-### ステップ2: データベース設定
-- [ ] SQLAlchemyモデル定義
-- [ ] データベース初期化
-- [ ] 初期チャンネル作成
-
-### ステップ3: 基本API
-- [ ] チャンネル一覧取得
-- [ ] メッセージ履歴取得
-- [ ] メッセージ作成
-
-### ステップ4: WebSocket
-- [ ] リアルタイムメッセージ配信
-- [ ] 接続管理
 
 ## 🔧 技術スタック
 
 - **Python**: 3.13
-- **フレームワーク**: FastAPI
-- **データベース**: SQLite（ローカルファイル）
-- **ORM**: SQLAlchemy 2.0
-- **WebSocket**: FastAPI内蔵サポート
-- **ASGIサーバー**: uvicorn
+- **FastAPI**: Webフレームワーク
+- **SQLAlchemy**: ORM
+- **SQLite**: データベース
+- **WebSocket**: リアルタイム通信
+- **Pydantic**: データバリデーション
+- **uvicorn**: ASGIサーバー
 
 ## 🗄️ データモデル
 
 ### Channel
-- id: str (主キー)
-- name: str (チャンネル名)
-- created_at: datetime
+- `id`: str (主キー)
+- `name`: str (チャンネル名)
+- `description`: str (説明)
+- `created_at`: datetime
 
-### Message  
-- id: str (主キー)
-- channel_id: str (外部キー)
-- user_id: str
-- user_name: str
-- content: str (メッセージ内容)
-- timestamp: datetime
-- is_own_message: bool
-- created_at: datetime
+### Message
+- `id`: str (主キー)
+- `channel_id`: str (チャンネルID)
+- `user_id`: str (ユーザーID)
+- `user_name`: str (ユーザー名)
+- `content`: str (メッセージ内容)
+- `timestamp`: datetime (送信時刻)
+- `is_own_message`: bool (自分のメッセージか)
+- `created_at`: datetime (作成時刻)
 
 ## 🔗 API仕様
 
 ### REST API
+- `GET /` - ヘルスチェック
 - `GET /api/channels` - チャンネル一覧取得
 - `GET /api/channels/{channel_id}/messages` - メッセージ履歴取得
 
 ### WebSocket
 - `ws://localhost:8000/ws` - リアルタイム通信
+  - メッセージ送信: `{"type": "message:send", "data": {...}}`
+  - メッセージ保存通知: `{"type": "message:saved", "data": {...}}`
 
-## 📝 開発ルール
+## 🔨 開発ルール
 
-- 型ヒントを必ず記述
-- docstringをパブリック関数に追加
-- テストコードを併せて実装
-- コミットは細かい単位で実行
+### パッケージ管理
+- **必須**: `uv`のみ使用（`pip`は使用禁止）
+- インストール: `uv add package`
+- 開発依存: `uv add --dev package`
+
+### コード品質
+- 型ヒント必須
+- パブリック関数にdocstring
+- 行の長さ: 最大120文字
+- 関数は小さく、単一責任
+
+### テスト
+- フレームワーク: `uv run --frozen pytest`
+- 非同期テスト: anyio使用
+- 新機能・バグ修正時は必ずテスト追加
+
+## 🔍 開発コマンド
+
+```bash
+# フォーマット
+uv run --frozen ruff format .
+
+# リント
+uv run --frozen ruff check .
+
+# 型チェック
+uv run --frozen pyright
+
+# テスト
+uv run --frozen pytest
+
+# 開発サーバー起動
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+## 📋 実装済み機能
+
+- ✅ FastAPI基本設定
+- ✅ SQLAlchemy + SQLiteデータベース
+- ✅ Channel/Messageモデル
+- ✅ REST API（チャンネル一覧、メッセージ履歴）
+- ✅ WebSocket通信
+- ✅ リアルタイムメッセージ配信
+- ✅ メッセージ永続化
+- ✅ CORS設定
+- ✅ エラーハンドリング
