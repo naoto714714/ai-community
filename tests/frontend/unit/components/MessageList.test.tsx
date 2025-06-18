@@ -110,6 +110,8 @@ describe('MessageList', () => {
 
     // clearTimeoutが呼ばれることを確認
     expect(clearTimeoutSpy).toHaveBeenCalled()
+
+    clearTimeoutSpy.mockRestore()
   })
 
   it('コンポーネントアンマウント時にタイマーがクリアされる', () => {
@@ -119,6 +121,8 @@ describe('MessageList', () => {
     unmount()
 
     expect(clearTimeoutSpy).toHaveBeenCalled()
+
+    clearTimeoutSpy.mockRestore()
   })
 
   it('ScrollAreaが正しく設定される', () => {

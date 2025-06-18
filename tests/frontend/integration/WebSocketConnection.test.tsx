@@ -320,6 +320,8 @@ describe('WebSocket Connection Integration', () => {
 
     // タイマーがクリアされる
     expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    clearTimeoutSpy.mockRestore();
   });
 
   it('メッセージ送信時にWebSocketの状態を確認する', async () => {
@@ -365,5 +367,7 @@ describe('WebSocket Connection Integration', () => {
 
     // 既存のタイマーがクリアされることを確認
     expect(clearTimeoutSpy).toHaveBeenCalled();
+
+    clearTimeoutSpy.mockRestore();
   });
 });
