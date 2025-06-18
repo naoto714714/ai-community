@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from .database import Base
+from database import Base
 
 
 class Channel(Base):
