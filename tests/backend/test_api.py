@@ -1,6 +1,6 @@
 """API基本テスト（最小限・実用版）"""
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 import pytest
 from httpx import AsyncClient
@@ -40,7 +40,7 @@ async def test_get_messages(async_client: AsyncClient, seed_channels, test_db):
             user_id=f"user_{i}",
             user_name=f"ユーザー{i}",
             content=f"テストメッセージ{i}",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(UTC),
             is_own_message=i % 2 == 0,
         )
         test_db.add(message)
