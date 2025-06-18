@@ -13,7 +13,7 @@ class MockWebSocket {
   onopen: ((event: Event) => void) | null = null
   onmessage: ((event: MessageEvent) => void) | null = null
   onerror: ((event: Event) => void) | null = null
-  onclose: ((event: CloseEvent) => void) | null = null
+  onclose: ((event: Event) => void) | null = null
 
   constructor(url: string) {
     this.url = url
@@ -49,7 +49,7 @@ class MockWebSocket {
   close() {
     this.readyState = WebSocket.CLOSED
     if (this.onclose) {
-      this.onclose(new CloseEvent('close'))
+      this.onclose(new Event('close'))
     }
   }
 }

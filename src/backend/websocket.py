@@ -91,7 +91,7 @@ def get_connection_manager() -> ConnectionManager:
     return manager
 
 
-async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
+async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any], db_session=None):
     """WebSocketメッセージの処理"""
     # 型安全性のためにWebSocketMessage型を想定しているが、
     # 実行時は辞書として扱う（TypedDictは実行時は通常の辞書）
@@ -100,20 +100,32 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any]):
 
     if message_type == "message:send":
         # データベースセッションをコンテキストマネージャーで安全に管理
+        # テスト環境では、依存性注入されたセッションを使用
         from .database import SessionLocal
 
         async def save_message_with_session():
-            db = SessionLocal()
-            try:
-                message_create = MessageCreate.model_validate(message_data)
-                saved_message = crud.create_message(db, message_create)
-                return saved_message
-            except Exception:
-                # crud.create_message内でrollbackは実行されるが、明示的に確認
-                db.rollback()
-                raise
-            finally:
-                db.close()
+            if db_session is not None:
+                # テスト環境: 依存性注入されたセッションを使用
+                try:
+                    message_create = MessageCreate.model_validate(message_data)
+                    saved_message = crud.create_message(db_session, message_create)
+                    return saved_message
+                except Exception:
+                    db_session.rollback()
+                    raise
+            else:
+                # 本番環境: 新しいセッションを作成
+                db = SessionLocal()
+                try:
+                    message_create = MessageCreate.model_validate(message_data)
+                    saved_message = crud.create_message(db, message_create)
+                    return saved_message
+                except Exception:
+                    # crud.create_message内でrollbackは実行されるが、明示的に確認
+                    db.rollback()
+                    raise
+                finally:
+                    db.close()
 
         try:
             saved_message = await save_message_with_session()
