@@ -113,5 +113,3 @@ async def test_get_channel_messages_limit_validation(async_client: AsyncClient, 
     # offset < 0の場合
     response = await async_client.get(f"/api/channels/{channel.id}/messages?offset=-1")
     assert response.status_code == 422  # Validation Error
-
-

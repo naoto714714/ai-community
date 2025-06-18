@@ -39,8 +39,8 @@ def test_db():
     Base.metadata.create_all(bind=engine)
 
     def override_get_db():
+        db = TestingSessionLocal()
         try:
-            db = TestingSessionLocal()
             yield db
         finally:
             db.close()
@@ -63,9 +63,10 @@ def client(test_db) -> TestClient:
 
 
 @pytest_asyncio.fixture
-async def async_client(test_db) -> AsyncGenerator[AsyncClient, None]:
+async def async_client(test_db) -> AsyncGenerator[AsyncClient]:
     """非同期テスト用クライアント"""
     from httpx import ASGITransport
+
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
         yield ac
 

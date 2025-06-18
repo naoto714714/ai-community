@@ -36,7 +36,7 @@ def test_message_create_schema():
 
     # 必須フィールドが不足している場合
     with pytest.raises(ValidationError):
-        MessageCreate(
+        MessageCreate(  # type: ignore[call-arg]
             id="msg_123",
             channel_id="1",
             # user_idが不足

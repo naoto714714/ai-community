@@ -130,6 +130,7 @@ def test_channel_message_cascade(test_db):
 def test_database_session_isolation(test_db, seed_channels):
     """データベースセッションの分離テスト"""
     from sqlalchemy.orm import sessionmaker
+
     channel = seed_channels[0]
     # テストセッションからエンジンを取得
     engine = test_db.bind
