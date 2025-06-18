@@ -47,5 +47,5 @@ vi.mock('nanoid', () => ({
 }));
 
 // WebSocketのグローバルスタブ設定
-import { MockWebSocket } from './utils/mocks';
-vi.stubGlobal('WebSocket', MockWebSocket);
+// import { MockWebSocket } from './utils/mocks';
+// vi.stubGlobal('WebSocket', MockWebSocket);
