@@ -3,6 +3,7 @@ import logging
 from typing import Any, TypedDict
 
 from fastapi import WebSocket
+from sqlalchemy.orm import Session
 
 from . import crud
 from .schemas import MessageCreate
@@ -91,7 +92,11 @@ def get_connection_manager() -> ConnectionManager:
     return manager
 
 
-async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any], db_session=None):
+async def handle_websocket_message(
+    websocket: WebSocket,
+    data: dict[str, Any],
+    db_session: Session | None = None,
+):
     """WebSocketメッセージの処理"""
     # 型安全性のためにWebSocketMessage型を想定しているが、
     # 実行時は辞書として扱う（TypedDictは実行時は通常の辞書）
@@ -103,21 +108,28 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any], d
         # テスト環境では、依存性注入されたセッションを使用
         from .database import SessionLocal
 
-        async def save_message_with_session():
-            if db_session is not None:
-                # テスト環境: 依存性注入されたセッションを使用
+        def save_message_with_session(session: Session | None = None):
+            """
+            メッセージを保存する同期関数
+
+            Args:
+                session: オプショナルセッション。テスト環境で使用される。
+                        Noneの場合は新しいセッションを作成（本番環境）
+            """
+            message_create = MessageCreate.model_validate(message_data)
+
+            if session is not None:
+                # テスト環境: 提供されたセッションを使用（commit/closeは呼び出し元で管理）
                 try:
-                    message_create = MessageCreate.model_validate(message_data)
-                    saved_message = crud.create_message(db_session, message_create)
+                    saved_message = crud.create_message(session, message_create)
                     return saved_message
                 except Exception:
-                    db_session.rollback()
+                    session.rollback()
                     raise
             else:
-                # 本番環境: 新しいセッションを作成
+                # 本番環境: 新しいセッションを作成してcommit/rollback/closeを管理
                 db = SessionLocal()
                 try:
-                    message_create = MessageCreate.model_validate(message_data)
                     saved_message = crud.create_message(db, message_create)
                     return saved_message
                 except Exception:
@@ -128,7 +140,7 @@ async def handle_websocket_message(websocket: WebSocket, data: dict[str, Any], d
                     db.close()
 
         try:
-            saved_message = await save_message_with_session()
+            saved_message = save_message_with_session(db_session)
 
             # 保存成功をクライアントに通知
             response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
