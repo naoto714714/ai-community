@@ -7,13 +7,6 @@ import { MantineProvider } from '@mantine/core'
 import { MessageItem } from '../../../src/frontend/src/components/MessageItem'
 import { MessageInput } from '../../../src/frontend/src/components/MessageInput'
 import type { Message } from '../../../src/frontend/src/types/chat'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import timezone from 'dayjs/plugin/timezone'
-
-// dayjsプラグインを設定
-dayjs.extend(utc)
-dayjs.extend(timezone)
 
 // テスト用のrender関数
 function renderWithProvider(component: React.ReactElement) {
@@ -78,6 +71,7 @@ describe('MessageInput', () => {
     fireEvent.change(input, { target: { value: 'Enterテスト' } })
     fireEvent.keyDown(input, { key: 'Enter', shiftKey: false })
 
+    expect(mockOnSendMessage).toHaveBeenCalledTimes(1)
     expect(mockOnSendMessage).toHaveBeenCalledWith('Enterテスト')
   })
 })
