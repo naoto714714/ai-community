@@ -91,6 +91,10 @@ describe('ChatApp Integration', () => {
       })
   })
 
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('チャンネル切り替えでメッセージが更新される', async () => {
     renderWithProvider(<Layout />)
 
