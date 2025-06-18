@@ -12,81 +12,91 @@ npm install
 npm run dev
 ```
 
-フロントエンドURL: `http://localhost:5173`
+**アプリケーションURL:** `http://localhost:5173`
 
 ## 📁 プロジェクト構造
 
 ```
 src/frontend/
 ├── src/
-│   ├── App.tsx          # メインアプリケーション
-│   ├── main.tsx         # エントリーポイント
-│   ├── index.css        # グローバルスタイル
-│   ├── components/      # Reactコンポーネント
-│   │   ├── Layout.tsx   # アプリケーションレイアウト
-│   │   ├── ChannelList.tsx
-│   │   ├── ChatArea.tsx
-│   │   ├── MessageList.tsx
-│   │   ├── MessageItem.tsx
-│   │   └── MessageInput.tsx
-│   ├── types/           # TypeScript型定義
-│   │   └── chat.ts
-│   └── data/            # 初期データ
-│       └── channels.ts
-├── package.json         # NPM設定
-├── tsconfig.json        # TypeScript設定
-├── vite.config.ts       # Vite設定
-└── eslint.config.js     # ESLint設定
+│   ├── App.tsx              # メインアプリケーション
+│   ├── main.tsx             # エントリーポイント
+│   ├── index.css            # グローバルスタイル
+│   ├── components/          # Reactコンポーネント
+│   │   ├── Layout.tsx       # アプリケーションレイアウト
+│   │   ├── ChannelList.tsx  # チャンネル一覧
+│   │   ├── ChatArea.tsx     # チャット画面
+│   │   ├── MessageList.tsx  # メッセージ一覧
+│   │   ├── MessageItem.tsx  # メッセージ表示
+│   │   └── MessageInput.tsx # メッセージ入力
+│   ├── types/               # TypeScript型定義
+│   │   └── chat.ts          # Message, Channel型
+│   └── data/                # 初期データ
+│       └── channels.ts      # 初期チャンネルデータ
+├── package.json             # NPM設定
+├── tsconfig.json            # TypeScript設定
+├── vite.config.ts           # Vite設定
+└── eslint.config.js         # ESLint設定
 ```
 
 ## 🔧 技術スタック
 
-- **React**: 18.x
-- **TypeScript**: 5.x
-- **Mantine**: 7.x (UIライブラリ)
-- **Tabler Icons**: アイコンライブラリ
-- **Vite**: ビルドツール・開発サーバー
-- **dayjs**: 日付処理
-- **ESLint**: コード品質管理
+- **React:** 18.x
+- **TypeScript:** 5.x
+- **Mantine:** 7.x（UIライブラリ）
+- **Tabler Icons:** アイコンライブラリ
+- **Vite:** ビルドツール・開発サーバー
+- **dayjs:** 日付処理
+- **ESLint:** コード品質管理
 
-## 🎨 デザインシステム
-
-### UIコンポーネント
-
-- **Mantine**をベースとしたコンポーネント設計
-- ダークモード対応
-- レスポンシブデザイン（PC優先）
-
-### レイアウト
-
-- 左サイドバー（280px）: チャンネル一覧
-- メインエリア: チャット画面
-- 最小幅: 1024px
-
-### カラーテーマ
-
-- アクセントカラー: blue/violet系
-- システムフォント優先
-
-## 📱 コンポーネント詳細
+## 📱 コンポーネント構造
 
 ### Layout.tsx（メインレイアウト）
 
-- WebSocket接続管理
-- アクティブチャンネル状態管理
-- モバイルナビゲーション制御
+```typescript
+// WebSocket接続管理
+// アクティブチャンネル状態管理
+// モバイルナビゲーション制御
+// メッセージ送信処理
+```
 
 ### MessageInput.tsx（メッセージ入力）
 
-- 日本語IME対応（Enter送信時の変換中防止）
-- 最大2000文字制限
-- オプティミスティックアップデート
+```typescript
+// 日本語IME対応（Enter送信時の変換中防止）
+// 最大2000文字制限
+// オプティミスティックアップデート
+// Enter/Shiftキー制御
+```
 
 ### MessageItem.tsx（メッセージ表示）
 
-- 自分/他人のメッセージ色分け
-- タイムスタンプ表示（HH:mm形式）
-- フェードインアニメーション
+```typescript
+// 自分/他人のメッセージ色分け
+// タイムスタンプ表示（HH:mm形式）
+// フェードインアニメーション
+// Mantineテーマ連携
+```
+
+## 🔗 バックエンド連携
+
+### REST API
+
+| エンドポイント                        | メソッド | 説明               |
+| ------------------------------------- | -------- | ------------------ |
+| `/api/channels`                       | GET      | チャンネル一覧取得 |
+| `/api/channels/{channel_id}/messages` | GET      | メッセージ履歴取得 |
+
+### WebSocket通信
+
+**エンドポイント:** `ws://localhost:8000/ws`
+
+**データフロー:**
+
+1. メッセージ送信 → ローカル状態即時更新
+2. WebSocketでバックエンド送信
+3. 保存確認レスポンス受信
+4. エラー時のロールバック処理
 
 ## 🔨 開発ルール
 
@@ -113,7 +123,7 @@ src/frontend/
 
 - 厳密な型チェック
 - interface/type定義
-- Propdrillは最小限
+- Props drilling最小限
 
 ## 🔍 開発コマンド
 
@@ -145,23 +155,11 @@ npm run lint
 - ✅ レスポンシブ対応
 - ✅ ESLint設定
 
-## 🔗 バックエンド連携
-
-### REST API
-
-- チャンネル一覧取得: `GET /api/channels`
-- メッセージ履歴取得: `GET /api/channels/{channel_id}/messages`
-
-### WebSocket
-
-- エンドポイント: `ws://localhost:8000/ws`
-- メッセージ送信・受信
-- リアルタイム通信
-
-## 📱 今後の拡張予定
+## 🚧 今後の拡張予定
 
 - [ ] ユーザー認証機能
 - [ ] メッセージ検索
 - [ ] ファイルアップロード
 - [ ] 絵文字リアクション
 - [ ] プッシュ通知
+- [ ] タイピングインジケーター
