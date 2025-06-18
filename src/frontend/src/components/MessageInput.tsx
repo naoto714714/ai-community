@@ -52,6 +52,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
         radius='xl'
         variant='filled'
         disabled={!message.trim()}
+        data-testid='send-button'
       >
         <IconSend size='1.2rem' />
       </ActionIcon>

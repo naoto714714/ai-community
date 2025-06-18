@@ -9,6 +9,7 @@ interface MessageItemProps {
 export function MessageItem({ message }: MessageItemProps) {
   return (
     <Box
+      data-testid='message-container'
       style={{
         display: 'flex',
         justifyContent: message.isOwnMessage ? 'flex-end' : 'flex-start',
@@ -16,6 +17,7 @@ export function MessageItem({ message }: MessageItemProps) {
       }}
     >
       <Box
+        data-testid='message-bubble'
         style={{
           maxWidth: '70%',
           backgroundColor: message.isOwnMessage
