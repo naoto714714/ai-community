@@ -11,7 +11,7 @@ afterEach(() => {
   vi.resetAllMocks();
 });
 
-// matchMediaのモック（必要最小限）
+// matchMediaのモック
 Object.defineProperty(window, 'matchMedia', {
   writable: true,
   value: vi.fn().mockImplementation((query) => ({
@@ -26,33 +26,9 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-// ResizeObserverのモック（必要最小限）
+// ResizeObserverのモック
 global.ResizeObserver = vi.fn().mockImplementation(() => ({
   observe: vi.fn(),
   unobserve: vi.fn(),
   disconnect: vi.fn(),
 }));
-
-// WebSocketのモック（必要最小限）
-class MockWebSocket {
-  url: string
-  readyState: number = WebSocket.OPEN
-  onopen: ((event: Event) => void) | null = null
-  onmessage: ((event: MessageEvent) => void) | null = null
-  onerror: ((event: Event) => void) | null = null
-  onclose: ((event: CloseEvent) => void) | null = null
-
-  constructor(url: string) {
-    this.url = url
-  }
-
-  send(data: string) {
-    // モック実装
-  }
-
-  close() {
-    this.readyState = WebSocket.CLOSED
-  }
-}
-
-vi.stubGlobal('WebSocket', MockWebSocket);
