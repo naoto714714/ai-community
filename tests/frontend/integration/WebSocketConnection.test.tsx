@@ -97,6 +97,7 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('予期しない切断時に再接続を試行する', async () => {
+    vi.useFakeTimers();
     const setTimeoutSpy = vi.spyOn(window, 'setTimeout');
 
     render(<Layout />);
@@ -127,14 +128,17 @@ describe('WebSocket Connection Integration', () => {
     // 再接続タイマーが設定される（3秒後）
     expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 3000);
 
-    // 3秒待つ (実際のタイマーを使用)
-    await new Promise((resolve) => setTimeout(resolve, 3100));
+    // 3秒進める（フェイクタイマーを使用）
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
 
     await waitFor(() => {
       // 再接続のためのバックエンド確認（初回 + 再接続時）
       expect(mockFetch).toHaveBeenCalledTimes(3); // 初回バックエンド + 初回メッセージ + 再接続バックエンド
     });
 
+    vi.useRealTimers();
     setTimeoutSpy.mockRestore();
   });
 
@@ -166,6 +170,8 @@ describe('WebSocket Connection Integration', () => {
   });
 
   it('最大再試行回数（5回）に達すると再接続を停止する', async () => {
+    vi.useFakeTimers();
+    
     // beforeEachのmockFetchをクリアして新しく設定
     mockFetch.mockClear();
 
@@ -181,9 +187,11 @@ describe('WebSocket Connection Integration', () => {
       expect(mockFetch).toHaveBeenCalledTimes(2);
     });
 
-    // 実際のタイマーを使って再試行を待つ
+    // フェイクタイマーを使って再試行を待つ
     for (let i = 0; i < 5; i++) {
-      await new Promise((resolve) => setTimeout(resolve, 3100));
+      await act(async () => {
+        vi.advanceTimersByTime(3000);
+      });
 
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledTimes(2 + (i + 1) * 1); // 初回2回 + 再試行毎に1回（バックエンド確認のみ）
@@ -191,9 +199,13 @@ describe('WebSocket Connection Integration', () => {
     }
 
     // 6回目の再試行は行われない（少し待っても呼ばれない）
-    await new Promise((resolve) => setTimeout(resolve, 3100));
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
     expect(mockFetch).toHaveBeenCalledTimes(7); // 初回2回 + 再試行5回
-  }, 25000);
+
+    vi.useRealTimers();
+  });
 
   it('WebSocketエラー時にエラーハンドラが呼ばれる', async () => {
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
