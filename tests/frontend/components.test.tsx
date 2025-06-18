@@ -20,7 +20,7 @@ function renderWithProvider(component: React.ReactElement) {
 describe('MessageItem', () => {
   // UTC時間でタイムスタンプを作成
   const utcTimestamp = new Date('2025-01-16T10:00:00.000Z')
-  
+
   const mockMessage: Message = {
     id: '1',
     channelId: '1',

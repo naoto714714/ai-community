@@ -40,10 +40,10 @@ ai-community/
 ```python
 def test_channel_creation():
     """チャンネル作成テスト"""
-    
+
 def test_message_creation():
     """メッセージ作成テスト"""
-    
+
 def test_message_channel_relationship():
     """チャンネル-メッセージ関係テスト"""
 ```
@@ -52,10 +52,10 @@ def test_message_channel_relationship():
 ```python
 async def test_get_channels():
     """チャンネル一覧取得"""
-    
+
 async def test_get_messages():
     """メッセージ履歴取得"""
-    
+
 async def test_invalid_channel():
     """存在しないチャンネルのエラーハンドリング"""
 ```
@@ -64,7 +64,7 @@ async def test_invalid_channel():
 ```python
 def test_websocket_connection():
     """WebSocket接続テスト"""
-    
+
 def test_websocket_message_send():
     """WebSocketメッセージ送信テスト"""
 ```

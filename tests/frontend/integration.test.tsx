@@ -67,7 +67,7 @@ describe('ChatApp Integration', () => {
   beforeEach(() => {
     // WebSocketのモック
     vi.stubGlobal('WebSocket', MockWebSocket)
-    
+
     // fetchのモック
     global.fetch = vi.fn()
       .mockResolvedValueOnce({
