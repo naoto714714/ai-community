@@ -1,22 +1,15 @@
 #!/usr/bin/env python3
-"""
-AI Community Backend - データベース検査ツール
-ステップ7: データベースの確認機能
-
-このスクリプトは以下の機能を提供します:
-1. データベーススキーマの確認
-2. テーブル内容の表示
-3. データ整合性チェック
-4. データベース統計情報の表示
-"""
 
 import argparse
 import json
+import logging
 import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 
 class DatabaseInspector:
@@ -28,14 +21,14 @@ class DatabaseInspector:
         """データベースに接続"""
         try:
             if not self.db_path.exists():
-                print(f"❌ データベースファイルが見つかりません: {self.db_path}")
+                logger.error(f"データベースファイルが見つかりません: {self.db_path}")
                 return False
 
             self.connection = sqlite3.connect(self.db_path)
             self.connection.row_factory = sqlite3.Row  # 辞書形式でアクセス可能
             return True
         except Exception as e:
-            print(f"❌ データベース接続エラー: {e}")
+            logger.error(f"データベース接続エラー: {e}")
             return False
 
     def disconnect(self):
@@ -66,7 +59,7 @@ class DatabaseInspector:
                 for col in columns
             ]
         except Exception as e:
-            print(f"⚠️ テーブル情報取得エラー {table_name}: {e}")
+            logger.warning(f"テーブル情報取得エラー {table_name}: {e}")
             return []
 
     def get_table_list(self) -> list[str]:
@@ -79,7 +72,7 @@ class DatabaseInspector:
             cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
             return [row["name"] for row in cursor.fetchall()]
         except Exception as e:
-            print(f"⚠️ テーブル一覧取得エラー: {e}")
+            logger.warning(f"テーブル一覧取得エラー: {e}")
             return []
 
     def get_table_data(self, table_name: str, limit: int = 10) -> list[dict[str, Any]]:
@@ -92,7 +85,7 @@ class DatabaseInspector:
             cursor.execute(f"SELECT * FROM {table_name} LIMIT {limit}")
             return [dict(row) for row in cursor.fetchall()]
         except Exception as e:
-            print(f"⚠️ テーブルデータ取得エラー {table_name}: {e}")
+            logger.warning(f"テーブルデータ取得エラー {table_name}: {e}")
             return []
 
     def get_table_count(self, table_name: str) -> int:
@@ -105,7 +98,7 @@ class DatabaseInspector:
             cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
             return cursor.fetchone()[0]
         except Exception as e:
-            print(f"⚠️ テーブル行数取得エラー {table_name}: {e}")
+            logger.warning(f"テーブル行数取得エラー {table_name}: {e}")
             return 0
 
     def check_data_integrity(self) -> dict[str, Any]:
@@ -253,79 +246,80 @@ class DatabaseInspector:
 
     def print_schema_report(self):
         """データベーススキーマレポートを出力"""
-        print("=" * 60)
-        print("データベーススキーマレポート")
-        print("=" * 60)
-        print(f"データベースファイル: {self.db_path}")
+        logger.info("=" * 60)
+        logger.info("データベーススキーマレポート")
+        logger.info("=" * 60)
+        logger.info(f"データベースファイル: {self.db_path}")
 
         if self.db_path.exists():
             file_size = self.db_path.stat().st_size
-            print(f"ファイルサイズ: {file_size:,} バイト")
+            logger.info(f"ファイルサイズ: {file_size:,} バイト")
 
         tables = self.get_table_list()
-        print(f"テーブル数: {len(tables)}")
+        logger.info(f"テーブル数: {len(tables)}")
 
         for table in tables:
-            print(f"\n--- テーブル: {table} ---")
+            logger.info(f"\n--- テーブル: {table} ---")
             columns = self.get_table_info(table)
             row_count = self.get_table_count(table)
-            print(f"行数: {row_count}")
-            print("カラム:")
+            logger.info(f"行数: {row_count}")
+            logger.info("カラム:")
 
             for col in columns:
                 pk_mark = " (PK)" if col["primary_key"] else ""
                 null_mark = " NOT NULL" if col["notnull"] else ""
                 default_mark = f" DEFAULT {col['default_value']}" if col["default_value"] else ""
-                print(f"  - {col['name']}: {col['type']}{pk_mark}{null_mark}{default_mark}")
+                logger.info(f"  - {col['name']}: {col['type']}{pk_mark}{null_mark}{default_mark}")
 
     def print_data_report(self, limit: int = 5):
         """データベースデータレポートを出力"""
-        print("\n" + "=" * 60)
-        print("データベースデータレポート")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("データベースデータレポート")
+        logger.info("=" * 60)
 
         tables = self.get_table_list()
 
         for table in tables:
-            print(f"\n--- テーブル: {table} ---")
+            logger.info(f"\n--- テーブル: {table} ---")
             data = self.get_table_data(table, limit)
 
             if data:
-                print(f"データ例 (最新{min(len(data), limit)}件):")
+                logger.info(f"データ例 (最新{min(len(data), limit)}件):")
                 for i, row in enumerate(data, 1):
-                    print(f"  {i}. {dict(row)}")
+                    logger.info(f"  {i}. {dict(row)}")
             else:
-                print("  データがありません")
+                logger.info("  データがありません")
 
     def print_integrity_report(self):
         """データ整合性レポートを出力"""
-        print("\n" + "=" * 60)
-        print("データ整合性レポート")
-        print("=" * 60)
+        logger.info("\n" + "=" * 60)
+        logger.info("データ整合性レポート")
+        logger.info("=" * 60)
 
         integrity = self.check_data_integrity()
 
         if integrity["checks"]:
-            print("✅ 正常チェック:")
+            logger.info("✅ 正常チェック:")
             for check in integrity["checks"]:
-                print(f"  {check}")
+                logger.info(f"  {check}")
 
         if integrity["warnings"]:
-            print("\n⚠️ 警告:")
+            logger.info("\n⚠️ 警告:")
             for warning in integrity["warnings"]:
-                print(f"  {warning}")
+                logger.info(f"  {warning}")
 
         if integrity["errors"]:
-            print("\n❌ エラー:")
+            logger.info("\n❌ エラー:")
             for error in integrity["errors"]:
-                print(f"  {error}")
+                logger.info(f"  {error}")
 
         if not integrity["errors"]:
-            print("\n🎉 データベースの整合性に問題はありません")
+            logger.info("\n🎉 データベースの整合性に問題はありません")
 
 
 def main():
     """メイン実行関数"""
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
     parser = argparse.ArgumentParser(description="AI Community Backend データベース検査ツール")
     parser.add_argument("--db", default="chat.db", help="データベースファイルパス")
     parser.add_argument("--output", help="統計情報の出力ファイル名（JSON形式）")
@@ -356,7 +350,7 @@ def main():
             output_file = Path(args.output)
             with open(output_file, "w", encoding="utf-8") as f:
                 json.dump(stats, f, ensure_ascii=False, indent=2, default=str)
-            print(f"\n📄 統計情報を {output_file} に保存しました")
+            logger.info(f"\n📄 統計情報を {output_file} に保存しました")
 
     finally:
         inspector.disconnect()

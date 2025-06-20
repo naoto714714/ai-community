@@ -10,6 +10,8 @@ except ImportError:
 
 
 class Channel(Base):
+    """チャットチャンネルモデル"""
+
     __tablename__ = "channels"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
@@ -19,6 +21,8 @@ class Channel(Base):
 
 
 class Message(Base):
+    """チャットメッセージモデル"""
+
     __tablename__ = "messages"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)

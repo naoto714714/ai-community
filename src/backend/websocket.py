@@ -37,19 +37,23 @@ logger = logging.getLogger(__name__)
 
 class ConnectionManager:
     def __init__(self):
+        """初期化"""
         self.active_connections: list[WebSocket] = []
 
     async def connect(self, websocket: WebSocket):
+        """新しいWebSocket接続を追加"""
         await websocket.accept()
         self.active_connections.append(websocket)
-        logger.info(f"New WebSocket connection. Total: {len(self.active_connections)}")
+        logger.info(f"新しいWebSocket接続が登録されました。総数: {len(self.active_connections)}")
 
     def disconnect(self, websocket: WebSocket):
+        """指定WebSocket接続を削除"""
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
-        logger.info(f"WebSocket disconnected. Total: {len(self.active_connections)}")
+        logger.info(f"WebSocket接続が切断されました。総数: {len(self.active_connections)}")
 
     async def send_personal_message(self, message: str, websocket: WebSocket):
+        """特定のクライアントにメッセージを送信"""
         try:
             await websocket.send_text(message)
         except Exception:
@@ -153,10 +157,10 @@ async def handle_websocket_message(
             response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
             await manager.send_personal_message(json.dumps(response), websocket)
 
-            logger.info(f"Message saved: {saved_message.id}")
+            logger.info(f"メッセージが保存されました: {saved_message.id}")
 
         except Exception as e:
-            logger.error(f"Error saving message: {str(e)}")
+            logger.error(f"メッセージ保存エラー: {str(e)}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）
             # メッセージIDを安全に取得（None値の場合も考慮）
@@ -169,10 +173,10 @@ async def handle_websocket_message(
                 "data": {
                     "id": message_id,
                     "success": False,
-                    "error": "Message save failed",  # 詳細なエラー情報を隠蔽
+                    "error": "メッセージの保存に失敗しました",  # 詳細なエラー情報を隠蔽
                 },
             }
             await manager.send_personal_message(json.dumps(error_response), websocket)
 
     else:
-        logger.warning(f"Unknown message type: {message_type}")
+        logger.warning(f"未知のメッセージタイプ: {message_type}")
