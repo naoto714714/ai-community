@@ -4,22 +4,22 @@ from pydantic import BaseModel, ConfigDict, field_serializer
 
 
 def to_camel(string: str) -> str:
-    """Convert snake_case to camelCase"""
+    """snake_caseをcamelCaseに変換"""
     components = string.split("_")
     return components[0] + "".join(word.capitalize() for word in components[1:])
 
 
 def serialize_datetime_to_utc_iso(dt: datetime) -> str:
-    """Convert datetime to UTC ISO format string.
+    """datetimeをUTC ISO形式の文字列に変換
 
-    Handles timezone-naive datetimes by assigning UTC timezone.
-    Converts timezone-aware datetimes to UTC before serialization.
+    タイムゾーン情報のないdatetimeにはUTCタイムゾーンを割り当て、
+    タイムゾーン情報のあるdatetimeはUTCに変換してからシリアライズする
 
     Args:
-        dt: The datetime to serialize
+        dt: シリアライズするdatetimeオブジェクト
 
     Returns:
-        ISO format string in UTC timezone
+        UTCタイムゾーンでのISO形式文字列
     """
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)
