@@ -11,12 +11,12 @@ def to_camel(string: str) -> str:
 
 def serialize_datetime_to_utc_iso(dt: datetime) -> str:
     """Convert datetime to UTC ISO format string.
-    
+
     Handles timezone-naive datetimes by assigning UTC timezone.
-    
+
     Args:
         dt: The datetime to serialize
-        
+
     Returns:
         ISO format string with timezone information
     """
