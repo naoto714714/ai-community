@@ -217,7 +217,7 @@ class LogMonitor:
 
 def main():
     """メイン実行関数"""
-    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(description="AI Community Backend ログモニタリングツール")
     parser.add_argument(
         "--mode",

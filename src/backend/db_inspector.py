@@ -319,7 +319,7 @@ class DatabaseInspector:
 
 def main():
     """メイン実行関数"""
-    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(description="AI Community Backend データベース検査ツール")
     parser.add_argument("--db", default="chat.db", help="データベースファイルパス")
     parser.add_argument("--output", help="統計情報の出力ファイル名（JSON形式）")
