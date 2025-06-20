@@ -13,15 +13,18 @@ def serialize_datetime_to_utc_iso(dt: datetime) -> str:
     """Convert datetime to UTC ISO format string.
 
     Handles timezone-naive datetimes by assigning UTC timezone.
+    Converts timezone-aware datetimes to UTC before serialization.
 
     Args:
         dt: The datetime to serialize
 
     Returns:
-        ISO format string with timezone information
+        ISO format string in UTC timezone
     """
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)
+    else:
+        dt = dt.astimezone(UTC)
     return dt.isoformat()
 
 
