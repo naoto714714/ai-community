@@ -1,6 +1,6 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer
 
 
 def to_camel(string: str) -> str:
@@ -20,6 +20,13 @@ class MessageBase(BaseModel):
     timestamp: datetime
     is_own_message: bool
 
+    @field_serializer("timestamp")
+    def serialize_timestamp(self, dt: datetime) -> str:
+        """タイムスタンプをUTC ISO形式で出力"""
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return dt.isoformat()
+
 
 class MessageCreate(MessageBase):
     pass
@@ -31,6 +38,13 @@ class MessageResponse(MessageBase):
     )
 
     created_at: datetime
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, dt: datetime) -> str:
+        """created_atをUTC ISO形式で出力"""
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return dt.isoformat()
 
 
 class ChannelBase(BaseModel):
@@ -47,6 +61,13 @@ class ChannelResponse(ChannelBase):
     )
 
     created_at: datetime
+
+    @field_serializer("created_at")
+    def serialize_created_at(self, dt: datetime) -> str:
+        """created_atをUTC ISO形式で出力"""
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=UTC)
+        return dt.isoformat()
 
 
 class MessagesListResponse(BaseModel):
