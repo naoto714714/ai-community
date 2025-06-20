@@ -9,6 +9,22 @@ def to_camel(string: str) -> str:
     return components[0] + "".join(word.capitalize() for word in components[1:])
 
 
+def serialize_datetime_to_utc_iso(dt: datetime) -> str:
+    """Convert datetime to UTC ISO format string.
+    
+    Handles timezone-naive datetimes by assigning UTC timezone.
+    
+    Args:
+        dt: The datetime to serialize
+        
+    Returns:
+        ISO format string with timezone information
+    """
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=UTC)
+    return dt.isoformat()
+
+
 class MessageBase(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
@@ -23,9 +39,7 @@ class MessageBase(BaseModel):
     @field_serializer("timestamp")
     def serialize_timestamp(self, dt: datetime) -> str:
         """タイムスタンプをUTC ISO形式で出力"""
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=UTC)
-        return dt.isoformat()
+        return serialize_datetime_to_utc_iso(dt)
 
 
 class MessageCreate(MessageBase):
@@ -42,9 +56,7 @@ class MessageResponse(MessageBase):
     @field_serializer("created_at")
     def serialize_created_at(self, dt: datetime) -> str:
         """created_atをUTC ISO形式で出力"""
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=UTC)
-        return dt.isoformat()
+        return serialize_datetime_to_utc_iso(dt)
 
 
 class ChannelBase(BaseModel):
@@ -65,9 +77,7 @@ class ChannelResponse(ChannelBase):
     @field_serializer("created_at")
     def serialize_created_at(self, dt: datetime) -> str:
         """created_atをUTC ISO形式で出力"""
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=UTC)
-        return dt.isoformat()
+        return serialize_datetime_to_utc_iso(dt)
 
 
 class MessagesListResponse(BaseModel):
