@@ -740,3 +740,4 @@ class TestSupabaseMigrationPerformance:
         #
         # assert all(result["success"] for result in results)
         # assert (end_time - start_time) < 60  # 1分以内で完了
+
