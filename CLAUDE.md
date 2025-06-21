@@ -54,7 +54,7 @@
 
 ## プロジェクト構成
 
-```
+```text
 ai-community/
 ├── docs/                      # ドキュメント
 │   ├── backend.md            # バックエンド仕様書・API リファレンス
