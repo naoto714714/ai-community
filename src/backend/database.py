@@ -10,11 +10,22 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 load_dotenv()
 
 # データベース接続設定
-# テスト環境では ":memory:" を使用してファイル生成を防ぐ
+#
+# 優先順位:
+# 1. テスト環境: SQLiteインメモリDB（:memory:）- テスト専用、ファイル生成なし
+# 2. 本番環境: Supabase PostgreSQL - 本番・ステージング環境
+# 3. 開発環境: SQLite（ローカルファイル）- 開発・デバッグ用のフォールバック
+#
+# 使い分けガイド:
+# - テスト実行時: TESTING=true で自動的にインメモリDBを使用
+# - 本番・ステージング: DB_HOST等の環境変数を設定してSupabase使用
+# - ローカル開発: 環境変数未設定時にchat.dbファイルを使用（.gitignoreで除外済み）
+
 if os.getenv("TESTING") == "true":
+    # テスト環境: SQLiteインメモリDB（ファイル生成を防ぐ）
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 else:
-    # Supabase PostgreSQL接続設定
+    # Supabase PostgreSQL接続設定の確認
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = os.getenv("DB_PORT")
     DB_NAME = os.getenv("DB_NAME")
@@ -22,6 +33,7 @@ else:
     DB_PASSWORD = os.getenv("DB_PASSWORD")
 
     if all([DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD]):
+        # 本番環境: Supabase PostgreSQL
         # Supabase Direct Connection形式
         # postgresql://user:password@host:port/dbname?sslmode=require
         # ユーザー名とパスワードの両方をURLエンコード（特殊文字対応）
@@ -32,7 +44,8 @@ else:
             f"postgresql://{encoded_user}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
         )
     else:
-        # フォールバック: SQLite（環境変数が設定されていない場合）
+        # 開発環境: SQLiteローカルファイル（環境変数が設定されていない場合のフォールバック）
+        # 注意: chat.dbファイルは.gitignoreで除外済み（セキュリティ・容量対策）
         DB_FILE_PATH = Path(__file__).parent / "chat.db"
         SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
 
