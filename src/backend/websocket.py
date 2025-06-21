@@ -189,20 +189,30 @@ async def handle_websocket_message(
 
 async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None):
     """AI応答の処理"""
+    import time
+
+    start_time = time.time()
+
     if not message_data or not isinstance(message_data, dict):
         return
 
     user_message = message_data.get("content", "")
     channel_id = message_data.get("channel_id", "")
+    logger.info(f"AI応答処理開始: channel_id={channel_id}, message='{user_message[:50]}...'")
 
     # @AI が含まれているかチェック（大文字小文字区別なし）
     gemini_client = get_gemini_client()
     if not gemini_client.should_respond_to_message(user_message):
+        logger.debug("@AI検出されず、AI応答処理をスキップ")
         return
 
+    logger.info("@AI検出、AI応答生成を開始")
     try:
-        # AI応答を生成
-        ai_response = await gemini_client.generate_response(user_message)
+        # AI応答を生成（WebSocket用に高速化のためリトライ回数を3回に制限）
+        generation_start = time.time()
+        ai_response = await gemini_client.generate_response(user_message, max_retries=3)
+        generation_time = time.time() - generation_start
+        logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
 
         # AI応答をメッセージとして保存・送信
         ai_message_data = {
@@ -244,7 +254,10 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
                     db.close()
 
         # データベースに保存
+        db_start = time.time()
         saved_ai_message = save_ai_message_with_session(db_session)
+        db_time = time.time() - db_start
+        logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={saved_ai_message.id}")
 
         # AI応答を全クライアントにブロードキャスト
         broadcast_message = {
@@ -260,11 +273,18 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
             },
         }
 
+        broadcast_start = time.time()
         await manager.broadcast(json.dumps(broadcast_message))
-        logger.info(f"AI応答が送信されました: {saved_ai_message.id}")
+        broadcast_time = time.time() - broadcast_start
+
+        total_time = time.time() - start_time
+        logger.info(
+            f"AI応答送信完了: broadcast_time={broadcast_time:.2f}s, total_time={total_time:.2f}s, message_id={saved_ai_message.id}"
+        )
 
     except Exception as e:
-        logger.error(f"AI応答エラー: {str(e)}")
+        error_time = time.time() - start_time
+        logger.error(f"AI応答エラー: {str(e)}, error_time={error_time:.2f}s")
 
         # エラー時のフォールバック応答
         fallback_message_data = {
