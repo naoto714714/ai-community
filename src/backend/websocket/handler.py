@@ -10,16 +10,19 @@ from fastapi import WebSocket
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
+from .. import crud
 from ..ai.message_handlers import handle_ai_response
+from ..schemas import MessageCreate
 from ..utils.session_manager import save_message_with_session_management
 from .manager import manager
 
-try:
-    from .. import crud
-    from ..schemas import MessageCreate
-except ImportError:
-    import crud
-    from schemas import MessageCreate
+# サポートされているメッセージタイプ
+SUPPORTED_MESSAGE_TYPES = {
+    "message:send",
+    # 将来的に追加される可能性のあるタイプ
+    # "message:edit",
+    # "message:delete",
+}
 
 logger = logging.getLogger(__name__)
 
@@ -138,17 +141,19 @@ async def handle_websocket_message(
             logger.info(f"メッセージが保存されました: {saved_message.id}")
 
             # 送信者以外の全クライアントにブロードキャスト（送信者は楽観的更新済み）
+            broadcast_data = {
+                "id": saved_message.id,
+                "channel_id": saved_message.channel_id,
+                "user_id": saved_message.user_id,
+                "user_name": saved_message.user_name,
+                "content": saved_message.content,
+                "timestamp": saved_message.timestamp.isoformat(),
+                "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
+            }
+
             user_broadcast_message = {
                 "type": "message:broadcast",
-                "data": {
-                    "id": saved_message.id,
-                    "channel_id": saved_message.channel_id,
-                    "user_id": saved_message.user_id,
-                    "user_name": saved_message.user_name,
-                    "content": saved_message.content,
-                    "timestamp": saved_message.timestamp.isoformat(),
-                    "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
-                },
+                "data": broadcast_data,
             }
             await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
             logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {saved_message.id}")
@@ -157,7 +162,8 @@ async def handle_websocket_message(
             try:
                 await handle_ai_response(message_data, db_session)
             except Exception as ai_error:
-                logger.error(f"AI応答処理エラー: {str(ai_error)}")
+                logger.warning(f"AI応答処理エラー: {str(ai_error)}")
+                logger.debug(f"AI応答エラーの詳細: {traceback.format_exc()}")
                 # AI応答エラーはユーザーメッセージ保存に影響しないため継続
 
         except ValidationError as ve:
@@ -200,7 +206,7 @@ async def handle_websocket_message(
             await safe_send_message(websocket, json.dumps(error_response))
 
     else:
-        logger.warning(f"未知のメッセージタイプ: {message_type}")
+        logger.warning(f"未サポートのメッセージタイプ: {message_type}. サポートタイプ: {SUPPORTED_MESSAGE_TYPES}")
         # 未対応メッセージタイプをクライアントに通知
         error_response = {
             "type": "message:error",
