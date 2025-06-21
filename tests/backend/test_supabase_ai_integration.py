@@ -658,3 +658,4 @@ class TestSupabaseAIIntegrationCompatibility:
         # assert health_status["realtime_integration"] == "healthy"
         # assert health_status["overall_status"] == "healthy"
         # assert health_status["response_time"] < 2.0
+
