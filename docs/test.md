@@ -119,15 +119,39 @@ def test_message_channel_relationship(test_db, seed_channels):
 ```python
 async def test_get_channels(test_client):
     """チャンネル一覧取得 API テスト"""
+    response = test_client.get("/api/channels")
+    assert response.status_code == 200
+    channels = response.json()
+    assert isinstance(channels, list)
+    assert len(channels) > 0
+    assert "id" in channels[0]
+    assert "name" in channels[0]
 
 async def test_get_messages(test_client, seed_data):
     """メッセージ履歴取得 API テスト"""
+    response = test_client.get("/api/channels/1/messages")
+    assert response.status_code == 200
+    data = response.json()
+    assert "messages" in data
+    assert "total" in data
+    assert "hasMore" in data
+    assert isinstance(data["messages"], list)
 
 async def test_get_messages_with_pagination(test_client, seed_data):
     """ページネーション付きメッセージ取得テスト"""
+    response = test_client.get("/api/channels/1/messages?limit=5&offset=0")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data["messages"]) <= 5
+    assert data["total"] >= 0
+    assert isinstance(data["hasMore"], bool)
 
 async def test_invalid_channel(test_client):
     """存在しないチャンネルのエラーハンドリングテスト"""
+    response = test_client.get("/api/channels/999/messages")
+    assert response.status_code == 404
+    error_data = response.json()
+    assert "detail" in error_data
 ```
 
 ### 3. test_websocket.py（3テスト）
