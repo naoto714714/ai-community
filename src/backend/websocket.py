@@ -1,5 +1,6 @@
 import json
 import logging
+from collections.abc import Callable
 from datetime import datetime, timedelta, timezone
 from typing import Any, TypedDict
 
@@ -103,6 +104,45 @@ def get_connection_manager() -> ConnectionManager:
     return manager
 
 
+def save_message_with_session_management(
+    message_create_func: Callable[[Session], Any],
+    db_session: Session | None = None,
+) -> Any:
+    """
+    セッション管理を共通化したメッセージ保存ヘルパー関数
+
+    Args:
+        message_create_func: セッションを受け取ってメッセージを作成する関数
+        db_session: オプショナルセッション。テスト環境で使用される。
+                    Noneの場合は新しいセッションを作成（本番環境）
+
+    Returns:
+        保存されたメッセージオブジェクト
+    """
+    try:
+        from .database import SessionLocal
+    except ImportError:
+        from database import SessionLocal
+
+    if db_session is not None:
+        # テスト環境: 提供されたセッションを使用（commit/closeは呼び出し元で管理）
+        try:
+            return message_create_func(db_session)
+        except Exception:
+            db_session.rollback()
+            raise
+    else:
+        # 本番環境: 新しいセッションを作成してcommit/rollback/closeを管理
+        db = SessionLocal()
+        try:
+            return message_create_func(db)
+        except Exception:
+            db.rollback()
+            raise
+        finally:
+            db.close()
+
+
 async def handle_websocket_message(
     websocket: WebSocket,
     data: dict[str, Any],
@@ -115,46 +155,12 @@ async def handle_websocket_message(
     message_data = data.get("data")
 
     if message_type == "message:send":
-        # データベースセッションをコンテキストマネージャーで安全に管理
-        # テスト環境では、依存性注入されたセッションを使用
         try:
-            from .database import SessionLocal
-        except ImportError:
-            from database import SessionLocal
-
-        def save_message_with_session(session: Session | None = None):
-            """
-            メッセージを保存する同期関数
-
-            Args:
-                session: オプショナルセッション。テスト環境で使用される。
-                        Noneの場合は新しいセッションを作成（本番環境）
-            """
+            # 共通のセッション管理ヘルパーを使用
             message_create = MessageCreate.model_validate(message_data)
-
-            if session is not None:
-                # テスト環境: 提供されたセッションを使用（commit/closeは呼び出し元で管理）
-                try:
-                    saved_message = crud.create_message(session, message_create)
-                    return saved_message
-                except Exception:
-                    session.rollback()
-                    raise
-            else:
-                # 本番環境: 新しいセッションを作成してcommit/rollback/closeを管理
-                db = SessionLocal()
-                try:
-                    saved_message = crud.create_message(db, message_create)
-                    return saved_message
-                except Exception:
-                    # crud.create_message内でrollbackは実行されるが、明示的に確認
-                    db.rollback()
-                    raise
-                finally:
-                    db.close()
-
-        try:
-            saved_message = save_message_with_session(db_session)
+            saved_message = save_message_with_session_management(
+                lambda session: crud.create_message(session, message_create), db_session
+            )
 
             # 保存成功をクライアントに通知
             response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
@@ -246,37 +252,14 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
             "is_own_message": False,
         }
 
-        # AI応答をデータベースに保存
+        # AI応答をデータベースに保存（共通のセッション管理ヘルパーを使用）
         ai_message_create = MessageCreate.model_validate(ai_message_data)
-
-        try:
-            from .database import SessionLocal
-        except ImportError:
-            from database import SessionLocal
-
-        def save_ai_message_with_session(session: Session | None = None):
-            """AI応答をデータベースに保存"""
-            if session is not None:
-                try:
-                    saved_message = crud.create_message(session, ai_message_create)
-                    return saved_message
-                except Exception:
-                    session.rollback()
-                    raise
-            else:
-                db = SessionLocal()
-                try:
-                    saved_message = crud.create_message(db, ai_message_create)
-                    return saved_message
-                except Exception:
-                    db.rollback()
-                    raise
-                finally:
-                    db.close()
 
         # データベースに保存
         db_start = time.time()
-        saved_ai_message = save_ai_message_with_session(db_session)
+        saved_ai_message = save_message_with_session_management(
+            lambda session: crud.create_message(session, ai_message_create), db_session
+        )
         db_time = time.time() - db_start
         logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={saved_ai_message.id}")
 
