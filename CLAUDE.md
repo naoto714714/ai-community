@@ -38,7 +38,7 @@
 ### 主要機能
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
-- メッセージの永続化（SQLite）
+- メッセージの永続化（Supabase PostgreSQL）
 - **AI チャットボット「ハルト」**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
 - モバイル対応レスポンシブデザイン
@@ -46,7 +46,7 @@
 
 ### 技術スタック
 - **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite + Google Gemini AI
+- **Backend**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
 - **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs

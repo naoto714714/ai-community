@@ -1,6 +1,6 @@
 # AI Community Backend
 
-FastAPI + SQLAlchemy + WebSocket + Google Gemini AI によるリアルタイムチャットアプリケーションのバックエンド
+FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI によるリアルタイムチャットアプリケーションのバックエンド
 
 ## 🚀 クイックスタート
 
@@ -12,8 +12,11 @@ uv sync
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
 # 環境変数設定（Supabase使用時）
-export SUPABASE_URL="あなたのSupabase URL"
-export SUPABASE_KEY="あなたのSupabase APIキー"
+export DB_HOST="aws-0-ap-northeast-1.pooler.supabase.com"
+export DB_PORT="6543"
+export DB_NAME="postgres"
+export DB_USER="postgres.your-project-id"
+export DB_PASSWORD="your-database-password"
 
 # 開発サーバー起動
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -39,7 +42,7 @@ src/backend/
 │   └── types.py         # WebSocket型定義
 ├── utils/               # ユーティリティ
 │   └── session_manager.py # セッション管理
-└── chat.db              # SQLiteデータベース
+└── chat.db              # SQLiteデータベース（開発時のみ）
 ```
 
 ## 🔧 技術スタック
@@ -47,7 +50,7 @@ src/backend/
 - **Python:** 3.13
 - **FastAPI:** Webフレームワーク
 - **SQLAlchemy:** ORM
-- **SQLite:** データベース
+- **Supabase PostgreSQL:** データベース
 - **WebSocket:** リアルタイム通信
 - **Pydantic:** データバリデーション
 - **Google Gemini AI:** AI チャットボット
