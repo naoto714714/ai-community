@@ -6,11 +6,7 @@ following Test-Driven Development approach. These tests ensure data integrity,
 migration process reliability, and rollback capabilities.
 """
 
-import json
-import sqlite3
 from datetime import UTC, datetime
-from pathlib import Path
-from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -30,7 +26,7 @@ class TestSupabaseMigrationPreparation:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # assert migrator.sqlite_db_path is not None
         # assert migrator.supabase_client is not None
         # assert migrator.backup_dir is not None
@@ -51,9 +47,9 @@ class TestSupabaseMigrationPreparation:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # is_valid = await migrator.validate_source_database(db_path)
-        # 
+        #
         # assert is_valid is True
         # assert migrator.source_tables == ["channels", "messages"]
         # assert migrator.source_record_counts["channels"] >= 0
@@ -71,9 +67,9 @@ class TestSupabaseMigrationPreparation:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # is_connected = await migrator.test_supabase_connectivity()
-        # 
+        #
         # assert is_connected is True
         # assert migrator.supabase_permissions["read"] is True
         # assert migrator.supabase_permissions["write"] is True
@@ -94,9 +90,9 @@ class TestSupabaseMigrationPreparation:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # backup_dir = await migrator.create_backup_directory(backup_path)
-        # 
+        #
         # assert backup_dir.exists()
         # assert backup_dir.is_dir()
         # assert migrator.backup_timestamp is not None
@@ -121,9 +117,9 @@ class TestSupabaseDataBackup:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # backup_path = await migrator.backup_sqlite_database(source_db, backup_filename)
-        # 
+        #
         # assert backup_path.exists()
         # assert backup_path.stat().st_size > 0
         # assert migrator.backup_files["sqlite_db"] == str(backup_path)
@@ -140,9 +136,9 @@ class TestSupabaseDataBackup:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # backup_data = await migrator.backup_supabase_data()
-        # 
+        #
         # assert "channels" in backup_data
         # assert "messages" in backup_data
         # assert isinstance(backup_data["channels"], list)
@@ -160,7 +156,7 @@ class TestSupabaseDataBackup:
             "start_time": datetime.now(UTC).isoformat(),
             "source_counts": {"channels": 5, "messages": 100},
             "target_counts": {"channels": 3, "messages": 50},
-            "migration_step": "backup_completed"
+            "migration_step": "backup_completed",
         }
 
         # Act & Assert
@@ -169,9 +165,9 @@ class TestSupabaseDataBackup:
 
         # 实装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # state_file = await migrator.save_migration_state(migration_state)
-        # 
+        #
         # assert state_file.exists()
         # with open(state_file, 'r') as f:
         #     saved_state = json.load(f)
@@ -193,9 +189,9 @@ class TestSupabaseDataExtraction:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # channels_data = await migrator.extract_channels_from_sqlite()
-        # 
+        #
         # assert isinstance(channels_data, list)
         # if channels_data:
         #     channel = channels_data[0]
@@ -217,9 +213,9 @@ class TestSupabaseDataExtraction:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # messages_data = await migrator.extract_messages_from_sqlite()
-        # 
+        #
         # assert isinstance(messages_data, list)
         # if messages_data:
         #     message = messages_data[0]
@@ -248,7 +244,7 @@ class TestSupabaseDataExtraction:
             "content": "テストメッセージ",
             "timestamp": "2024-01-01T12:00:00.000000",
             "is_own_message": 1,  # SQLiteのboolean
-            "created_at": "2024-01-01T12:00:00.000000"
+            "created_at": "2024-01-01T12:00:00.000000",
         }
 
         # Act & Assert
@@ -257,9 +253,9 @@ class TestSupabaseDataExtraction:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # supabase_message = await migrator.transform_message_for_supabase(sqlite_message)
-        # 
+        #
         # assert supabase_message["id"] == sqlite_message["id"]
         # assert supabase_message["is_own_message"] is True  # bool型に変換
         # assert isinstance(supabase_message["timestamp"], str)
@@ -281,9 +277,9 @@ class TestSupabaseDataExtraction:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # batches = await migrator.prepare_data_batches(total_records, batch_size)
-        # 
+        #
         # assert len(batches) == 10  # 1000 / 100 = 10 batches
         # assert all(batch["size"] <= batch_size for batch in batches)
         # assert sum(batch["size"] for batch in batches) == total_records
@@ -305,14 +301,14 @@ class TestSupabaseDataInsertion:
                 "id": "channel_001",
                 "name": "一般",
                 "description": "一般的な会話用チャンネル",
-                "created_at": datetime.now(UTC).isoformat()
+                "created_at": datetime.now(UTC).isoformat(),
             },
             {
-                "id": "channel_002", 
+                "id": "channel_002",
                 "name": "技術",
                 "description": "技術的な議論用チャンネル",
-                "created_at": datetime.now(UTC).isoformat()
-            }
+                "created_at": datetime.now(UTC).isoformat(),
+            },
         ]
 
         # Act & Assert
@@ -321,9 +317,9 @@ class TestSupabaseDataInsertion:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # result = await migrator.migrate_channels_to_supabase(channels_data)
-        # 
+        #
         # assert result["success"] is True
         # assert result["migrated_count"] == len(channels_data)
         # assert result["failed_count"] == 0
@@ -346,7 +342,7 @@ class TestSupabaseDataInsertion:
                 "content": "テストメッセージ1",
                 "timestamp": datetime.now(UTC).isoformat(),
                 "is_own_message": True,
-                "created_at": datetime.now(UTC).isoformat()
+                "created_at": datetime.now(UTC).isoformat(),
             }
         ]
 
@@ -356,9 +352,9 @@ class TestSupabaseDataInsertion:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # result = await migrator.migrate_messages_to_supabase(messages_data)
-        # 
+        #
         # assert result["success"] is True
         # assert result["migrated_count"] == len(messages_data)
         # assert result["failed_count"] == 0
@@ -375,7 +371,7 @@ class TestSupabaseDataInsertion:
         mixed_data = [  # noqa: F841
             {"id": "valid_001", "name": "有効なチャンネル"},
             {"id": None, "name": "無効なチャンネル"},  # エラーを起こすデータ
-            {"id": "valid_002", "name": "もう一つの有効なチャンネル"}
+            {"id": "valid_002", "name": "もう一つの有効なチャンネル"},
         ]
 
         # Act & Assert
@@ -384,9 +380,9 @@ class TestSupabaseDataInsertion:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # result = await migrator.migrate_batch_with_error_handling(mixed_data)
-        # 
+        #
         # assert result["migrated_count"] == 2  # 有効な2件
         # assert result["failed_count"] == 1   # 無効な1件
         # assert len(result["errors"]) == 1
@@ -407,15 +403,15 @@ class TestSupabaseDataIntegrity:
         source_counts = {"channels": 5, "messages": 100}  # noqa: F841
         target_counts = {"channels": 5, "messages": 100}  # noqa: F841
 
-        # Act & Assert  
+        # Act & Assert
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # validation_result = await migrator.validate_record_counts(source_counts, target_counts)
-        # 
+        #
         # assert validation_result["is_valid"] is True
         # assert validation_result["channels"]["match"] is True
         # assert validation_result["messages"]["match"] is True
@@ -437,17 +433,17 @@ class TestSupabaseDataIntegrity:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # source_channel = await migrator.get_sqlite_channel(sample_channel_id)
         # target_channel = await migrator.get_supabase_channel(sample_channel_id)
-        # 
+        #
         # content_match = await migrator.verify_channel_content(source_channel, target_channel)
-        # 
+        #
         # assert content_match["is_identical"] is True
         # assert content_match["field_matches"]["name"] is True
         # assert content_match["field_matches"]["description"] is True
 
-    @pytest.mark.asyncio  
+    @pytest.mark.asyncio
     async def test_foreign_key_relationship_integrity(self):
         """
         外部キー関係整合性テスト
@@ -460,9 +456,9 @@ class TestSupabaseDataIntegrity:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # relationship_check = await migrator.verify_foreign_key_relationships()
-        # 
+        #
         # assert relationship_check["orphaned_messages"] == 0
         # assert relationship_check["missing_channels"] == 0
         # assert relationship_check["relationship_integrity"] is True
@@ -480,9 +476,9 @@ class TestSupabaseDataIntegrity:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # timestamp_validation = await migrator.verify_timestamp_consistency()
-        # 
+        #
         # assert timestamp_validation["timezone_consistency"] is True
         # assert timestamp_validation["format_consistency"] is True
         # assert timestamp_validation["chronological_order"] is True
@@ -504,9 +500,9 @@ class TestSupabaseMigrationRollback:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # rollback_data = await migrator.prepare_rollback_data()
-        # 
+        #
         # assert "backup_location" in rollback_data
         # assert "pre_migration_state" in rollback_data
         # assert "rollback_scripts" in rollback_data
@@ -525,9 +521,9 @@ class TestSupabaseMigrationRollback:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # cleanup_result = await migrator.cleanup_supabase_data()
-        # 
+        #
         # assert cleanup_result["messages_deleted"] >= 0
         # assert cleanup_result["channels_deleted"] >= 0
         # assert cleanup_result["cleanup_success"] is True
@@ -549,9 +545,9 @@ class TestSupabaseMigrationRollback:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # restore_result = await migrator.restore_sqlite_from_backup(backup_file, restore_target)
-        # 
+        #
         # assert restore_result["restoration_success"] is True
         # assert Path(restore_target).exists()
         # assert restore_result["restored_record_counts"]["channels"] > 0
@@ -569,9 +565,9 @@ class TestSupabaseMigrationRollback:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # rollback_result = await migrator.execute_complete_rollback()
-        # 
+        #
         # assert rollback_result["supabase_cleanup"] is True
         # assert rollback_result["sqlite_restoration"] is True
         # assert rollback_result["configuration_reset"] is True
@@ -597,10 +593,10 @@ class TestSupabaseMigrationErrorHandling:
         # mock_client = Mock()
         # mock_client.table.side_effect = ConnectionError("Connection failed")
         # migrator.supabase_client = mock_client
-        # 
+        #
         # with pytest.raises(ConnectionError):
         #     await migrator.test_supabase_connectivity()
-        # 
+        #
         # assert migrator.migration_status == "failed"
         # assert "Connection failed" in migrator.error_log[-1]["error_message"]
 
@@ -617,7 +613,7 @@ class TestSupabaseMigrationErrorHandling:
             "channels_total": 5,
             "messages_migrated": 50,
             "messages_total": 100,
-            "last_successful_batch": 2
+            "last_successful_batch": 2,
         }
 
         # Act & Assert
@@ -626,9 +622,9 @@ class TestSupabaseMigrationErrorHandling:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # recovery_plan = await migrator.create_recovery_plan(failed_migration_state)
-        # 
+        #
         # assert recovery_plan["resume_from_batch"] == 3
         # assert recovery_plan["remaining_channels"] == 2
         # assert recovery_plan["remaining_messages"] == 50
@@ -645,7 +641,7 @@ class TestSupabaseMigrationErrorHandling:
         validation_errors = {  # noqa: F841
             "record_count_mismatch": True,
             "content_differences": ["channel_001", "message_042"],
-            "foreign_key_violations": 2
+            "foreign_key_violations": 2,
         }
 
         # Act & Assert
@@ -654,9 +650,9 @@ class TestSupabaseMigrationErrorHandling:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # response = await migrator.handle_validation_failure(validation_errors)
-        # 
+        #
         # assert response["action"] == "automatic_rollback"
         # assert response["rollback_initiated"] is True
         # assert response["user_notified"] is True
@@ -682,12 +678,12 @@ class TestSupabaseMigrationPerformance:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # import time
         # start_time = time.time()
         # result = await migrator.migrate_large_dataset(large_dataset_size)
         # end_time = time.time()
-        # 
+        #
         # migration_time = end_time - start_time
         # assert migration_time < expected_completion_time
         # assert result["records_per_second"] > 30
@@ -705,14 +701,14 @@ class TestSupabaseMigrationPerformance:
 
         # 実装后に期待される動作
         # import psutil
-        # 
+        #
         # migrator = SupabaseMigrator()
         # process = psutil.Process()
-        # 
+        #
         # initial_memory = process.memory_info().rss
         # await migrator.migrate_with_memory_optimization()
         # final_memory = process.memory_info().rss
-        # 
+        #
         # memory_increase = final_memory - initial_memory
         # max_acceptable_increase = 100 * 1024 * 1024  # 100MB
         # assert memory_increase < max_acceptable_increase
@@ -730,17 +726,17 @@ class TestSupabaseMigrationPerformance:
 
         # 実装后に期待される動作
         # migrator = SupabaseMigrator()
-        # 
+        #
         # import asyncio
         # start_time = time.time()
-        # 
+        #
         # # 並行実行
         # results = await asyncio.gather(
         #     migrator.migrate_channels_concurrent(),
         #     migrator.migrate_messages_concurrent()
         # )
-        # 
+        #
         # end_time = time.time()
-        # 
+        #
         # assert all(result["success"] for result in results)
         # assert (end_time - start_time) < 60  # 1分以内で完了
