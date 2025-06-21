@@ -46,7 +46,7 @@ async def handle_websocket_message(
 
             logger.info(f"メッセージが保存されました: {saved_message.id}")
 
-            # ユーザーメッセージを全クライアントにブロードキャスト
+            # 送信者以外の全クライアントにブロードキャスト（送信者は楽観的更新済み）
             user_broadcast_message = {
                 "type": "message:broadcast",
                 "data": {
@@ -56,11 +56,11 @@ async def handle_websocket_message(
                     "user_name": saved_message.user_name,
                     "content": saved_message.content,
                     "timestamp": saved_message.timestamp.isoformat(),
-                    "is_own_message": False,  # ブロードキャスト時は全て他人のメッセージとして表示
+                    "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
                 },
             }
-            await manager.broadcast(json.dumps(user_broadcast_message))
-            logger.info(f"ユーザーメッセージをブロードキャスト: {saved_message.id}")
+            await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
+            logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {saved_message.id}")
 
             # AI応答の処理
             await handle_ai_response(message_data, db_session)

@@ -32,7 +32,7 @@ class ConnectionManager:
             # 接続が切断されている場合は削除
             self.disconnect(websocket)
 
-    async def broadcast(self, message: str):
+    async def broadcast(self, message: str, exclude_websocket: WebSocket | None = None):
         """
         全ての接続中のクライアントにメッセージをブロードキャスト
 
@@ -48,6 +48,10 @@ class ConnectionManager:
         connections_to_remove = []
         for connection in self.active_connections.copy():  # リストのコピーを作成して安全にイテレート
             try:
+                # 除外対象のWebSocketをスキップ
+                if exclude_websocket and connection == exclude_websocket:
+                    continue
+
                 # WebSocket接続状態を厳密にチェック
                 # client_stateがDISCONNECTEDの場合は既に切断済み
                 if connection.client_state.name == "DISCONNECTED":
