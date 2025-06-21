@@ -91,20 +91,24 @@ def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, 
     )
 
 
-async def generate_and_save_ai_response(
-    user_message: str, channel_id: str, db_session: Session | None = None
-) -> MessageBroadcastData:
-    """AI応答を生成してデータベースに保存"""
-    # AI応答を生成（WebSocket用に高速化のためリトライ回数を3回に制限）
+async def _generate_ai_response(user_message: str, channel_id: str) -> tuple[MessageCreate, float]:
+    """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
     ai_response = await gemini_client.generate_response(user_message, max_retries=3)
     generation_time = time.time() - generation_start
     logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
 
-    # AI応答メッセージデータを作成
     ai_message_data = create_ai_message_data(channel_id, ai_response)
-    ai_message_create = MessageCreate.model_validate(ai_message_data)
+    return MessageCreate.model_validate(ai_message_data), generation_time
+
+
+async def generate_and_save_ai_response(
+    user_message: str, channel_id: str, db_session: Session | None = None
+) -> MessageBroadcastData:
+    """AI応答を生成してデータベースに保存"""
+    # AI応答を生成
+    ai_message_create, _ = await _generate_ai_response(user_message, channel_id)
 
     # セッションから切り離される前に必要な情報を取得
     message_id, user_id, user_name, content, timestamp = _extract_message_attributes(ai_message_create)
