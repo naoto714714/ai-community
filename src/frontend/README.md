@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-**アプリケーションURL:** [http://localhost:5173](http://localhost:5173)  
+**アプリケーションURL:** [http://localhost:5173](http://localhost:5173)
 **バックエンドAPI:** [http://localhost:8000](http://localhost:8000)
 
 ## 📁 プロジェクト構造

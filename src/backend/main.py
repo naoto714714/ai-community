@@ -101,7 +101,7 @@ async def get_channel_messages(
     # チャンネルの存在確認
     channel = db.query(Channel).filter(Channel.id == channel_id).first()
     if not channel:
-        raise HTTPException(status_code=404, detail="Channel not found")
+        raise HTTPException(status_code=404, detail="チャンネルが見つかりません")
 
     # メッセージ取得
     message_models = crud.get_channel_messages(db, channel_id, offset, limit)
@@ -124,19 +124,19 @@ async def websocket_endpoint(websocket: WebSocket):
                 message = json.loads(data)
                 await handle_websocket_message(websocket, message)
             except json.JSONDecodeError:
-                logger.error(f"Invalid JSON received: {data}")
+                logger.error(f"無効なJSONを受信: {data}")
                 # クライアントにエラー応答を送信
-                error_response = {"type": "error", "data": {"success": False, "error": "Invalid JSON format"}}
+                error_response = {"type": "error", "data": {"success": False, "error": "無効なJSON形式"}}
                 await websocket.send_text(json.dumps(error_response))
             except Exception as e:
-                logger.error(f"Error handling WebSocket message: {str(e)}")
+                logger.error(f"WebSocketメッセージ処理エラー: {str(e)}")
                 # 一般的なエラー応答を送信
-                error_response = {"type": "error", "data": {"success": False, "error": "Internal server error"}}
+                error_response = {"type": "error", "data": {"success": False, "error": "内部サーバーエラー"}}
                 await websocket.send_text(json.dumps(error_response))
 
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        logger.info("WebSocket connection closed")
+        logger.info("WebSocket接続が閉じられました")
 
 
 if __name__ == "__main__":

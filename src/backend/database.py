@@ -11,10 +11,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 class Base(DeclarativeBase):
+    """データベースモデルのベースクラス"""
+
     pass
 
 
 def get_db():
+    """データベースセッションを取得"""
     db = SessionLocal()
     try:
         yield db

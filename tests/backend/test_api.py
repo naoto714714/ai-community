@@ -83,4 +83,4 @@ async def test_invalid_channel(async_client: AsyncClient):
     response = await async_client.get("/api/channels/999/messages")
 
     assert response.status_code == 404
-    assert response.json()["detail"] == "Channel not found"
+    assert response.json()["detail"] == "チャンネルが見つかりません"
