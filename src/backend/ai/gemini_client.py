@@ -132,11 +132,11 @@ class GeminiAPIClient:
         Returns:
             応答すべき場合True
         """
-        # より正確な検出：@aiが独立したメンションとして使用されている場合のみ
-        # (?:^|\s) - 文頭または空白文字の後
-        # @ai - @aiのリテラル
-        # (?=\s|$) - 空白文字または文末の前（先読みアサーション）
-        pattern = r"(?:^|\s)@ai(?=\s|$)"
+        # 日本語環境に対応した@AI検出（全角スペースも考慮）
+        # (?:^|[\s　]) - 文頭または半角・全角空白文字の後
+        # @ai - @aiのリテラル（大文字小文字区別なし）
+        # (?=[\s　]|$) - 半角・全角空白文字または文末の前
+        pattern = r"(?:^|[\s　])@ai(?=[\s　]|$)"
         result = bool(re.search(pattern, message.lower()))
         logger.debug(f"@AI検出: '{message[:50]}...' -> {result}")
         return result
