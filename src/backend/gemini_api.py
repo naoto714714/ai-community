@@ -14,6 +14,9 @@ logger = logging.getLogger(__name__)
 class GeminiAPIClient:
     """Gemini APIクライアント."""
 
+    # フォールバックメッセージの一元管理
+    FALLBACK_MESSAGE = "通信に失敗しました😅 もう一度試してみてください！"
+
     def __init__(self) -> None:
         """初期化."""
         logger.info("GeminiAPIClient初期化開始")
@@ -70,16 +73,21 @@ class GeminiAPIClient:
                     response_text = response.text.strip()
                     logger.info(f"Gemini API応答成功: response_length={len(response_text)}")
                     return response_text
-                else:
-                    logger.warning("Gemini APIから空の応答を受信")
-                    raise Exception("Empty response from Gemini API")
+
+                logger.warning("Gemini APIから空の応答を受信")
+                raise Exception("Empty response from Gemini API")
 
             except Exception as e:
-                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {str(e)}")
+                # より具体的な例外処理
+                if "generation" in str(e).lower() or "content" in str(e).lower():
+                    logger.error(f"Gemini API生成エラー (試行 {attempt + 1}/{max_retries}): {str(e)}")
+                else:
+                    logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {str(e)}")
+
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
                     logger.error("Gemini API: 全リトライ試行が失敗、フォールバック応答を返す")
-                    return "通信に失敗しました😅 もう一度試してみてください！"
+                    return self.FALLBACK_MESSAGE
 
                 # 指数バックオフでリトライ
                 wait_time = 2**attempt
@@ -87,7 +95,7 @@ class GeminiAPIClient:
                 await asyncio.sleep(wait_time)
                 continue
 
-        return "通信に失敗しました😅 もう一度試してみてください！"
+        return self.FALLBACK_MESSAGE
 
     def _sync_generate(self, prompt: str) -> GenerateContentResponse:
         """同期的にコンテンツを生成する（run_in_executor用）."""
