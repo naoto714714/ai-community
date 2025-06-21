@@ -3,6 +3,7 @@
 import json
 import time
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -28,6 +29,18 @@ logger = logging.getLogger(__name__)
 JST = timezone(timedelta(hours=9))
 
 
+@dataclass
+class MessageBroadcastData:
+    """ブロードキャスト用メッセージデータ"""
+
+    message_id: str
+    channel_id: str
+    user_id: str
+    user_name: str
+    content: str
+    timestamp: datetime
+
+
 def generate_ai_message_id(channel_id: str) -> str:
     """AI応答用のユニークIDを生成"""
     return f"ai_{channel_id}_{uuid.uuid4().hex[:8]}"
@@ -51,53 +64,82 @@ def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
     }
 
 
-def create_broadcast_message(saved_message: Any) -> dict[str, Any]:
+def create_broadcast_message(message_data: MessageBroadcastData) -> dict[str, Any]:
     """ブロードキャスト用メッセージを作成"""
     return {
         "type": "message:broadcast",
         "data": {
-            "id": saved_message.id,
-            "channel_id": saved_message.channel_id,
-            "user_id": saved_message.user_id,
-            "user_name": saved_message.user_name,
-            "content": saved_message.content,
-            "timestamp": saved_message.timestamp.isoformat(),
+            "id": message_data.message_id,
+            "channel_id": message_data.channel_id,
+            "user_id": message_data.user_id,
+            "user_name": message_data.user_name,
+            "content": message_data.content,
+            "timestamp": message_data.timestamp.isoformat(),
             "is_own_message": False,
         },
     }
 
 
-async def generate_and_save_ai_response(user_message: str, channel_id: str, db_session: Session | None = None) -> Any:
-    """AI応答を生成してデータベースに保存"""
-    # AI応答を生成（WebSocket用に高速化のためリトライ回数を3回に制限）
+def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, str, str, str, datetime]:
+    """メッセージ属性を抽出"""
+    return (
+        ai_message_create.id,
+        ai_message_create.user_id,
+        ai_message_create.user_name,
+        ai_message_create.content,
+        ai_message_create.timestamp,
+    )
+
+
+async def _generate_ai_response(user_message: str, channel_id: str) -> tuple[MessageCreate, float]:
+    """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
     ai_response = await gemini_client.generate_response(user_message, max_retries=3)
     generation_time = time.time() - generation_start
     logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
 
-    # AI応答メッセージデータを作成
     ai_message_data = create_ai_message_data(channel_id, ai_response)
-    ai_message_create = MessageCreate.model_validate(ai_message_data)
+    return MessageCreate.model_validate(ai_message_data), generation_time
+
+
+async def generate_and_save_ai_response(
+    user_message: str, channel_id: str, db_session: Session | None = None
+) -> MessageBroadcastData:
+    """AI応答を生成してデータベースに保存"""
+    # AI応答を生成
+    ai_message_create, _ = await _generate_ai_response(user_message, channel_id)
+
+    # セッションから切り離される前に必要な情報を取得
+    message_id, user_id, user_name, content, timestamp = _extract_message_attributes(ai_message_create)
 
     # データベースに保存
     db_start = time.time()
-    saved_ai_message = save_message_with_session_management(
+    save_message_with_session_management(
         lambda session: crud.create_message(session, ai_message_create), db_session, auto_commit=(db_session is None)
     )
     db_time = time.time() - db_start
-    logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={saved_ai_message.id}")
+    logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={message_id}")
 
-    return saved_ai_message
+    return MessageBroadcastData(
+        message_id=message_id,
+        channel_id=channel_id,
+        user_id=user_id,
+        user_name=user_name,
+        content=content,
+        timestamp=timestamp,
+    )
 
 
-async def broadcast_ai_response(saved_message: Any) -> None:
+async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
     """AI応答をブロードキャスト"""
-    broadcast_message = create_broadcast_message(saved_message)
+    broadcast_message = create_broadcast_message(message_data)
     broadcast_start = time.time()
     await manager.broadcast(json.dumps(broadcast_message))
     broadcast_time = time.time() - broadcast_start
-    logger.info(f"AI応答ブロードキャスト完了: broadcast_time={broadcast_time:.2f}s, message_id={saved_message.id}")
+    logger.info(
+        f"AI応答ブロードキャスト完了: broadcast_time={broadcast_time:.2f}s, message_id={message_data.message_id}"
+    )
 
 
 async def handle_ai_error(channel_id: str, error: Exception, error_time: float) -> None:
@@ -144,13 +186,13 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
     logger.info("@AI検出、AI応答生成を開始")
     try:
         # AI応答を生成・保存
-        saved_ai_message = await generate_and_save_ai_response(user_message, channel_id, db_session)
+        ai_message_data = await generate_and_save_ai_response(user_message, channel_id, db_session)
 
         # AI応答をブロードキャスト
-        await broadcast_ai_response(saved_ai_message)
+        await broadcast_ai_response(ai_message_data)
 
         total_time = time.time() - start_time
-        logger.info(f"AI応答処理完了: total_time={total_time:.2f}s, message_id={saved_ai_message.id}")
+        logger.info(f"AI応答処理完了: total_time={total_time:.2f}s, message_id={ai_message_data.message_id}")
 
     except Exception as e:
         error_time = time.time() - start_time

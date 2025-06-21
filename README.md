@@ -11,7 +11,7 @@
 
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
-- メッセージの永続化（SQLite）
+- メッセージの永続化（Supabase PostgreSQL）
 - **🤖 AI チャットボット「ハルト」**（Google Gemini 2.5 Flash Preview 05-20）
 - **@AI メンションでの AI 応答機能**
 - モバイル対応レスポンシブデザイン
@@ -31,7 +31,7 @@
 ### バックエンド
 - **FastAPI**: Webフレームワーク
 - **SQLAlchemy**: ORM
-- **SQLite**: データベース
+- **Supabase PostgreSQL**: データベース
 - **WebSocket**: リアルタイム通信
 - **Pydantic**: データバリデーション
 - **Google Gemini AI**: AI チャットボット
@@ -122,7 +122,7 @@ uv run --frozen pyright          # 型チェック
 3. 左側のチャンネル一覧から好きなチャンネルを選択
 4. メッセージを入力（**Shift+Enter**で送信、**Enter**で改行）
 5. **🤖 AI機能**: メッセージに「@AI」を含めると、ハルトが応答します
-6. メッセージはSQLiteデータベースに永続化されます
+6. メッセージはSupabase PostgreSQLデータベースに永続化されます
 
 ### AI機能の使用例
 ```text
@@ -143,13 +143,14 @@ uv run --frozen pyright          # 型チェック
 ### バックエンド
 - [x] REST API（チャンネル一覧、メッセージ履歴）
 - [x] WebSocketによるリアルタイム通信
-- [x] SQLiteデータベースによるメッセージ永続化
+- [x] Supabase PostgreSQLデータベースによるメッセージ永続化
 - [x] **Google Gemini AI統合**
 - [x] **AI チャットボット「ハルト」**
 - [x] **@AI メンション機能**
 - [x] 堅牢な接続管理システム
 - [x] チャンネル別メッセージ管理
 - [x] CORS対応
+- [x] **Supabase PostgreSQL移行完了**
 
 ## 🚧 今後の拡張予定
 

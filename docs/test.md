@@ -27,11 +27,12 @@ Google Gemini AI統合チャットアプリケーションの品質を確保し�
 ai-community/
 ├── tests/
 │   ├── conftest.py              # pytest設定
-│   ├── backend/                 # バックエンドテスト（4ファイル）
+│   ├── backend/                 # バックエンドテスト（5ファイル）
 │   │   ├── conftest.py         # バックエンド専用設定
 │   │   ├── test_models.py      # モデルテスト
 │   │   ├── test_api.py         # REST API テスト
-│   │   └── test_websocket.py   # WebSocket + AI機能テスト
+│   │   ├── test_websocket.py   # WebSocket + AI機能テスト
+│   │   └── test_supabase_integration.py # Supabase統合テスト
 │   └── frontend/               # フロントエンドテスト（3ファイル）
 │       ├── setup.ts            # Vitest設定
 │       ├── components.test.tsx  # コンポーネントテスト
@@ -47,7 +48,7 @@ ai-community/
 └── pyproject.toml              # Pythonテスト設定
 ```
 
-**総テスト数目標**: 約18個（バックエンド10個 + フロントエンド8個）
+**総テスト数目標**: 約25個（バックエンド17個 + フロントエンド8個）
 
 ## バックエンドテスト（Python + pytest）
 
@@ -299,7 +300,8 @@ describe('ChatApp Integration', () => {
 - **pytest-asyncio**: 非同期テスト対応
 - **httpx**: 非同期HTTPクライアント（FastAPI テスト用）
 - **pytest-mock**: モック機能（AI応答テスト用）
-- **SQLite**: インメモリテスト用データベース
+- **SQLite**: インメモリテスト用データベース（テスト専用）
+- **Supabase PostgreSQL**: 本番データベース（統合テスト時）
 - **anyio**: 非同期フレームワーク（uvと互換）
 
 ### フロントエンド（React 19 + TypeScript）
@@ -322,7 +324,18 @@ describe('ChatApp Integration', () => {
 - [x] フロントエンド統合テスト（3個）
 - [x] AI応答機能テスト（モック使用）
 
-### 🚧 Phase 3: 拡張テスト（任意・将来予定）
+### ✅ Phase 3: Supabase統合テスト（完了済み）
+- [x] Supabase接続確認テスト（2個）
+- [x] PostgreSQL CRUD操作テスト（2個、環境依存でスキップ可）
+- [x] データベースフォールバック機能テスト（3個）
+
+#### 実行環境別の注意事項
+- **ローカル開発**: 環境変数未設定時は自動スキップ
+- **CI/CD環境**: Supabase接続情報をSecrets管理
+- **セキュリティ**: 本番DBへの直接テスト実行は禁止
+- **テストデータ**: テスト専用Supabaseプロジェクトを推奨
+
+### 🚧 Phase 4: 拡張テスト（任意・将来予定）
 - [ ] エラーハンドリング詳細テスト
 - [ ] AI応答パフォーマンステスト
 - [ ] E2Eテスト（Playwright使用予定）
@@ -359,18 +372,89 @@ npm run test:ui
 
 ## 品質指標・カバレッジ目標
 
-- **現在達成**: 18テスト実装済み
+- **現在達成**: 25テスト実装済み（既存18個 + Supabase統合7個）
 - **カバレッジ目標**: 主要機能70%以上
 - **AI機能テスト**: モック使用で基本動作確認済み
+- **Supabase統合**: 接続・CRUD・フォールバック機能をテスト
 - **継続的統合**: pre-commitフックでテスト自動実行
 
 ## まとめ
 
 **理念**: 「実用性重視の品質確保」
-- 18個の戦略的テストで主要機能の品質を確保
-- AI機能も含めた包括的なテストカバレッジ
+- 25個の戦略的テストで主要機能の品質を確保
+- AI機能・Supabase統合も含めた包括的なテストカバレッジ
 - メンテナンス性を重視した継続可能なテスト設計
 - 開発効率と品質のバランスを追求
+- **Supabase PostgreSQL対応**: 本番環境と同等のテスト環境
+
+## Supabase統合テスト詳細
+
+### 新規追加：test_supabase_integration.py（7テスト）
+
+#### 1. Supabase接続確認テスト（2個）
+```python
+def test_supabase_connection_with_valid_env():
+    """有効な環境変数でSupabase接続成功テスト"""
+    # 実際の環境変数が設定されている場合のみ実行
+    # 接続テスト（SELECT 1クエリ実行）
+
+def test_supabase_url_format_validation():
+    """Supabase接続URL形式の検証テスト"""
+    # PostgreSQL URL形式の正確性確認
+    # 環境変数からのURL構築ロジック検証
+```
+
+#### 2. PostgreSQL CRUD操作テスト（2個）
+```python
+def test_postgresql_channel_operations():
+    """PostgreSQLでのチャンネル操作テスト"""
+    # CREATE, READ, UPDATE, DELETE の基本動作確認
+    # 実PostgreSQL環境での動作検証
+
+def test_postgresql_message_with_unicode():
+    """PostgreSQLでの日本語メッセージ処理テスト"""
+    # 日本語・絵文字を含むデータの処理確認
+    # 文字エンコーディング・タイムゾーン処理の検証
+```
+
+#### 3. データベースフォールバック機能テスト（3個）
+```python
+def test_database_url_construction_logic():
+    """データベースURL構築ロジックの検証テスト"""
+    # 完全/不完全な環境変数設定での分岐確認
+    # SQLiteフォールバック条件の検証
+
+def test_sqlite_functionality_standalone():
+    """SQLite機能の独立テスト"""
+    # 基本的なSQLite動作確認
+    # フォールバック時の動作保証
+
+def test_environment_variable_validation():
+    """環境変数バリデーションロジックのテスト"""
+    # 必須環境変数の有無チェック
+    # all()関数を使った検証ロジックの確認
+```
+
+### テスト実行の特徴
+- **環境依存対応**: 環境変数未設定時は自動的にテストスキップ
+- **接続失敗時の安全動作**: 実際のSupabaseに接続できない場合もテストが停止しない
+- **開発効率重視**: ローカル開発環境でも支障なく動作
+
+#### 必要な環境変数（任意設定）
+```bash
+# Supabaseテスト用環境変数（設定時のみテスト実行）
+export DB_HOST="your-project.supabase.co"
+export DB_PORT="5432"
+export DB_NAME="postgres"
+export DB_USER="postgres.your-user"
+export DB_PASSWORD="your-test-password"
+```
+
+#### テスト環境設定の注意事項
+- **本番データベース**: 絶対に本番環境の接続情報を使用しないでください
+- **テスト専用DB**: 専用のSupabaseテストプロジェクトの作成を推奨
+- **CI/CD**: GitHub ActionsのSecretsで環境変数を管理
+- **ローカル**: `.env`ファイルまたは直接export（.gitignore必須）
 
 ## AI機能特有のテスト考慮事項
 

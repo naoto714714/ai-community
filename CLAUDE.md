@@ -2,6 +2,7 @@
 ## 共通ルール
 - タスクに取り組む際、遠慮せずに、常に全力を尽くしてください
 - あなたは有能なアシスタントです。Reasoningでは英語で考えて、ユーザーに回答するときは日本語で答えてください。
+- 作業途中で疑問点が生じたら、必ず作業を一旦ストップしてすぐにユーザーに確認してください、勝手な判断で進めないこと、ユーザーは質問されると喜ぶので積極的に質問すると良い
 - Web検索を積極的に使い、最新情報を取り入れてください
 - CLAUDE.mdを適宜修正して、最新の情報を常に取得できるようにしなさい
 - 一時的なファイルの保存が必要であれば、 `z/` に自由に保存して良いです
@@ -38,7 +39,7 @@
 ### 主要機能
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
-- メッセージの永続化（SQLite）
+- メッセージの永続化（Supabase PostgreSQL）
 - **AI チャットボット「ハルト」**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
 - モバイル対応レスポンシブデザイン
@@ -46,7 +47,7 @@
 
 ### 技術スタック
 - **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite + Google Gemini AI
+- **Backend**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
 - **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs
@@ -68,13 +69,13 @@ ai-community/
 │   ├── code_review_guide.md  # コードレビューガイド
 │   └── reviewer_personality.md # レビュー人格設定
 ├── src/
-│   ├── backend/              # バックエンド（FastAPI + SQLite + AI）
+│   ├── backend/              # バックエンド（FastAPI + Supabase PostgreSQL + AI）
 │   │   ├── main.py          # FastAPIアプリケーション
 │   │   ├── database.py      # データベース設定
 │   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── schemas.py       # Pydanticスキーマ
 │   │   ├── crud.py          # データベース操作
-│   │   ├── chat.db          # SQLiteデータベース
+│   │   ├── (chat.db)        # SQLite開発用DB（.gitignore除外済み）
 │   │   ├── ai/              # AI機能
 │   │   │   ├── gemini_client.py      # Gemini API クライアント
 │   │   │   └── message_handlers.py   # AI応答処理
@@ -163,7 +164,35 @@ npm install
 npm run dev
 ```
 
-### 4. AI機能の設定（オプション）
+### 4. データベース設定
+
+プロジェクトは3つのデータベース環境に対応しています：
+
+#### 🧪 テスト環境（自動設定）
+```bash
+# テスト実行時は自動的にインメモリDBを使用
+TESTING=true
+# SQLite :memory: を使用（ファイル生成なし）
+```
+
+#### 🚀 本番・ステージング環境（Supabase PostgreSQL）
+```bash
+# Supabase環境変数を設定
+export DB_HOST="aws-0-ap-northeast-1.pooler.supabase.com"
+export DB_PORT="6543"
+export DB_NAME="postgres"
+export DB_USER="postgres.your-project-id"
+export DB_PASSWORD="your-database-password"
+```
+
+#### 💻 ローカル開発環境（SQLite - フォールバック）
+```bash
+# 環境変数を設定しない場合、自動的にSQLiteファイル（chat.db）を使用
+# chat.dbは.gitignoreで除外済み（セキュリティ・容量対策）
+# ローカル開発・デバッグ時のみ使用
+```
+
+### 5. AI機能の設定（オプション）
 
 Google Gemini AIを使用する場合は、環境変数を設定してください：
 
@@ -174,7 +203,7 @@ export GEMINI_API_KEY="あなたのGemini APIキー"
 
 AI機能なしでも基本的なチャット機能は利用できます。
 
-### 5. その他のコマンド
+### 6. その他のコマンド
 
 #### フロントエンド
 ```bash
@@ -206,7 +235,7 @@ uv run --frozen pyright          # 型チェック
 
 ### ✅ バックエンド（完了済み）
 - [x] FastAPI環境セットアップ
-- [x] SQLAlchemy + SQLiteデータベース構築
+- [x] SQLAlchemy + Supabase PostgreSQLデータベース構築
 - [x] データモデル設計（Channel, Message）
 - [x] REST API実装（チャンネル一覧、メッセージ履歴）
 - [x] WebSocket通信実装
@@ -217,6 +246,7 @@ uv run --frozen pyright          # 型チェック
 - [x] 接続管理・セッション管理強化
 - [x] フロントエンドとの連携
 - [x] 総合テスト
+- [x] **Supabase PostgreSQL移行完了**
 
 ### 🚧 今後の拡張予定
 - [ ] ユーザー認証機能

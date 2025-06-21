@@ -122,14 +122,12 @@ class GeminiAPIClient:
         """
         同期的にコンテンツを生成する（run_in_executor用）.
 
-        Gemini 2.5 Flash Preview 05-20では思考機能（thinking）がデフォルトで有効ですが、
-        チャットアプリケーションでは応答速度を重視するため、thinking_budgetを0に設定して
-        思考機能を無効化しています。
+        Gemini 2.5 Flash Preview 05-20用の基本設定でコンテンツを生成します。
         """
-        # Gemini 2.5 Flash用の設定（思考機能を無効化してレスポンス速度を向上）
+        # Gemini 2.5 Flash用の基本設定
         generation_config = {
-            # 思考機能を無効化（チャット用途では応答速度を重視）
-            "thinking_config": {"thinking_budget": 0}
+            "temperature": 0.7,
+            "max_output_tokens": 1000,
         }
 
         return self.model.generate_content(prompt, generation_config=generation_config)  # type: ignore

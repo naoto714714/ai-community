@@ -28,6 +28,7 @@ npm run dev
 
 **アプリケーションURL:** [http://localhost:5173](http://localhost:5173)
 **バックエンドAPI:** [http://localhost:8000](http://localhost:8000)
+**データベース:** Supabase PostgreSQL（本番環境）
 
 ## 📁 プロジェクト構造
 
@@ -221,6 +222,7 @@ npm run test:ui
 - ✅ ESLint + Prettier 設定
 - ✅ Vitest + Testing Library テスト環境
 - ✅ TypeScript 厳密設定
+- ✅ **Supabase PostgreSQL バックエンド対応**
 
 ## 🚧 今後の拡張予定
 
