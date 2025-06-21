@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+import re
 import threading
 from pathlib import Path
 
@@ -131,7 +132,9 @@ class GeminiAPIClient:
         Returns:
             応答すべき場合True
         """
-        result = "@ai" in message.lower()
+        # より堅牢な検出：単語境界を考慮
+        pattern = r"\b@ai\b"
+        result = bool(re.search(pattern, message.lower()))
         logger.debug(f"@AI検出: '{message[:50]}...' -> {result}")
         return result
 
