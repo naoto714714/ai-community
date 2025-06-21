@@ -211,23 +211,85 @@ async def test_ai_response_trigger(test_client):
 ```typescript
 // 主要コンポーネントのユニットテスト
 describe('MessageItem', () => {
-  it('通常メッセージが正しく表示される');
-  it('自分のメッセージは適切なスタイルで表示される');
-  it('AI応答メッセージ（ハルト）が正しく表示される');
+  it('通常メッセージが正しく表示される', () => {
+    const message = { content: "テストメッセージ", userName: "ユーザー" };
+    render(<MessageItem message={message} />);
+    expect(screen.getByText("テストメッセージ")).toBeInTheDocument();
+  });
+  
+  it('自分のメッセージは適切なスタイルで表示される', () => {
+    const ownMessage = { content: "自分のメッセージ", isOwnMessage: true };
+    render(<MessageItem message={ownMessage} />);
+    expect(screen.getByTestId('own-message')).toHaveClass('own-message-style');
+  });
+  
+  it('AI応答メッセージ（ハルト）が正しく表示される', () => {
+    const aiMessage = { content: "こんにちは！", userName: "ハルト" };
+    render(<MessageItem message={aiMessage} />);
+    expect(screen.getByText("ハルト")).toBeInTheDocument();
+    expect(screen.getByTestId('ai-message')).toBeInTheDocument();
+  });
 });
 
 describe('MessageInput', () => {
-  it('テキスト入力が正常に動作する');
-  it('Shift+Enterでメッセージが送信される');
+  it('テキスト入力が正常に動作する', async () => {
+    render(<MessageInput onSendMessage={vi.fn()} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, 'テストメッセージ');
+    expect(input).toHaveValue('テストメッセージ');
+  });
+  
+  it('Shift+Enterでメッセージが送信される', async () => {
+    const onSendMessage = vi.fn();
+    render(<MessageInput onSendMessage={onSendMessage} />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, 'メッセージ送信テスト');
+    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
+    expect(onSendMessage).toHaveBeenCalledWith('メッセージ送信テスト');
+  });
 });
 ```
 
 ### 2. integration.test.tsx（3テスト）
 ```typescript
 describe('ChatApp Integration', () => {
-  it('チャンネル切り替えでメッセージが更新される');
-  it('WebSocket経由でメッセージが送受信される');
-  it('@AI メンション付きメッセージの送信とAI応答の受信');
+  it('チャンネル切り替えでメッセージが更新される', async () => {
+    render(<ChatApp />);
+    
+    // 最初のチャンネルを選択
+    await userEvent.click(screen.getByText('雑談'));
+    expect(screen.getByTestId('channel-1-messages')).toBeInTheDocument();
+    
+    // 別のチャンネルに切り替え
+    await userEvent.click(screen.getByText('ゲーム'));
+    expect(screen.getByTestId('channel-2-messages')).toBeInTheDocument();
+  });
+  
+  it('WebSocket経由でメッセージが送受信される', async () => {
+    // WebSocketモック設定
+    const mockWebSocket = vi.fn();
+    global.WebSocket = mockWebSocket;
+    
+    render(<ChatApp />);
+    const input = screen.getByRole('textbox');
+    await userEvent.type(input, 'WebSocketテスト');
+    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
+    
+    expect(mockWebSocket).toHaveBeenCalled();
+  });
+  
+  it('@AI メンション付きメッセージの送信とAI応答の受信', async () => {
+    render(<ChatApp />);
+    const input = screen.getByRole('textbox');
+    
+    await userEvent.type(input, '@AI こんにちは');
+    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
+    
+    // AI応答の表示を確認
+    await waitFor(() => {
+      expect(screen.getByText(/ハルト/)).toBeInTheDocument();
+    });
+  });
 });
 ```
 
