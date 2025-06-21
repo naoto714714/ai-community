@@ -37,7 +37,9 @@ def save_message_with_session_management(
         # 本番環境: 新しいセッションを作成してcommit/rollback/closeを管理
         db = SessionLocal()
         try:
-            return message_create_func(db)
+            result = message_create_func(db)
+            db.commit()
+            return result
         except Exception:
             db.rollback()
             raise
