@@ -46,3 +46,9 @@ repos:
         language: system
         files: ^(pyproject\.toml|uv\.lock)$
         pass_filenames: false
+      - id: npm-lock-check
+        name: Check package-lock.json is up to date
+        entry: bash -c 'cd . && npm ci --dry-run'
+        language: system
+        files: ^(package\.json|package-lock\.json)$
+        pass_filenames: false
