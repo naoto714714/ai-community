@@ -140,26 +140,35 @@ async def handle_websocket_message(
         try:
             # Pydanticバリデーション
             message_create = MessageCreate.model_validate(message_data)
-            saved_message = save_message_with_session_management(
+
+            # セッションから切り離される前に必要な情報を取得
+            message_id = message_create.id
+            channel_id = message_create.channel_id
+            user_id = message_create.user_id
+            user_name = message_create.user_name
+            content = message_create.content
+            timestamp = message_create.timestamp
+
+            save_message_with_session_management(
                 lambda session: crud.create_message(session, message_create),
                 db_session,
                 auto_commit=(db_session is None),
             )
 
             # 保存成功をクライアントに通知
-            response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
+            response = {"type": "message:saved", "data": {"id": message_id, "success": True}}
             await safe_send_message(websocket, json.dumps(response))
 
-            logger.info(f"メッセージが保存されました: {saved_message.id}")
+            logger.info(f"メッセージが保存されました: {message_id}")
 
             # 送信者以外の全クライアントにブロードキャスト（送信者は楽観的更新済み）
             broadcast_data = {
-                "id": saved_message.id,
-                "channel_id": saved_message.channel_id,
-                "user_id": saved_message.user_id,
-                "user_name": saved_message.user_name,
-                "content": saved_message.content,
-                "timestamp": saved_message.timestamp.isoformat(),
+                "id": message_id,
+                "channel_id": channel_id,
+                "user_id": user_id,
+                "user_name": user_name,
+                "content": content,
+                "timestamp": timestamp.isoformat(),
                 "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
             }
 
@@ -168,7 +177,7 @@ async def handle_websocket_message(
                 "data": broadcast_data,
             }
             await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
-            logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {saved_message.id}")
+            logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {message_id}")
 
             # AI応答の処理（エラーハンドリング付き）
             try:
