@@ -53,10 +53,11 @@ ai-community/
 
 ### 1. test_models.py（3テスト）
 ```python
+from datetime import datetime
+from models import Channel, Message
+
 def test_channel_creation(test_db):
     """チャンネルモデルの作成テスト"""
-    from models import Channel
-    
     # チャンネル作成
     channel = Channel(id="test_1", name="テストチャンネル", description="テスト用")
     test_db.add(channel)
@@ -70,8 +71,6 @@ def test_channel_creation(test_db):
 
 def test_message_creation(test_db, seed_channels):
     """メッセージモデルの作成テスト"""
-    from models import Message
-    from datetime import datetime
     
     # メッセージ作成
     message = Message(
@@ -94,9 +93,6 @@ def test_message_creation(test_db, seed_channels):
 
 def test_message_channel_relationship(test_db, seed_channels):
     """チャンネル-メッセージ関係テスト"""
-    from models import Channel, Message
-    from datetime import datetime
-    
     # チャンネルにメッセージを追加
     message = Message(
         id="msg_rel_1",
