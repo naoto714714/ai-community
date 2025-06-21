@@ -108,29 +108,37 @@ class TestSupabaseCRUD:
         # CREATE: チャンネル作成
         test_channel = Channel(id="supabase_test_ch", name="Supabaseテストチャンネル", description="統合テスト用")
 
-        supabase_db_session.add(test_channel)
-        supabase_db_session.commit()
+        try:
+            supabase_db_session.add(test_channel)
+            supabase_db_session.commit()
 
-        # READ: 作成したチャンネルを取得
-        retrieved_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            # READ: 作成したチャンネルを取得
+            retrieved_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
 
-        assert retrieved_channel is not None
-        assert retrieved_channel.name == "Supabaseテストチャンネル"
-        assert retrieved_channel.description == "統合テスト用"
+            assert retrieved_channel is not None
+            assert retrieved_channel.name == "Supabaseテストチャンネル"
+            assert retrieved_channel.description == "統合テスト用"
 
-        # UPDATE: チャンネル更新
-        retrieved_channel.name = "更新されたチャンネル"
-        supabase_db_session.commit()
+            # UPDATE: チャンネル更新
+            retrieved_channel.name = "更新されたチャンネル"
+            supabase_db_session.commit()
 
-        updated_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
-        assert updated_channel.name == "更新されたチャンネル"
+            updated_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            assert updated_channel.name == "更新されたチャンネル"
 
-        # DELETE: チャンネル削除
-        supabase_db_session.delete(retrieved_channel)
-        supabase_db_session.commit()
+            # DELETE: チャンネル削除
+            supabase_db_session.delete(retrieved_channel)
+            supabase_db_session.commit()
 
-        deleted_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
-        assert deleted_channel is None
+            deleted_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            assert deleted_channel is None
+
+        finally:
+            # クリーンアップ: テストが失敗してもデータを確実に削除
+            cleanup_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            if cleanup_channel:
+                supabase_db_session.delete(cleanup_channel)
+                supabase_db_session.commit()
 
     def test_postgresql_message_with_unicode(self, supabase_db_session):
         """PostgreSQLでの日本語メッセージ処理テスト"""
