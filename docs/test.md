@@ -440,6 +440,22 @@ def test_environment_variable_validation():
 - **接続失敗時の安全動作**: 実際のSupabaseに接続できない場合もテストが停止しない
 - **開発効率重視**: ローカル開発環境でも支障なく動作
 
+#### 必要な環境変数（任意設定）
+```bash
+# Supabaseテスト用環境変数（設定時のみテスト実行）
+export DB_HOST="your-project.supabase.co"
+export DB_PORT="5432"
+export DB_NAME="postgres"
+export DB_USER="postgres.your-user"
+export DB_PASSWORD="your-test-password"
+```
+
+#### テスト環境設定の注意事項
+- **本番データベース**: 絶対に本番環境の接続情報を使用しないでください
+- **テスト専用DB**: 専用のSupabaseテストプロジェクトの作成を推奨
+- **CI/CD**: GitHub ActionsのSecretsで環境変数を管理
+- **ローカル**: `.env`ファイルまたは直接export（.gitignore必須）
+
 ## AI機能特有のテスト考慮事項
 
 ### モック戦略
