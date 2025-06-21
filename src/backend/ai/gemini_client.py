@@ -29,8 +29,8 @@ class GeminiAPIClient:
 
         logger.info("GEMINI_API_KEY確認済み")
         genai.configure(api_key=self.api_key)  # type: ignore
-        self.model = genai.GenerativeModel("gemini-1.5-flash")  # type: ignore
-        logger.info("Gemini 1.5 Flashモデル初期化完了")
+        self.model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")  # type: ignore
+        logger.info("Gemini 2.5 Flash Preview 05-20モデル初期化完了")
         self._system_prompt: str | None = None
         self._load_system_prompt()
 
@@ -119,8 +119,20 @@ class GeminiAPIClient:
         return self.FALLBACK_MESSAGE
 
     def _sync_generate(self, prompt: str) -> GenerateContentResponse:
-        """同期的にコンテンツを生成する（run_in_executor用）."""
-        return self.model.generate_content(prompt)  # type: ignore
+        """
+        同期的にコンテンツを生成する（run_in_executor用）.
+
+        Gemini 2.5 Flash Preview 05-20では思考機能（thinking）がデフォルトで有効ですが、
+        チャットアプリケーションでは応答速度を重視するため、thinking_budgetを0に設定して
+        思考機能を無効化しています。
+        """
+        # Gemini 2.5 Flash用の設定（思考機能を無効化してレスポンス速度を向上）
+        generation_config = {
+            # 思考機能を無効化（チャット用途では応答速度を重視）
+            "thinking_config": {"thinking_budget": 0}
+        }
+
+        return self.model.generate_content(prompt, generation_config=generation_config)  # type: ignore
 
     def should_respond_to_message(self, message: str) -> bool:
         """
