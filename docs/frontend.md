@@ -67,6 +67,15 @@ src/frontend/
 - **Testing Library:** React コンポーネントテスト
 - **Prettier:** コードフォーマット
 
+## デザイン仕様
+
+- **レイアウト**: 左サイドバー（280px）+ メインエリア
+- **カラーテーマ**: ダークモード対応（Mantineデフォルト）
+- **アクセントカラー**: blue/violet系
+- **フォント**: システムフォント（-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP'）
+- **最小幅**: 1024px（PC版優先）
+
+
 ## 📱 コンポーネント構造
 
 ### Layout.tsx（メインレイアウト）
