@@ -7,6 +7,7 @@
 """
 
 import os
+import uuid
 
 import pytest
 from sqlalchemy import create_engine, text
@@ -119,15 +120,16 @@ class TestSupabaseCRUD:
         """PostgreSQLでのチャンネル操作テスト"""
         from src.backend.models import Channel
 
-        # CREATE: チャンネル作成
-        test_channel = Channel(id="supabase_test_ch", name="Supabaseテストチャンネル", description="統合テスト用")
+        # CREATE: チャンネル作成（ユニークIDを生成して並列テスト実行時の競合を防止）
+        unique_id = f"supabase_test_ch_{uuid.uuid4().hex[:8]}"
+        test_channel = Channel(id=unique_id, name="Supabaseテストチャンネル", description="統合テスト用")
 
         try:
             supabase_db_session.add(test_channel)
             supabase_db_session.commit()
 
             # READ: 作成したチャンネルを取得
-            retrieved_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            retrieved_channel = supabase_db_session.query(Channel).filter(Channel.id == unique_id).first()
 
             assert retrieved_channel is not None
             assert retrieved_channel.name == "Supabaseテストチャンネル"
@@ -137,19 +139,19 @@ class TestSupabaseCRUD:
             retrieved_channel.name = "更新されたチャンネル"
             supabase_db_session.commit()
 
-            updated_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            updated_channel = supabase_db_session.query(Channel).filter(Channel.id == unique_id).first()
             assert updated_channel.name == "更新されたチャンネル"
 
             # DELETE: チャンネル削除
             supabase_db_session.delete(retrieved_channel)
             supabase_db_session.commit()
 
-            deleted_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            deleted_channel = supabase_db_session.query(Channel).filter(Channel.id == unique_id).first()
             assert deleted_channel is None
 
         finally:
             # クリーンアップ: テストが失敗してもデータを確実に削除
-            cleanup_channel = supabase_db_session.query(Channel).filter(Channel.id == "supabase_test_ch").first()
+            cleanup_channel = supabase_db_session.query(Channel).filter(Channel.id == unique_id).first()
             if cleanup_channel:
                 supabase_db_session.delete(cleanup_channel)
                 supabase_db_session.commit()
@@ -160,15 +162,17 @@ class TestSupabaseCRUD:
 
         from src.backend.models import Channel, Message
 
-        # テスト用チャンネル作成
-        test_channel = Channel(id="unicode_test_ch", name="日本語テスト", description="絵文字テスト🎉")
+        # テスト用チャンネル作成（ユニークIDを生成して並列テスト実行時の競合を防止）
+        channel_id = f"unicode_test_ch_{uuid.uuid4().hex[:8]}"
+        test_channel = Channel(id=channel_id, name="日本語テスト", description="絵文字テスト🎉")
         supabase_db_session.add(test_channel)
         supabase_db_session.commit()
 
-        # 日本語・絵文字を含むメッセージ作成
+        # 日本語・絵文字を含むメッセージ作成（ユニークIDを生成）
+        message_id = f"unicode_msg_{uuid.uuid4().hex[:8]}"
         unicode_message = Message(
-            id="unicode_msg_001",
-            channel_id="unicode_test_ch",
+            id=message_id,
+            channel_id=channel_id,
             user_id="test_user_jp",
             user_name="テストユーザー👤",
             content="こんにちは！🌸 日本語メッセージのテストです。Supabase PostgreSQL対応✨",
@@ -181,7 +185,7 @@ class TestSupabaseCRUD:
 
         try:
             # 取得して確認
-            retrieved_message = supabase_db_session.query(Message).filter(Message.id == "unicode_msg_001").first()
+            retrieved_message = supabase_db_session.query(Message).filter(Message.id == message_id).first()
 
             assert retrieved_message is not None
             assert retrieved_message.user_name == "テストユーザー👤"
