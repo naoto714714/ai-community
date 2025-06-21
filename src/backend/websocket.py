@@ -1,5 +1,6 @@
 import json
 import logging
+from datetime import datetime, timedelta, timezone
 from typing import Any, TypedDict
 
 from fastapi import WebSocket
@@ -221,7 +222,7 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
             "user_id": "ai_haruto",
             "user_name": "ハルト",
             "content": ai_response,
-            "timestamp": __import__("datetime").datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone(timedelta(hours=9))).isoformat(),
             "is_own_message": False,
         }
 
@@ -293,7 +294,7 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
             "user_id": "ai_haruto",
             "user_name": "ハルト",
             "content": "通信に失敗しました😅 もう一度試してみてください！",
-            "timestamp": __import__("datetime").datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone(timedelta(hours=9))).isoformat(),
             "is_own_message": False,
         }
 

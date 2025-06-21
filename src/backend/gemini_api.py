@@ -24,8 +24,8 @@ class GeminiAPIClient:
 
         logger.info(f"GEMINI_API_KEY確認済み (末尾: ...{self.api_key[-4:]})")
         genai.configure(api_key=self.api_key)  # type: ignore
-        self.model = genai.GenerativeModel("gemini-pro")  # type: ignore
-        logger.info("Gemini Proモデル初期化完了")
+        self.model = genai.GenerativeModel("gemini-1.5-flash")  # type: ignore
+        logger.info("Gemini 1.5 Flashモデル初期化完了")
         self._system_prompt: str | None = None
         self._load_system_prompt()
 
