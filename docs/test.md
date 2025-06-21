@@ -33,9 +33,14 @@ ai-community/
 │       ├── setup.ts            # Vitest設定
 │       ├── components.test.tsx  # コンポーネントテスト
 │       └── integration.test.tsx # 統合テスト（AI応答含む）
-├── src/frontend/
-│   ├── vitest.config.ts        # Vitestメイン設定
-│   └── package.json            # テストスクリプト定義
+├── src/
+│   ├── backend/                # バックエンドソースコード
+│   │   ├── main.py            # FastAPIアプリケーション
+│   │   ├── models.py          # SQLAlchemyモデル
+│   │   └── ...                # その他のバックエンドファイル
+│   └── frontend/              # フロントエンドソースコード
+│       ├── vitest.config.ts   # Vitestメイン設定
+│       └── package.json       # テストスクリプト定義
 └── pyproject.toml              # Pythonテスト設定
 ```
 
