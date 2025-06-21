@@ -23,40 +23,51 @@
 
 **AI Community** は、モダンでカジュアルなデザインのリアルタイムチャットアプリケーションです。
 フロントエンド（React + TypeScript + Mantine）とバックエンド（FastAPI + SQLAlchemy + WebSocket）の
-フルスタック構成で実装されており、リアルタイム通信とメッセージ永続化を実現しています。
+フルスタック構成で実装されており、リアルタイム通信・メッセージ永続化・AI チャットボット機能を実現しています。
 
 ### 主要機能
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
 - メッセージの永続化（SQLite）
-- レスポンシブデザイン（PC版優先）
+- **AI チャットボット「ハルト」**（Google Gemini 1.5 Flash）
+- @AI メンションでの AI 応答機能
+- モバイル対応レスポンシブデザイン
 - ダークモード対応
 
 ### 技術スタック
-- **Frontend**: React 18.x + TypeScript 5.x + Mantine 7.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite
+- **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
+- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite + Google Gemini AI
+- **AI**: Google Gemini 1.5 Flash モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs
-- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright
+- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright + Vitest
 
 ## プロジェクト構成
 
 ```
 ai-community/
 ├── docs/                      # ドキュメント
-│   ├── chat-app-spec.md      # フロントエンド仕様書
-│   ├── backend-implementation-guide.md  # バックエンド実装手順書
-│   ├── simple-backend-spec.md           # バックエンド仕様書
-│   ├── frontend-guideline.md           # フロントエンド開発ガイドライン
-│   └── backend-guideline.md            # バックエンド開発ガイドライン
+│   ├── backend.md            # バックエンド仕様書・API リファレンス
+│   ├── frontend.md           # フロントエンド開発ガイド
+│   ├── backend-guideline.md  # バックエンド開発ガイドライン
+│   ├── frontend-guideline.md # フロントエンド開発ガイドライン
+│   └── contributing.md       # 貢献ガイド
 ├── src/
-│   ├── backend/              # バックエンド（FastAPI + SQLite）
+│   ├── backend/              # バックエンド（FastAPI + SQLite + AI）
 │   │   ├── main.py          # FastAPIアプリケーション
 │   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── database.py      # データベース設定
 │   │   ├── schemas.py       # Pydanticスキーマ
-│   │   ├── websocket.py     # WebSocket処理
 │   │   ├── crud.py          # データベース操作
+│   │   ├── ai/              # AI機能
+│   │   │   ├── gemini_client.py      # Gemini API クライアント
+│   │   │   └── message_handlers.py   # AI応答処理
+│   │   ├── websocket/       # WebSocket処理
+│   │   │   ├── handler.py   # WebSocketハンドラー
+│   │   │   ├── manager.py   # 接続管理
+│   │   │   └── types.py     # WebSocket型定義
+│   │   ├── utils/           # ユーティリティ
+│   │   │   └── session_manager.py # セッション管理
 │   │   └── chat.db          # SQLiteデータベース
 │   └── frontend/            # フロントエンド（React + Mantine）
 │       ├── src/
@@ -82,36 +93,54 @@ ai-community/
 - Python 3.13以上
 - npm
 - uv (Python package manager)
+- Google Gemini API キー（AI機能使用時）
 
-### 2. バックエンド起動
+### 2. 🎯 一発起動（推奨）
+
 ```bash
-# バックエンドディレクトリに移動
-cd src/backend
-
-# 依存関係インストール（初回のみ）
-uv sync
-
-# 開発サーバー起動
-uv run python main.py
-```
-
-バックエンドAPI: `http://localhost:8000`
-
-### 3. フロントエンド起動（別ターミナル）
-```bash
-# フロントエンドディレクトリに移動
-cd src/frontend
-
-# 依存関係インストール（初回のみ）
+# ルートディレクトリで
 npm install
-
-# 開発サーバー起動
 npm run dev
 ```
 
-フロントエンド: `http://localhost:5173`
+これでフロントエンドとバックエンドが同時に起動します！
+（バックエンドの依存関係は自動で`uv sync`が実行されます）
 
-### 4. その他のコマンド
+- **フロントエンド**: `http://localhost:5173`
+- **バックエンド**: `http://localhost:8000`
+
+### 3. 個別起動（従来の方法）
+
+#### バックエンドのみ
+```bash
+npm run backend:only
+# または
+cd src/backend
+uv sync
+uv run python main.py
+```
+
+#### フロントエンドのみ
+```bash
+npm run frontend:only
+# または
+cd src/frontend
+npm install
+npm run dev
+```
+
+### 4. AI機能の設定（オプション）
+
+Google Gemini AIを使用する場合は、環境変数を設定してください：
+
+```bash
+# 環境変数設定（.env ファイルまたは直接設定）
+export GEMINI_API_KEY="あなたのGemini APIキー"
+```
+
+AI機能なしでも基本的なチャット機能は利用できます。
+
+### 5. その他のコマンド
 
 #### フロントエンド
 ```bash
@@ -148,6 +177,10 @@ uv run --frozen pyright          # 型チェック
 - [x] REST API実装（チャンネル一覧、メッセージ履歴）
 - [x] WebSocket通信実装
 - [x] メッセージ永続化機能
+- [x] **Google Gemini AI統合**
+- [x] **AI チャットボット「ハルト」実装**
+- [x] **@AI メンション機能**
+- [x] 接続管理・セッション管理強化
 - [x] フロントエンドとの連携
 - [x] 総合テスト
 
