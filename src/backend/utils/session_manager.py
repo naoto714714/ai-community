@@ -16,6 +16,7 @@ def save_message_with_session_management(
     Args:
         message_create_func: セッションを受け取ってメッセージを作成する関数
         db_session: オプショナルセッション。テスト環境で使用される。
+                    どちらの場合もcommitが実行されて一貫性を保つ。
                     Noneの場合は新しいセッションを作成（本番環境）
 
     Returns:
@@ -27,9 +28,11 @@ def save_message_with_session_management(
         from database import SessionLocal
 
     if db_session is not None:
-        # テスト環境: 提供されたセッションを使用（commit/closeは呼び出し元で管理）
+        # テスト環境: 提供されたセッションを使用（commitも実行して一貫性を保つ）
         try:
-            return message_create_func(db_session)
+            result = message_create_func(db_session)
+            db_session.commit()
+            return result
         except Exception:
             db_session.rollback()
             raise
