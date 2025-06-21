@@ -34,7 +34,14 @@ class GeminiAPIClient:
 
     def _load_system_prompt(self) -> None:
         """システムプロンプトを読み込む."""
-        prompt_path = Path(__file__).parent.parent.parent.parent / "prompts" / "001_ハルト.md"
+        # 環境変数から基本パスを取得、デフォルトはプロジェクトルート
+        base_path = os.getenv("AI_COMMUNITY_BASE_PATH")
+        if base_path:
+            prompt_path = Path(base_path) / "prompts" / "001_ハルト.md"
+        else:
+            # フォールバック: プロジェクトルートを推測
+            prompt_path = Path(__file__).parent.parent.parent.parent / "prompts" / "001_ハルト.md"
+
         logger.info(f"プロンプトファイル読み込み試行: {prompt_path}")
         try:
             with open(prompt_path, encoding="utf-8") as f:
