@@ -83,47 +83,60 @@ ai-community/
 - npm
 - uv (Python package manager)
 
-### 2. バックエンドのセットアップ・起動
+### 2. 🎯 一発起動（推奨）
 
 ```bash
-# バックエンドディレクトリに移動
-cd src/backend
-
-# 依存関係のインストール
-uv sync
-
-# 開発サーバーの起動
-uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-バックエンドAPI: `http://localhost:8000`
-
-### 3. フロントエンドのセットアップ・起動（別ターミナル）
-
-```bash
-# フロントエンドディレクトリに移動
-cd src/frontend
-
-# 依存関係のインストール
+# ルートディレクトリで
 npm install
-
-# 開発サーバーの起動
 npm run dev
 ```
 
-フロントエンド: `http://localhost:5173`
+これでフロントエンドとバックエンドが同時に起動します！
+（バックエンドの依存関係は自動で`uv sync`が実行されます）
 
-### 4. その他のコマンド
+- **フロントエンド**: `http://localhost:5173`
+- **バックエンド**: `http://localhost:8000`
 
-#### フロントエンド
+### 3. 個別起動（従来の方法）
+
+#### バックエンドのみ
 ```bash
+npm run backend:only
+# または
+cd src/backend
+uv sync
+uv run python main.py
+```
+※ `npm run backend:only`は自動で`uv sync`を実行します
+
+#### フロントエンドのみ
+```bash
+npm run frontend:only
+# または
+cd src/frontend
+npm install
+npm run dev
+```
+
+### 4. 便利なコマンド一覧
+
+| コマンド | 説明 |
+|---------|------|
+| `npm run dev` | 🚀 フロントエンド + バックエンド同時起動 |
+| `npm run backend:only` | バックエンドのみ起動 |
+| `npm run frontend:only` | フロントエンドのみ起動 |
+
+#### フロントエンド詳細コマンド
+```bash
+cd src/frontend
 npm run build      # ビルド
 npm run preview    # プレビュー
 npm run lint       # ESLintチェック
 ```
 
-#### バックエンド
+#### バックエンド詳細コマンド
 ```bash
+cd src/backend
 uv run --frozen ruff format .    # コードフォーマット
 uv run --frozen ruff check .     # リントチェック
 uv run --frozen pyright          # 型チェック
@@ -131,10 +144,10 @@ uv run --frozen pyright          # 型チェック
 
 ## 🎯 使用方法
 
-1. バックエンドとフロントエンドを両方起動
+1. `npm run dev` でアプリケーションを起動
 2. ブラウザで `http://localhost:5173` にアクセス
 3. 左側のチャンネル一覧から好きなチャンネルを選択
-4. メッセージを入力して送信
+4. メッセージを入力（**Shift+Enter**で送信、**Enter**で改行）
 5. メッセージはSQLiteデータベースに永続化されます
 
 ## ✨ 実装済み機能
@@ -142,7 +155,7 @@ uv run --frozen pyright          # 型チェック
 ### フロントエンド
 - [x] レスポンシブなチャンネル一覧
 - [x] リアルタイムメッセージ表示
-- [x] メッセージ入力・送信
+- [x] メッセージ入力・送信（Shift+Enter送信、Enter改行）
 - [x] WebSocket通信
 - [x] ダークモード対応
 

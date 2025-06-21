@@ -1,0 +1,32 @@
+{
+  "name": "ai-community",
+  "version": "1.0.0",
+  "description": "モダンでカジュアルなデザインのリアルタイムチャットアプリケーション。フロントエンド（React）とバックエンド（FastAPI）のフルスタック構成で実装されています。",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "scripts": {
+    "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"blue,green\" \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd src/backend && uv sync && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
+    "frontend": "cd src/frontend && npm run dev",
+    "backend:only": "npm run backend",
+    "frontend:only": "npm run frontend",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naoto714714/ai-community.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naoto714714/ai-community/issues"
+  },
+  "homepage": "https://github.com/naoto714714/ai-community#readme"
+}
