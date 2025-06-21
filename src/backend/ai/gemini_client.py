@@ -86,10 +86,12 @@ class GeminiAPIClient:
 
             except Exception as e:
                 # より具体的な例外処理
-                if "generation" in str(e).lower() or "content" in str(e).lower():
-                    logger.error(f"Gemini API生成エラー (試行 {attempt + 1}/{max_retries}): {str(e)}")
-                else:
-                    logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {str(e)}")
+                error_type = type(e).__name__
+                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {str(e)}")
+
+                # 特定のエラータイプに対する処理が必要な場合
+                # if isinstance(e, SpecificAPIError):
+                #     # 特別な処理
 
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
