@@ -11,14 +11,20 @@
    - アップグレード: `uv add --dev package --upgrade-package package`
    - 禁止事項: `uv pip install`、`@latest`構文
 
-2. コード品質
+2. データベース
+   - **本番環境**: Supabase PostgreSQL使用
+   - **開発時**: 環境変数でDB接続情報設定
+   - **セッション管理**: SQLAlchemy + PostgreSQL対応
+   - **SQLite**: 開発時のローカルテストのみ
+
+3. コード品質
    - すべてのコードに型ヒントが必要
    - パブリックAPIにはdocstringが必須
    - 関数は焦点を絞って小さくする
    - 既存のパターンに正確に従う
    - 行の長さ: 最大120文字
 
-3. テスト要件
+4. テスト要件
    - フレームワーク: `uv run --frozen pytest`
    - 非同期テスト: asyncioではなくanyioを使用
    - カバレッジ: エッジケースとエラーをテスト

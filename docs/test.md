@@ -299,7 +299,8 @@ describe('ChatApp Integration', () => {
 - **pytest-asyncio**: 非同期テスト対応
 - **httpx**: 非同期HTTPクライアント（FastAPI テスト用）
 - **pytest-mock**: モック機能（AI応答テスト用）
-- **SQLite**: インメモリテスト用データベース
+- **SQLite**: インメモリテスト用データベース（テスト専用）
+- **Supabase PostgreSQL**: 本番データベース（統合テスト時）
 - **anyio**: 非同期フレームワーク（uvと互換）
 
 ### フロントエンド（React 19 + TypeScript）
@@ -371,6 +372,7 @@ npm run test:ui
 - AI機能も含めた包括的なテストカバレッジ
 - メンテナンス性を重視した継続可能なテスト設計
 - 開発効率と品質のバランスを追求
+- **Supabase PostgreSQL対応**: 本番環境と同等のテスト環境
 
 ## AI機能特有のテスト考慮事項
 

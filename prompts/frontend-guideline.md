@@ -18,3 +18,8 @@
    - Mantineテーマシステム使用
    - グローバルCSS最小限
    - CSS-in-JSアプローチ
+
+5. **バックエンド連携**
+   - Supabase PostgreSQL対応
+   - WebSocket通信でリアルタイム同期
+   - AI機能（Google Gemini）連携
