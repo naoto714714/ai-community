@@ -27,6 +27,10 @@ def save_message_with_session_management(
     try:
         from ..database import SessionLocal
     except ImportError:
+        import logging
+
+        logger = logging.getLogger(__name__)
+        logger.warning("相対インポートに失敗、絶対インポートを試行")
         from database import SessionLocal
 
     if db_session is not None:

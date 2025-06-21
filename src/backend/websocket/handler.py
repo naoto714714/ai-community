@@ -62,10 +62,11 @@ def validate_message_data(message_data: dict[str, Any]) -> tuple[bool, str | Non
             return False, f"フィールド '{field_name}' の型が正しくありません（期待値: {field_type.__name__}）"
 
     # 追加的なバリデーション
-    if not message_data["content"].strip():
+    content = message_data["content"]
+    if not content.strip():
         return False, "メッセージ内容は空にできません"
 
-    if len(message_data["content"]) > MAX_MESSAGE_LENGTH:
+    if len(content) > MAX_MESSAGE_LENGTH:
         return False, "メッセージが長すぎます"
 
     return True, None
