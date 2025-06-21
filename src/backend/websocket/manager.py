@@ -45,7 +45,7 @@ class ConnectionManager:
         この方式により、ネットワーク障害や予期しない切断に対して
         堅牢な接続管理を実現している
         """
-        connections_to_remove = []
+        connections_to_remove = set()
         for connection in self.active_connections.copy():  # リストのコピーを作成して安全にイテレート
             try:
                 # 除外対象のWebSocketをスキップ
@@ -55,13 +55,13 @@ class ConnectionManager:
                 # WebSocket接続状態を厳密にチェック
                 # client_stateがDISCONNECTEDの場合は既に切断済み
                 if connection.client_state.name == "DISCONNECTED":
-                    connections_to_remove.append(connection)
+                    connections_to_remove.add(connection)
                     continue
                 # メッセージ送信を試行
                 await connection.send_text(message)
             except Exception:
                 # 送信に失敗した場合は接続が切断されているとみなす
-                connections_to_remove.append(connection)
+                connections_to_remove.add(connection)
 
         # 切断された接続をアクティブリストから削除
         for conn in connections_to_remove:
