@@ -24,7 +24,7 @@ class TestSupabaseMigrationPreparation:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # assert migrator.sqlite_db_path is not None
@@ -45,7 +45,7 @@ class TestSupabaseMigrationPreparation:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # is_valid = await migrator.validate_source_database(db_path)
@@ -65,7 +65,7 @@ class TestSupabaseMigrationPreparation:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # is_connected = await migrator.test_supabase_connectivity()
@@ -88,7 +88,7 @@ class TestSupabaseMigrationPreparation:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # backup_dir = await migrator.create_backup_directory(backup_path)
@@ -115,7 +115,7 @@ class TestSupabaseDataBackup:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # backup_path = await migrator.backup_sqlite_database(source_db, backup_filename)
@@ -134,7 +134,7 @@ class TestSupabaseDataBackup:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # backup_data = await migrator.backup_supabase_data()
@@ -187,7 +187,7 @@ class TestSupabaseDataExtraction:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # channels_data = await migrator.extract_channels_from_sqlite()
@@ -211,7 +211,7 @@ class TestSupabaseDataExtraction:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # messages_data = await migrator.extract_messages_from_sqlite()
@@ -251,7 +251,7 @@ class TestSupabaseDataExtraction:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # supabase_message = await migrator.transform_message_for_supabase(sqlite_message)
@@ -275,7 +275,7 @@ class TestSupabaseDataExtraction:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # batches = await migrator.prepare_data_batches(total_records, batch_size)
@@ -315,7 +315,7 @@ class TestSupabaseDataInsertion:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # result = await migrator.migrate_channels_to_supabase(channels_data)
@@ -350,7 +350,7 @@ class TestSupabaseDataInsertion:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # result = await migrator.migrate_messages_to_supabase(messages_data)
@@ -378,7 +378,7 @@ class TestSupabaseDataInsertion:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # result = await migrator.migrate_batch_with_error_handling(mixed_data)
@@ -407,7 +407,7 @@ class TestSupabaseDataIntegrity:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # validation_result = await migrator.validate_record_counts(source_counts, target_counts)
@@ -431,7 +431,7 @@ class TestSupabaseDataIntegrity:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # source_channel = await migrator.get_sqlite_channel(sample_channel_id)
@@ -454,7 +454,7 @@ class TestSupabaseDataIntegrity:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # relationship_check = await migrator.verify_foreign_key_relationships()
@@ -474,7 +474,7 @@ class TestSupabaseDataIntegrity:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # timestamp_validation = await migrator.verify_timestamp_consistency()
@@ -498,7 +498,7 @@ class TestSupabaseMigrationRollback:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # rollback_data = await migrator.prepare_rollback_data()
@@ -519,7 +519,7 @@ class TestSupabaseMigrationRollback:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # cleanup_result = await migrator.cleanup_supabase_data()
@@ -543,7 +543,7 @@ class TestSupabaseMigrationRollback:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # restore_result = await migrator.restore_sqlite_from_backup(backup_file, restore_target)
@@ -563,7 +563,7 @@ class TestSupabaseMigrationRollback:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # rollback_result = await migrator.execute_complete_rollback()
@@ -588,7 +588,7 @@ class TestSupabaseMigrationErrorHandling:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         # mock_client = Mock()
         # mock_client.table.side_effect = ConnectionError("Connection failed")
@@ -620,7 +620,7 @@ class TestSupabaseMigrationErrorHandling:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # recovery_plan = await migrator.create_recovery_plan(failed_migration_state)
@@ -648,7 +648,7 @@ class TestSupabaseMigrationErrorHandling:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # response = await migrator.handle_validation_failure(validation_errors)
@@ -676,7 +676,7 @@ class TestSupabaseMigrationPerformance:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # import time
@@ -699,7 +699,7 @@ class TestSupabaseMigrationPerformance:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # import psutil
         #
         # migrator = SupabaseMigrator()
@@ -724,7 +724,7 @@ class TestSupabaseMigrationPerformance:
         with pytest.raises(ImportError):
             from scripts.migrate_to_supabase import SupabaseMigrator
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # migrator = SupabaseMigrator()
         #
         # import asyncio

@@ -26,7 +26,7 @@ class TestSupabaseRowLevelSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # policies = await security.create_rls_policies()
@@ -50,7 +50,7 @@ class TestSupabaseRowLevelSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # # ユーザー権限でのアクセステスト
@@ -74,7 +74,7 @@ class TestSupabaseRowLevelSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # with pytest.raises(PermissionError):
@@ -98,7 +98,7 @@ class TestSupabaseRowLevelSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # result = await security.update_rls_policy(updated_policy)
@@ -120,7 +120,7 @@ class TestSupabaseAuthentication:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # auth_config = await security.setup_authentication()
@@ -142,7 +142,7 @@ class TestSupabaseAuthentication:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # anonymous_user = await security.create_anonymous_user(user_name)
@@ -165,7 +165,7 @@ class TestSupabaseAuthentication:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # session_validation = await security.validate_user_session(session_token)
@@ -187,7 +187,7 @@ class TestSupabaseAuthentication:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # with pytest.raises(AuthenticationError):
@@ -211,7 +211,7 @@ class TestSupabaseAuthorization:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # authorization = await security.check_channel_access(user_id, channel_id)
@@ -235,7 +235,7 @@ class TestSupabaseAuthorization:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # can_create = await security.authorize_message_creation(user_id, channel_id, message_content)
@@ -256,7 +256,7 @@ class TestSupabaseAuthorization:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # is_authorized = await security.check_admin_privileges(admin_user_id, admin_operation)
@@ -277,7 +277,7 @@ class TestSupabaseAuthorization:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # with pytest.raises(AuthorizationError):
@@ -301,7 +301,7 @@ class TestSupabaseDataProtection:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # encrypted_data = await security.encrypt_sensitive_data(sensitive_data, encryption_key)
@@ -324,7 +324,7 @@ class TestSupabaseDataProtection:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # encrypted_data = await security.encrypt_sensitive_data(original_data, encryption_key)
@@ -350,7 +350,7 @@ class TestSupabaseDataProtection:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # anonymized_data = await security.anonymize_user_data(user_data)
@@ -374,7 +374,7 @@ class TestSupabaseDataProtection:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # cleanup_result = await security.apply_data_retention_policy(retention_days)
@@ -401,7 +401,7 @@ class TestSupabaseApiSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # # 有効なキーのテスト
@@ -427,7 +427,7 @@ class TestSupabaseApiSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # # レート制限設定
@@ -456,7 +456,7 @@ class TestSupabaseApiSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # cors_config = await security.configure_cors(allowed_origins)
@@ -479,7 +479,7 @@ class TestSupabaseApiSecurity:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # # 悪意のある入力のテスト
@@ -513,7 +513,7 @@ class TestSupabaseSecurityAudit:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # log_result = await security.log_security_event(security_event)
@@ -535,7 +535,7 @@ class TestSupabaseSecurityAudit:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # # 複数回のログイン失敗をシミュレート
@@ -557,7 +557,7 @@ class TestSupabaseSecurityAudit:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # compliance_check = await security.run_security_compliance_check()
@@ -577,7 +577,7 @@ class TestSupabaseSecurityAudit:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # vulnerability_report = await security.run_vulnerability_assessment()
@@ -601,7 +601,7 @@ class TestSupabaseSecurityConfiguration:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # env_security = await security.validate_environment_security()
@@ -623,7 +623,7 @@ class TestSupabaseSecurityConfiguration:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # prod_settings = await security.apply_production_security_settings(environment)
@@ -644,7 +644,7 @@ class TestSupabaseSecurityConfiguration:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # headers_config = await security.configure_security_headers()
@@ -669,7 +669,7 @@ class TestSupabaseSecurityConfiguration:
         with pytest.raises(ImportError):
             from src.backend.supabase_security import SupabaseSecurity
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # security = SupabaseSecurity(mock_client)
         #
         # backup_security = await security.validate_backup_security(backup_location)

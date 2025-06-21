@@ -29,7 +29,7 @@ class TestSupabaseFastAPIIntegration:
             from src.backend.supabase_crud import SupabaseCRUD  # noqa: F401
             from src.backend.supabase_client import create_supabase_client  # noqa: F401
 
-        # 実装后に期待される動作をコメントアウト
+        # 実装後に期待される動作をコメントアウト
         # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
         #     response = await client.get("/api/channels")
         #
@@ -58,7 +58,7 @@ class TestSupabaseFastAPIIntegration:
             from src.backend.supabase_crud import SupabaseCRUD  # noqa: F401
             from src.backend.supabase_client import create_supabase_client  # noqa: F401
 
-        # 実装后に期待される動作をコメントアウト
+        # 実装後に期待される動作をコメントアウト
         # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
         #     response = await client.get(f"/api/channels/{channel_id}/messages")
         #
@@ -78,7 +78,7 @@ class TestSupabaseFastAPIIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import get_supabase_client
             # from src.backend.supabase_crud import SupabaseCRUD
             #
@@ -100,7 +100,7 @@ class TestSupabaseFastAPIIntegration:
         test_env = {"SUPABASE_URL": "https://test.supabase.co", "SUPABASE_KEY": "test_anon_key", "ENVIRONMENT": "test"}  # noqa: F841
         with patch.dict(os.environ, test_env):
             with pytest.raises(ImportError):
-                # 実装后に期待される動作をコメントアウト
+                # 実装後に期待される動作をコメントアウト
                 # from src.backend.supabase_main import app as supabase_app
                 #
                 # # アプリケーションが正常に初期化されることを確認
@@ -120,7 +120,7 @@ class TestSupabaseWebSocketIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -152,7 +152,7 @@ class TestSupabaseWebSocketIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -188,7 +188,7 @@ class TestSupabaseWebSocketIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -236,7 +236,7 @@ class TestSupabaseAIIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -266,7 +266,7 @@ class TestSupabaseAIIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.ai.message_handlers import handle_ai_response
             # from src.backend.supabase_crud import SupabaseCRUD
             #
@@ -293,7 +293,7 @@ class TestSupabaseDataMigration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.migrate_to_supabase import migrate_data
             #
             # # データ移行が正常実行できることを確認
@@ -312,7 +312,7 @@ class TestSupabaseDataMigration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.verify_migration import verify_data_integrity
             #
             # # データ整合性検証が正常実行できることを確認
@@ -331,7 +331,7 @@ class TestSupabaseDataMigration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.rollback_migration import rollback_to_sqlite
             #
             # # ロールバック機能が正常実行できることを確認
@@ -355,7 +355,7 @@ class TestSupabasePerformanceIntegration:
         # Arrange
         channel_id = "performance_test_channel"  # noqa: F841
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # import time
             # from src.backend.main import app as sqlite_app
             # from src.backend.supabase_main import app as supabase_app
@@ -387,7 +387,7 @@ class TestSupabasePerformanceIntegration:
         # Arrange
         concurrent_requests = 10  # noqa: F841
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # import asyncio
             # import time
             # from src.backend.supabase_main import app as supabase_app
@@ -419,7 +419,7 @@ class TestSupabasePerformanceIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # import psutil
             # import os
             #
@@ -450,7 +450,7 @@ class TestSupabaseErrorHandlingIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             # from unittest.mock import patch
             #
@@ -476,7 +476,7 @@ class TestSupabaseErrorHandlingIntegration:
         invalid_env = {"SUPABASE_URL": "https://test.supabase.co", "SUPABASE_KEY": "invalid_key"}  # noqa: F841
         with patch.dict(os.environ, invalid_env):
             with pytest.raises(ImportError):
-                # 実装后に期待される動作をコメントアウト
+                # 実装後に期待される動作をコメントアウト
                 # from src.backend.supabase_main import app as supabase_app
                 #
                 # client = TestClient(supabase_app)
@@ -494,7 +494,7 @@ class TestSupabaseErrorHandlingIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             # from unittest.mock import patch
             #
@@ -521,7 +521,7 @@ class TestSupabaseCompatibilityIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -561,7 +561,7 @@ class TestSupabaseCompatibilityIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-            # 実装后に期待される動作をコメントアウト
+            # 実装後に期待される動作をコメントアウト
             # from src.backend.supabase_main import app as supabase_app
             #
             # client = TestClient(supabase_app)
@@ -607,7 +607,7 @@ class TestSupabaseCompatibilityIntegration:
         # Act & Assert
         with patch.dict(os.environ, mixed_env):
             with pytest.raises(ImportError):
-                # 実装后に期待される動作をコメントアウト
+                # 実装後に期待される動作をコメントアウト
                 # from src.backend.supabase_main import app as supabase_app
                 #
                 # # アプリケーションが正常に初期化されることを確認

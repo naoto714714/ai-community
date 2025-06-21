@@ -36,7 +36,7 @@ class TestSupabaseAIMessageProcessing:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # mention_detected = await ai_integration.detect_ai_mention(ai_message_with_mention)
@@ -63,7 +63,7 @@ class TestSupabaseAIMessageProcessing:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # ai_response = await ai_integration.generate_ai_response(user_query, context_messages)
@@ -97,7 +97,7 @@ class TestSupabaseAIMessageProcessing:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # stored_response = await ai_integration.store_ai_response(ai_response_data)
@@ -122,7 +122,7 @@ class TestSupabaseAIMessageProcessing:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # context_messages = await ai_integration.get_conversation_context(channel_id, context_limit)
@@ -160,7 +160,7 @@ class TestSupabaseAIRealtimeIntegration:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # trigger_result = await ai_integration.handle_realtime_ai_trigger(incoming_message)
@@ -189,7 +189,7 @@ class TestSupabaseAIRealtimeIntegration:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # broadcast_result = await ai_integration.broadcast_ai_response(ai_response)
@@ -216,7 +216,7 @@ class TestSupabaseAIRealtimeIntegration:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # for request in ai_requests:
@@ -251,7 +251,7 @@ class TestSupabaseAIMessageHistory:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # tracked_conversation = await ai_integration.track_ai_conversation(conversation_thread)
@@ -310,7 +310,7 @@ class TestSupabaseAIMessageHistory:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # collection_result = await ai_integration.collect_learning_data(learning_data)
@@ -337,7 +337,7 @@ class TestSupabaseAIErrorHandling:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         # mock_ai_client.generate_content.side_effect = Exception(error_message)
         #
@@ -361,7 +361,7 @@ class TestSupabaseAIErrorHandling:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # with patch('asyncio.wait_for') as mock_wait:
@@ -387,7 +387,7 @@ class TestSupabaseAIErrorHandling:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # # 不適切なコンテンツのテスト
@@ -419,7 +419,7 @@ class TestSupabaseAIPerformance:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # import time
@@ -445,7 +445,7 @@ class TestSupabaseAIPerformance:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # # 初回リクエスト
@@ -475,7 +475,7 @@ class TestSupabaseAIPerformance:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # import asyncio
         #
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
@@ -517,7 +517,7 @@ class TestSupabaseAIDataMigration:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # migration_result = await ai_integration.migrate_ai_messages(sqlite_ai_messages)
@@ -543,7 +543,7 @@ class TestSupabaseAIDataMigration:
         with pytest.raises(ImportError):
             from src.backend.supabase_ai_integration import SupabaseAIIntegration
 
-        # 実装后に期待される動作
+        # 実装後に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         #
         # history_migration = await ai_integration.migrate_conversation_history(conversation_history)

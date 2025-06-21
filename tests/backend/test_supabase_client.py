@@ -215,7 +215,7 @@ class TestSupabaseEnvironmentConfiguration:
             with pytest.raises(ImportError):
                 from src.backend.supabase_client import get_environment_config
 
-                # 実装后に期待される動作
+                # 実装後に期待される動作
                 # config = get_environment_config()
                 # assert config["url"] == prod_url
                 # assert config["key"] == prod_key
@@ -236,7 +236,7 @@ class TestSupabaseEnvironmentConfiguration:
             with pytest.raises(ImportError):
                 from src.backend.supabase_client import get_environment_config
 
-                # 実装后に期待される動作
+                # 実装後に期待される動作
                 # config = get_environment_config()
                 # assert config["url"] == test_url
                 # assert config["key"] == test_key
@@ -261,7 +261,7 @@ class TestSupabaseClientErrorHandling:
             with pytest.raises(ImportError):
                 from src.backend.supabase_client import create_supabase_client
 
-                # 実装后に期待される動作
+                # 実装後に期待される動作
                 # with pytest.raises(ValueError) as exc_info:
                 #     create_supabase_client()
                 # assert "Invalid URL format" in str(exc_info.value)
@@ -281,7 +281,7 @@ class TestSupabaseClientErrorHandling:
             with pytest.raises(ImportError):
                 from src.backend.supabase_client import create_supabase_client
 
-                # 実装后に期待される動作
+                # 実装後に期待される動作
                 # with pytest.raises(ValueError) as exc_info:
                 #     create_supabase_client()
                 # assert "SUPABASE_URL and SUPABASE_KEY must be set" in str(exc_info.value)
@@ -301,7 +301,7 @@ class TestSupabaseClientErrorHandling:
             with pytest.raises(ImportError):
                 from src.backend.supabase_client import create_supabase_client, health_check
 
-                # 実装后に期待される動作
+                # 実装後に期待される動作
                 # client = create_supabase_client()
                 # with pytest.raises((ConnectionError, TimeoutError)):
                 #     await health_check(client)
