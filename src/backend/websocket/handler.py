@@ -3,7 +3,7 @@
 import json
 import logging
 import traceback
-from typing import Any, TypedDict
+from typing import Any, NotRequired, Required, TypedDict
 
 from fastapi import WebSocket
 from sqlalchemy.orm import Session
@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 
 class WebSocketMessage(TypedDict):
-    type: str
-    data: dict[str, Any] | None
+    type: Required[str]
+    data: NotRequired[dict[str, Any]]
 
 
 def is_websocket_connected(websocket: WebSocket) -> bool:
@@ -102,8 +102,12 @@ async def handle_websocket_message(
             await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
             logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {saved_message.id}")
 
-            # AI応答の処理
-            await handle_ai_response(message_data, db_session)
+            # AI応答の処理（エラーハンドリング付き）
+            try:
+                await handle_ai_response(message_data, db_session)
+            except Exception as ai_error:
+                logger.error(f"AI応答処理エラー: {str(ai_error)}")
+                # AI応答エラーはユーザーメッセージ保存に影響しないため継続
 
         except Exception as e:
             logger.error(f"メッセージ保存エラー: {str(e)}")
@@ -128,3 +132,13 @@ async def handle_websocket_message(
 
     else:
         logger.warning(f"未知のメッセージタイプ: {message_type}")
+        # 未対応メッセージタイプをクライアントに通知
+        error_response = {
+            "type": "message:error",
+            "data": {
+                "id": None,
+                "success": False,
+                "error": f"サポートされていないメッセージタイプです: {message_type}",
+            },
+        }
+        await safe_send_message(websocket, json.dumps(error_response))
