@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import os
+import threading
 from pathlib import Path
 
 import google.generativeai as genai  # type: ignore
@@ -127,12 +128,16 @@ class GeminiAPIClient:
 
 # グローバルインスタンス
 gemini_client: GeminiAPIClient | None = None
+_lock = threading.Lock()
 
 
 def get_gemini_client() -> GeminiAPIClient:
     """Gemini APIクライアントのシングルトンインスタンスを取得."""
     global gemini_client
     if gemini_client is None:
-        logger.info("新しいGeminiAPIClientインスタンスを作成")
-        gemini_client = GeminiAPIClient()
+        with _lock:
+            # ダブルチェックロッキング
+            if gemini_client is None:
+                logger.info("新しいGeminiAPIClientインスタンスを作成")
+                gemini_client = GeminiAPIClient()
     return gemini_client
