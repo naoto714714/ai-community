@@ -9,6 +9,7 @@ from typing import Any, NotRequired, Required, TypedDict
 from fastapi import WebSocket
 from pydantic import ValidationError
 from sqlalchemy.orm import Session
+from starlette.websockets import WebSocketState
 
 from .. import crud
 from ..ai.message_handlers import handle_ai_response
@@ -78,8 +79,8 @@ class WebSocketMessage(TypedDict):
 def is_websocket_connected(websocket: WebSocket) -> bool:
     """WebSocket接続が有効かどうかをチェック"""
     try:
-        # client_stateの名前がCONNECTEDかどうかをチェック
-        return websocket.client_state.name == "CONNECTED"
+        # より堅牢な接続状態チェック
+        return websocket.client_state == WebSocketState.CONNECTED
     except Exception:
         return False
 
@@ -172,6 +173,12 @@ async def handle_websocket_message(
             except Exception as ai_error:
                 logger.warning(f"AI応答処理エラー: {str(ai_error)}")
                 logger.debug(f"AI応答エラーの詳細: {traceback.format_exc()}")
+                # ユーザーにAI応答エラーを通知
+                ai_error_response = {
+                    "type": "ai:error",
+                    "data": {"message": "AI応答の生成に失敗しました。しばらく時間をおいてから再度お試しください。"},
+                }
+                await safe_send_message(websocket, json.dumps(ai_error_response))
                 # AI応答エラーはユーザーメッセージ保存に影響しないため継続
 
         except ValidationError as ve:
