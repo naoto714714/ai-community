@@ -11,7 +11,7 @@ if os.getenv("TESTING") == "true":
 else:
     # 現在のファイルの場所を基準にして chat.db のパスを決定
     DB_FILE_PATH = Path(__file__).parent / "chat.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH}"
+    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
 
 # SQLiteの設定について：
 # check_same_thread=Falseは開発・プロトタイプ段階での利便性のために設定
