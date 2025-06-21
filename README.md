@@ -92,6 +92,7 @@ npm run dev
 ```
 
 これでフロントエンドとバックエンドが同時に起動します！
+（バックエンドの依存関係は自動で`uv sync`が実行されます）
 
 - **フロントエンド**: `http://localhost:5173`
 - **バックエンド**: `http://localhost:8000`
@@ -106,6 +107,7 @@ cd src/backend
 uv sync
 uv run python main.py
 ```
+※ `npm run backend:only`は自動で`uv sync`を実行します
 
 #### フロントエンドのみ
 ```bash
