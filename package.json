@@ -11,8 +11,8 @@
     "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"blue,green\" \"npm run backend\" \"npm run frontend\"",
     "backend": "cd src/backend && uv sync && uv run python main.py",
     "frontend": "cd src/frontend && npm run dev",
-    "frontend:only": "cd src/frontend && npm run dev",
-    "backend:only": "cd src/backend && uv sync && uv run python main.py",
+    "backend:only": "npm run backend",
+    "frontend:only": "npm run frontend",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
