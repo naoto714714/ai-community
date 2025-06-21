@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "concurrently --names \"backend,frontend\" --prefix-colors \"blue,green\" \"npm run backend\" \"npm run frontend\"",
-    "backend": "cd src/backend && uv sync && uv run python main.py",
+    "backend": "cd src/backend && uv sync && uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload",
     "frontend": "cd src/frontend && npm run dev",
     "backend:only": "npm run backend",
     "frontend:only": "npm run frontend",
