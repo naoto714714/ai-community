@@ -60,10 +60,11 @@ else:
 if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
-        pool_size=10,
-        max_overflow=20,
+        pool_size=5,  # 開発環境では小さめに設定
+        max_overflow=10,  # 過剰なリソース使用を防ぐ
         pool_timeout=30,
         pool_recycle=3600,
+        pool_pre_ping=True,  # 接続の有効性チェック
     )
 else:
     # SQLite用設定（テスト環境やフォールバック時）
