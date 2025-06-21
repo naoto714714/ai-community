@@ -1,4 +1,4 @@
-import { Group, TextInput, ActionIcon } from '@mantine/core';
+import { Group, Textarea, ActionIcon } from '@mantine/core';
 import { IconSend } from '@tabler/icons-react';
 import { useState, useRef } from 'react';
 
@@ -18,7 +18,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isComposingRef.current) {
+    if (e.key === 'Enter' && e.shiftKey && !isComposingRef.current) {
       e.preventDefault();
       handleSend();
     }
@@ -34,8 +34,8 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
 
   return (
     <Group gap='sm' style={{ padding: '1.5rem 1.5rem 3rem 1.5rem' }}>
-      <TextInput
-        placeholder='メッセージを入力...'
+      <Textarea
+        placeholder='メッセージを入力... (Shift+Enterで送信)'
         value={message}
         onChange={(e) => setMessage(e.currentTarget.value)}
         onKeyDown={handleKeyPress}
@@ -45,6 +45,9 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
         style={{ flex: 1 }}
         size='md'
         radius='xl'
+        minRows={1}
+        maxRows={5}
+        autosize
       />
       <ActionIcon
         onClick={handleSend}
