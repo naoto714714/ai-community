@@ -53,6 +53,27 @@ export function Layout() {
               if (data.data?.id) {
                 setMessages((prev) => prev.filter((msg) => msg.id !== data.data.id));
               }
+            } else if (data.type === 'message:broadcast') {
+              // 新しいメッセージ（ユーザーメッセージまたはAI応答）をリアルタイムで追加
+              if (data.data) {
+                const newMessage: Message = {
+                  id: data.data.id,
+                  channelId: data.data.channel_id,
+                  userId: data.data.user_id,
+                  userName: data.data.user_name,
+                  content: data.data.content,
+                  timestamp: new Date(data.data.timestamp),
+                  isOwnMessage: data.data.is_own_message,
+                };
+
+                // 重複チェック：同じIDのメッセージが既に存在する場合は追加しない
+                setMessages((prev) => {
+                  if (prev.some((msg) => msg.id === newMessage.id)) {
+                    return prev;
+                  }
+                  return [...prev, newMessage];
+                });
+              }
             }
           } catch (error) {
             console.error('Failed to parse WebSocket message:', error, 'Raw data:', event.data);
