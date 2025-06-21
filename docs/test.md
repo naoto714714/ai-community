@@ -134,12 +134,51 @@ async def test_invalid_channel(test_client):
 ```python
 async def test_websocket_connection(test_client):
     """WebSocket接続テスト"""
+    # WebSocket接続の基本テスト
+    with test_client.websocket_connect("/ws") as websocket:
+        data = websocket.receive_json()
+        assert data is not None
 
 async def test_websocket_message_send(test_client):
     """WebSocketメッセージ送信テスト"""
+    # WebSocketでのメッセージ送信テスト
+    with test_client.websocket_connect("/ws") as websocket:
+        test_message = {
+            "type": "message:send",
+            "data": {
+                "id": "test_msg_1",
+                "channel_id": "1",
+                "user_id": "test_user",
+                "user_name": "テストユーザー",
+                "content": "テストメッセージ",
+                "timestamp": "2024-01-01T12:00:00Z",
+                "is_own_message": True
+            }
+        }
+        websocket.send_json(test_message)
+        response = websocket.receive_json()
+        assert response["type"] == "message:saved"
 
 async def test_ai_response_trigger(test_client):
     """@AI メンション機能テスト（モック使用）"""
+    # AI応答トリガーのテスト（モック使用）
+    with test_client.websocket_connect("/ws") as websocket:
+        ai_message = {
+            "type": "message:send",
+            "data": {
+                "id": "ai_test_msg_1",
+                "channel_id": "1", 
+                "user_id": "test_user",
+                "user_name": "テストユーザー",
+                "content": "@AI テストしています",
+                "timestamp": "2024-01-01T12:00:00Z",
+                "is_own_message": True
+            }
+        }
+        websocket.send_json(ai_message)
+        # AI応答をモックして確認
+        response = websocket.receive_json()
+        assert response["type"] in ["message:saved", "message:broadcast"]
 ```
 
 ## フロントエンドテスト（TypeScript + Vitest + Testing Library）
