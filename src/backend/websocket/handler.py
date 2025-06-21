@@ -140,7 +140,9 @@ async def handle_websocket_message(
             # Pydanticバリデーション
             message_create = MessageCreate.model_validate(message_data)
             saved_message = save_message_with_session_management(
-                lambda session: crud.create_message(session, message_create), db_session
+                lambda session: crud.create_message(session, message_create),
+                db_session,
+                auto_commit=(db_session is None),
             )
 
             # 保存成功をクライアントに通知

@@ -83,7 +83,7 @@ async def generate_and_save_ai_response(user_message: str, channel_id: str, db_s
     # データベースに保存
     db_start = time.time()
     saved_ai_message = save_message_with_session_management(
-        lambda session: crud.create_message(session, ai_message_create), db_session
+        lambda session: crud.create_message(session, ai_message_create), db_session, auto_commit=(db_session is None)
     )
     db_time = time.time() - db_start
     logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={saved_ai_message.id}")

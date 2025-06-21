@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 def save_message_with_session_management(
     message_create_func: Callable[[Session], Any],
     db_session: Session | None = None,
+    auto_commit: bool = True,
 ) -> Any:
     """
     セッション管理を共通化したメッセージ保存ヘルパー関数
@@ -16,8 +17,9 @@ def save_message_with_session_management(
     Args:
         message_create_func: セッションを受け取ってメッセージを作成する関数
         db_session: オプショナルセッション。テスト環境で使用される。
-                    どちらの場合もcommitが実行されて一貫性を保つ。
                     Noneの場合は新しいセッションを作成（本番環境）
+        auto_commit: 外部セッション使用時にcommitを実行するかどうか。
+                    テスト環境ではFalseにしてトランザクション境界を維持
 
     Returns:
         保存されたメッセージオブジェクト
@@ -28,10 +30,11 @@ def save_message_with_session_management(
         from database import SessionLocal
 
     if db_session is not None:
-        # テスト環境: 提供されたセッションを使用（commitも実行して一貫性を保つ）
+        # 外部セッション使用時: トランザクション境界管理をauto_commitで制御
         try:
             result = message_create_func(db_session)
-            db_session.commit()
+            if auto_commit:
+                db_session.commit()
             return result
         except Exception:
             db_session.rollback()
