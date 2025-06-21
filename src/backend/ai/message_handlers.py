@@ -3,6 +3,7 @@
 import json
 import time
 import uuid
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -28,6 +29,18 @@ logger = logging.getLogger(__name__)
 JST = timezone(timedelta(hours=9))
 
 
+@dataclass
+class MessageBroadcastData:
+    """ブロードキャスト用メッセージデータ"""
+
+    message_id: str
+    channel_id: str
+    user_id: str
+    user_name: str
+    content: str
+    timestamp: datetime
+
+
 def generate_ai_message_id(channel_id: str) -> str:
     """AI応答用のユニークIDを生成"""
     return f"ai_{channel_id}_{uuid.uuid4().hex[:8]}"
@@ -51,25 +64,25 @@ def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
     }
 
 
-def create_broadcast_message(
-    message_id: str, channel_id: str, user_id: str, user_name: str, content: str, timestamp: Any
-) -> dict[str, Any]:
+def create_broadcast_message(message_data: MessageBroadcastData) -> dict[str, Any]:
     """ブロードキャスト用メッセージを作成"""
     return {
         "type": "message:broadcast",
         "data": {
-            "id": message_id,
-            "channel_id": channel_id,
-            "user_id": user_id,
-            "user_name": user_name,
-            "content": content,
-            "timestamp": timestamp.isoformat(),
+            "id": message_data.message_id,
+            "channel_id": message_data.channel_id,
+            "user_id": message_data.user_id,
+            "user_name": message_data.user_name,
+            "content": message_data.content,
+            "timestamp": message_data.timestamp.isoformat(),
             "is_own_message": False,
         },
     }
 
 
-async def generate_and_save_ai_response(user_message: str, channel_id: str, db_session: Session | None = None) -> Any:
+async def generate_and_save_ai_response(
+    user_message: str, channel_id: str, db_session: Session | None = None
+) -> MessageBroadcastData:
     """AI応答を生成してデータベースに保存"""
     # AI応答を生成（WebSocket用に高速化のためリトライ回数を3回に制限）
     generation_start = time.time()
@@ -97,30 +110,25 @@ async def generate_and_save_ai_response(user_message: str, channel_id: str, db_s
     db_time = time.time() - db_start
     logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={message_id}")
 
-    return {
-        "id": message_id,
-        "channel_id": channel_id,
-        "user_id": user_id,
-        "user_name": user_name,
-        "content": content,
-        "timestamp": timestamp,
-    }
-
-
-async def broadcast_ai_response(message_data: dict[str, Any]) -> None:
-    """AI応答をブロードキャスト"""
-    broadcast_message = create_broadcast_message(
-        message_data["id"],
-        message_data["channel_id"],
-        message_data["user_id"],
-        message_data["user_name"],
-        message_data["content"],
-        message_data["timestamp"],
+    return MessageBroadcastData(
+        message_id=message_id,
+        channel_id=channel_id,
+        user_id=user_id,
+        user_name=user_name,
+        content=content,
+        timestamp=timestamp,
     )
+
+
+async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
+    """AI応答をブロードキャスト"""
+    broadcast_message = create_broadcast_message(message_data)
     broadcast_start = time.time()
     await manager.broadcast(json.dumps(broadcast_message))
     broadcast_time = time.time() - broadcast_start
-    logger.info(f"AI応答ブロードキャスト完了: broadcast_time={broadcast_time:.2f}s, message_id={message_data['id']}")
+    logger.info(
+        f"AI応答ブロードキャスト完了: broadcast_time={broadcast_time:.2f}s, message_id={message_data.message_id}"
+    )
 
 
 async def handle_ai_error(channel_id: str, error: Exception, error_time: float) -> None:
@@ -173,7 +181,7 @@ async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Se
         await broadcast_ai_response(ai_message_data)
 
         total_time = time.time() - start_time
-        logger.info(f"AI応答処理完了: total_time={total_time:.2f}s, message_id={ai_message_data['id']}")
+        logger.info(f"AI応答処理完了: total_time={total_time:.2f}s, message_id={ai_message_data.message_id}")
 
     except Exception as e:
         error_time = time.time() - start_time
