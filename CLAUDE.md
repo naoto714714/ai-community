@@ -39,7 +39,7 @@
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
 - メッセージの永続化（SQLite）
-- **AI チャットボット「ハルト」**（Google Gemini 1.5 Flash）
+- **AI チャットボット「ハルト」**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
 - モバイル対応レスポンシブデザイン
 - ダークモード対応
@@ -47,7 +47,7 @@
 ### 技術スタック
 - **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
 - **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite + Google Gemini AI
-- **AI**: Google Gemini 1.5 Flash モデル
+- **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs
 - **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright + Vitest
