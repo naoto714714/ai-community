@@ -80,6 +80,17 @@ def create_broadcast_message(message_data: MessageBroadcastData) -> dict[str, An
     }
 
 
+def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, str, str, str, datetime]:
+    """メッセージ属性を抽出"""
+    return (
+        ai_message_create.id,
+        ai_message_create.user_id,
+        ai_message_create.user_name,
+        ai_message_create.content,
+        ai_message_create.timestamp,
+    )
+
+
 async def generate_and_save_ai_response(
     user_message: str, channel_id: str, db_session: Session | None = None
 ) -> MessageBroadcastData:
@@ -96,11 +107,7 @@ async def generate_and_save_ai_response(
     ai_message_create = MessageCreate.model_validate(ai_message_data)
 
     # セッションから切り離される前に必要な情報を取得
-    message_id = ai_message_create.id
-    user_id = ai_message_create.user_id
-    user_name = ai_message_create.user_name
-    content = ai_message_create.content
-    timestamp = ai_message_create.timestamp
+    message_id, user_id, user_name, content, timestamp = _extract_message_attributes(ai_message_create)
 
     # データベースに保存
     db_start = time.time()
