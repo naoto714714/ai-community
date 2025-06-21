@@ -23,7 +23,7 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ## 📁 プロジェクト構造
 
-```
+```text
 src/backend/
 ├── main.py              # FastAPIアプリケーション
 ├── database.py          # データベース設定
@@ -332,9 +332,9 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 ### API ドキュメント
 
-- **Swagger UI**: http://localhost:8000/docs
-- **ReDoc**: http://localhost:8000/redoc
-- **OpenAPI JSON**: http://localhost:8000/openapi.json
+- **Swagger UI**: <http://localhost:8000/docs>
+- **ReDoc**: <http://localhost:8000/redoc>
+- **OpenAPI JSON**: <http://localhost:8000/openapi.json>
 
 ### デバッグ用コマンド
 
