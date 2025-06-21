@@ -16,13 +16,21 @@ from ..schemas import MessageCreate
 from ..utils.session_manager import save_message_with_session_management
 from .manager import manager
 
+
+class MessageTypes:
+    SEND = "message:send"
+    # 将来的に追加される予定
+    # EDIT = "message:edit"
+    # DELETE = "message:delete"
+
+
 # サポートされているメッセージタイプ
 SUPPORTED_MESSAGE_TYPES = {
-    "message:send",
-    # 将来的に追加される可能性のあるタイプ
-    # "message:edit",
-    # "message:delete",
+    MessageTypes.SEND,
 }
+
+# メッセージ長制限
+MAX_MESSAGE_LENGTH = 10000
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +64,7 @@ def validate_message_data(message_data: dict[str, Any]) -> tuple[bool, str | Non
     if not message_data["content"].strip():
         return False, "メッセージ内容は空にできません"
 
-    if len(message_data["content"]) > 10000:  # 例: 最大文字数制限
+    if len(message_data["content"]) > MAX_MESSAGE_LENGTH:
         return False, "メッセージが長すぎます"
 
     return True, None
@@ -99,7 +107,7 @@ async def handle_websocket_message(
     message_type = data.get("type")
     message_data = data.get("data")
 
-    if message_type == "message:send":
+    if message_type == MessageTypes.SEND:
         # メッセージデータの存在を検証
         if not message_data or not isinstance(message_data, dict):
             error_response = {
