@@ -24,6 +24,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# タイムゾーン定数（将来的な拡張性を考慮）
+JST = timezone(timedelta(hours=9))
+
 
 def generate_ai_message_id(channel_id: str) -> str:
     """AI応答用のユニークIDを生成"""
@@ -43,7 +46,7 @@ def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
         "user_id": "ai_haruto",
         "user_name": "ハルト",
         "content": content,
-        "timestamp": datetime.now(timezone(timedelta(hours=9))).isoformat(),
+        "timestamp": datetime.now(JST).isoformat(),
         "is_own_message": False,
     }
 
@@ -108,7 +111,7 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
         "user_id": "ai_haruto",
         "user_name": "ハルト",
         "content": GeminiAPIClient.FALLBACK_MESSAGE,
-        "timestamp": datetime.now(timezone(timedelta(hours=9))).isoformat(),
+        "timestamp": datetime.now(JST).isoformat(),
         "is_own_message": False,
     }
 
