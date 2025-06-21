@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy.orm import Session
 
 from ..utils.session_manager import save_message_with_session_management
-from .gemini_client import get_gemini_client
+from .gemini_client import GeminiAPIClient, get_gemini_client
 
 try:
     from .. import crud
@@ -107,7 +107,7 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
         "channel_id": channel_id,
         "user_id": "ai_haruto",
         "user_name": "ハルト",
-        "content": "通信に失敗しました😅 もう一度試してみてください！",
+        "content": GeminiAPIClient.FALLBACK_MESSAGE,
         "timestamp": datetime.now(timezone(timedelta(hours=9))).isoformat(),
         "is_own_message": False,
     }
