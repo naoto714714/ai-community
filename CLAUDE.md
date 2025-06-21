@@ -151,7 +151,7 @@ npm run backend:only
 # または
 cd src/backend
 uv sync
-uv run python main.py
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 #### フロントエンドのみ
