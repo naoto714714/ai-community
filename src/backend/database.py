@@ -24,9 +24,12 @@ else:
     if all([DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD]):
         # Supabase Direct Connection形式
         # postgresql://user:password@host:port/dbname?sslmode=require
-        encoded_password = quote_plus(DB_PASSWORD or "")
+        # ユーザー名とパスワードの両方をURLエンコード（特殊文字対応）
+        # all()でバリデーション済みのため、型アサーションを使用
+        encoded_user = quote_plus(DB_USER)  # type: ignore[arg-type]
+        encoded_password = quote_plus(DB_PASSWORD)  # type: ignore[arg-type]
         SQLALCHEMY_DATABASE_URL = (
-            f"postgresql://{DB_USER}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
+            f"postgresql://{encoded_user}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
         )
     else:
         # フォールバック: SQLite（環境変数が設定されていない場合）
