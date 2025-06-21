@@ -27,6 +27,29 @@ class WebSocketMessage(TypedDict):
     data: dict[str, Any] | None
 
 
+def is_websocket_connected(websocket: WebSocket) -> bool:
+    """WebSocket接続が有効かどうかをチェック"""
+    try:
+        # client_stateの名前がCONNECTEDかどうかをチェック
+        return websocket.client_state.name == "CONNECTED"
+    except Exception:
+        return False
+
+
+async def safe_send_message(websocket: WebSocket, message: str) -> bool:
+    """WebSocket接続が有効な場合のみメッセージを送信"""
+    if not is_websocket_connected(websocket):
+        logger.warning("WebSocket接続が切断されているため、メッセージ送信をスキップ")
+        return False
+
+    try:
+        await manager.send_personal_message(message, websocket)
+        return True
+    except Exception as e:
+        logger.error(f"WebSocketメッセージ送信エラー: {str(e)}")
+        return False
+
+
 async def handle_websocket_message(
     websocket: WebSocket,
     data: WebSocketMessage,
@@ -47,7 +70,7 @@ async def handle_websocket_message(
                     "error": "無効なメッセージデータです",
                 },
             }
-            await manager.send_personal_message(json.dumps(error_response), websocket)
+            await safe_send_message(websocket, json.dumps(error_response))
             return
 
         try:
@@ -59,7 +82,7 @@ async def handle_websocket_message(
 
             # 保存成功をクライアントに通知
             response = {"type": "message:saved", "data": {"id": saved_message.id, "success": True}}
-            await manager.send_personal_message(json.dumps(response), websocket)
+            await safe_send_message(websocket, json.dumps(response))
 
             logger.info(f"メッセージが保存されました: {saved_message.id}")
 
@@ -101,7 +124,7 @@ async def handle_websocket_message(
                     "error": "メッセージの保存に失敗しました",  # 詳細なエラー情報を隠蔽
                 },
             }
-            await manager.send_personal_message(json.dumps(error_response), websocket)
+            await safe_send_message(websocket, json.dumps(error_response))
 
     else:
         logger.warning(f"未知のメッセージタイプ: {message_type}")
