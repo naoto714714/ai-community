@@ -47,12 +47,67 @@ ai-community/
 ```python
 def test_channel_creation(test_db):
     """チャンネルモデルの作成テスト"""
+    from models import Channel
+    
+    # チャンネル作成
+    channel = Channel(id="test_1", name="テストチャンネル", description="テスト用")
+    test_db.add(channel)
+    test_db.commit()
+    
+    # 作成されたチャンネルの確認
+    saved_channel = test_db.query(Channel).filter(Channel.id == "test_1").first()
+    assert saved_channel is not None
+    assert saved_channel.name == "テストチャンネル"
+    assert saved_channel.description == "テスト用"
 
 def test_message_creation(test_db, seed_channels):
     """メッセージモデルの作成テスト"""
+    from models import Message
+    from datetime import datetime
+    
+    # メッセージ作成
+    message = Message(
+        id="msg_test_1",
+        channel_id="1",
+        user_id="user_123",
+        user_name="テストユーザー",
+        content="テストメッセージ",
+        timestamp=datetime.now(),
+        is_own_message=True
+    )
+    test_db.add(message)
+    test_db.commit()
+    
+    # 作成されたメッセージの確認
+    saved_message = test_db.query(Message).filter(Message.id == "msg_test_1").first()
+    assert saved_message is not None
+    assert saved_message.content == "テストメッセージ"
+    assert saved_message.user_name == "テストユーザー"
 
 def test_message_channel_relationship(test_db, seed_channels):
     """チャンネル-メッセージ関係テスト"""
+    from models import Channel, Message
+    from datetime import datetime
+    
+    # チャンネルにメッセージを追加
+    message = Message(
+        id="msg_rel_1",
+        channel_id="1",
+        user_id="user_456",
+        user_name="関係テストユーザー",
+        content="関係テストメッセージ",
+        timestamp=datetime.now(),
+        is_own_message=False
+    )
+    test_db.add(message)
+    test_db.commit()
+    
+    # チャンネルからメッセージを取得
+    channel = test_db.query(Channel).filter(Channel.id == "1").first()
+    messages = test_db.query(Message).filter(Message.channel_id == channel.id).all()
+    
+    assert len(messages) >= 1
+    assert any(msg.id == "msg_rel_1" for msg in messages)
 ```
 
 ### 2. test_api.py（4テスト）
