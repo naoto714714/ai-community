@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 
 class WebSocketMessage(TypedDict):
     type: str
-    data: dict[str, Any]
+    data: dict[str, Any] | None
 
 
 async def handle_websocket_message(
@@ -37,6 +37,19 @@ async def handle_websocket_message(
     message_data = data.get("data")
 
     if message_type == "message:send":
+        # メッセージデータの存在を検証
+        if not message_data or not isinstance(message_data, dict):
+            error_response = {
+                "type": "message:error",
+                "data": {
+                    "id": None,
+                    "success": False,
+                    "error": "無効なメッセージデータです",
+                },
+            }
+            await manager.send_personal_message(json.dumps(error_response), websocket)
+            return
+
         try:
             # 共通のセッション管理ヘルパーを使用
             message_create = MessageCreate.model_validate(message_data)
