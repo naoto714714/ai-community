@@ -25,16 +25,16 @@ class TestSupabaseCRUDChannels:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # result = await crud.create_channel(channel_data)  # noqa: F841
-            #
-            # assert result["id"] == channel_data["id"]
-            # assert result["name"] == channel_data["name"]
-            # assert result["description"] == channel_data["description"]
-            # assert "created_at" in result
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # result = await crud.create_channel(channel_data)  # noqa: F841
+        #
+        # assert result["id"] == channel_data["id"]
+        # assert result["name"] == channel_data["name"]
+        # assert result["description"] == channel_data["description"]
+        # assert "created_at" in result
 
     def test_get_channels_success(self):
         """
@@ -44,18 +44,18 @@ class TestSupabaseCRUDChannels:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # channels = await crud.get_channels()  # noqa: F841
-            #
-            # assert isinstance(channels, list)
-            # assert len(channels) >= 0
-            # if channels:
-            #     assert "id" in channels[0]
-            #     assert "name" in channels[0]
-            #     assert "created_at" in channels[0]
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # channels = await crud.get_channels()  # noqa: F841
+        #
+        # assert isinstance(channels, list)
+        # assert len(channels) >= 0
+        # if channels:
+        #     assert "id" in channels[0]
+        #     assert "name" in channels[0]
+        #     assert "created_at" in channels[0]
 
     def test_get_channel_by_id_success(self):
         """
@@ -68,16 +68,16 @@ class TestSupabaseCRUDChannels:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # channel = await crud.get_channel_by_id(channel_id)  # noqa: F841
-            #
-            # assert channel is not None
-            # assert channel["id"] == channel_id
-            # assert "name" in channel
-            # assert "created_at" in channel
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # channel = await crud.get_channel_by_id(channel_id)  # noqa: F841
+        #
+        # assert channel is not None
+        # assert channel["id"] == channel_id
+        # assert "name" in channel
+        # assert "created_at" in channel
 
     def test_get_channel_by_id_not_found(self):
         """
@@ -90,13 +90,13 @@ class TestSupabaseCRUDChannels:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # channel = await crud.get_channel_by_id(non_existent_id)  # noqa: F841
-            #
-            # assert channel is None
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # channel = await crud.get_channel_by_id(non_existent_id)  # noqa: F841
+        #
+        # assert channel is None
 
     def test_update_channel_success(self):
         """
@@ -110,15 +110,15 @@ class TestSupabaseCRUDChannels:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # result = await crud.update_channel(channel_id, update_data)  # noqa: F841
-            #
-            # assert result["id"] == channel_id
-            # assert result["name"] == update_data["name"]
-            # assert result["description"] == update_data["description"]
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # result = await crud.update_channel(channel_id, update_data)  # noqa: F841
+        #
+        # assert result["id"] == channel_id
+        # assert result["name"] == update_data["name"]
+        # assert result["description"] == update_data["description"]
 
     def test_delete_channel_success(self):
         """
@@ -131,17 +131,17 @@ class TestSupabaseCRUDChannels:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # result = await crud.delete_channel(channel_id)  # noqa: F841
-            #
-            # assert result is True  # 削除成功
-            #
-            # # 削除確認
-            # deleted_channel = await crud.get_channel_by_id(channel_id)  # noqa: F841
-            # assert deleted_channel is None
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # result = await crud.delete_channel(channel_id)  # noqa: F841
+        #
+        # assert result is True  # 削除成功
+        #
+        # # 削除確認
+        # deleted_channel = await crud.get_channel_by_id(channel_id)  # noqa: F841
+        # assert deleted_channel is None
 
 
 class TestSupabaseCRUDMessages:
@@ -166,20 +166,20 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
-            # result = await crud.create_message(message_create)  # noqa: F841
-            #
-            # assert result["id"] == message_data["id"]
-            # assert result["channel_id"] == message_data["channel_id"]
-            # assert result["user_id"] == message_data["user_id"]
-            # assert result["user_name"] == message_data["user_name"]
-            # assert result["content"] == message_data["content"]
-            # assert result["is_own_message"] == message_data["is_own_message"]
-            # assert "created_at" in result
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
+        # result = await crud.create_message(message_create)  # noqa: F841
+        #
+        # assert result["id"] == message_data["id"]
+        # assert result["channel_id"] == message_data["channel_id"]
+        # assert result["user_id"] == message_data["user_id"]
+        # assert result["user_name"] == message_data["user_name"]
+        # assert result["content"] == message_data["content"]
+        # assert result["is_own_message"] == message_data["is_own_message"]
+        # assert "created_at" in result
 
     def test_get_channel_messages_success(self):
         """
@@ -194,24 +194,24 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # messages = await crud.get_channel_messages(channel_id, skip, limit)  # noqa: F841
-            #
-            # assert isinstance(messages, list)
-            # assert len(messages) <= limit
-            # if messages:
-            #     for msg in messages:
-            #         assert msg["channel_id"] == channel_id
-            #         assert "id" in msg
-            #         assert "user_id" in msg
-            #         assert "user_name" in msg
-            #         assert "content" in msg
-            #         assert "timestamp" in msg
-            #         assert "is_own_message" in msg
-            #         assert "created_at" in msg
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # messages = await crud.get_channel_messages(channel_id, skip, limit)  # noqa: F841
+        #
+        # assert isinstance(messages, list)
+        # assert len(messages) <= limit
+        # if messages:
+        #     for msg in messages:
+        #         assert msg["channel_id"] == channel_id
+        #         assert "id" in msg
+        #         assert "user_id" in msg
+        #         assert "user_name" in msg
+        #         assert "content" in msg
+        #         assert "timestamp" in msg
+        #         assert "is_own_message" in msg
+        #         assert "created_at" in msg
 
     def test_get_channel_messages_with_pagination(self):
         """
@@ -226,14 +226,14 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # messages = await crud.get_channel_messages(channel_id, skip, limit)  # noqa: F841
-            #
-            # assert isinstance(messages, list)
-            # assert len(messages) <= limit
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # messages = await crud.get_channel_messages(channel_id, skip, limit)  # noqa: F841
+        #
+        # assert isinstance(messages, list)
+        # assert len(messages) <= limit
 
     def test_get_channel_messages_count(self):
         """
@@ -246,14 +246,14 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # count = await crud.get_channel_messages_count(channel_id)  # noqa: F841
-            #
-            # assert isinstance(count, int)
-            # assert count >= 0
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # count = await crud.get_channel_messages_count(channel_id)  # noqa: F841
+        #
+        # assert isinstance(count, int)
+        # assert count >= 0
 
     def test_get_message_by_id_success(self):
         """
@@ -266,17 +266,17 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # message = await crud.get_message_by_id(message_id)  # noqa: F841
-            #
-            # assert message is not None
-            # assert message["id"] == message_id
-            # assert "channel_id" in message
-            # assert "user_id" in message
-            # assert "content" in message
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # message = await crud.get_message_by_id(message_id)  # noqa: F841
+        #
+        # assert message is not None
+        # assert message["id"] == message_id
+        # assert "channel_id" in message
+        # assert "user_id" in message
+        # assert "content" in message
 
     def test_get_message_by_id_not_found(self):
         """
@@ -289,13 +289,13 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # message = await crud.get_message_by_id(non_existent_id)  # noqa: F841
-            #
-            # assert message is None
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # message = await crud.get_message_by_id(non_existent_id)  # noqa: F841
+        #
+        # assert message is None
 
     def test_update_message_success(self):
         """
@@ -309,14 +309,14 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # result = await crud.update_message(message_id, update_data)  # noqa: F841
-            #
-            # assert result["id"] == message_id
-            # assert result["content"] == update_data["content"]
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # result = await crud.update_message(message_id, update_data)  # noqa: F841
+        #
+        # assert result["id"] == message_id
+        # assert result["content"] == update_data["content"]
 
     def test_delete_message_success(self):
         """
@@ -329,17 +329,17 @@ class TestSupabaseCRUDMessages:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # result = await crud.delete_message(message_id)  # noqa: F841
-            #
-            # assert result is True  # 削除成功
-            #
-            # # 削除確認
-            # deleted_message = await crud.get_message_by_id(message_id)  # noqa: F841
-            # assert deleted_message is None
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # result = await crud.delete_message(message_id)  # noqa: F841
+        #
+        # assert result is True  # 削除成功
+        #
+        # # 削除確認
+        # deleted_message = await crud.get_message_by_id(message_id)  # noqa: F841
+        # assert deleted_message is None
 
 
 class TestSupabaseCRUDErrorHandling:
@@ -364,15 +364,15 @@ class TestSupabaseCRUDErrorHandling:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
-            #
-            # with pytest.raises(ValueError) as exc_info:
-            #     await crud.create_message(message_create)
-            # assert "Channel not found" in str(exc_info.value)
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
+        #
+        # with pytest.raises(ValueError) as exc_info:
+        #     await crud.create_message(message_create)
+        # assert "Channel not found" in str(exc_info.value)
 
     def test_invalid_pagination_parameters(self):
         """
@@ -387,18 +387,18 @@ class TestSupabaseCRUDErrorHandling:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # with pytest.raises(ValueError) as exc_info:
-            #     await crud.get_channel_messages(channel_id, invalid_skip, 10)
-            # assert "skip parameter must be non-negative" in str(exc_info.value)
-            #
-            # with pytest.raises(ValueError) as exc_info:
-            #     await crud.get_channel_messages(channel_id, 0, invalid_limit)
-            # assert "limit parameter must be positive" in str(exc_info.value)
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # with pytest.raises(ValueError) as exc_info:
+        #     await crud.get_channel_messages(channel_id, invalid_skip, 10)
+        # assert "skip parameter must be non-negative" in str(exc_info.value)
+        #
+        # with pytest.raises(ValueError) as exc_info:
+        #     await crud.get_channel_messages(channel_id, 0, invalid_limit)
+        # assert "limit parameter must be positive" in str(exc_info.value)
 
     def test_database_connection_error(self):
         """
@@ -408,17 +408,17 @@ class TestSupabaseCRUDErrorHandling:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # # 接続エラーをシミュレートするモッククライアント
-            # mock_client = Mock()  # noqa: F841
-            # mock_client.table.side_effect = ConnectionError("Database connection failed")
-            #
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # with pytest.raises(ConnectionError):
-            #     await crud.get_channels()
+        # 実装後に期待される動作
+        # # 接続エラーをシミュレートするモッククライアント
+        # mock_client = Mock()  # noqa: F841
+        # mock_client.table.side_effect = ConnectionError("Database connection failed")
+        #
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # with pytest.raises(ConnectionError):
+        #     await crud.get_channels()
 
     def test_permission_denied_error(self):
         """
@@ -428,17 +428,17 @@ class TestSupabaseCRUDErrorHandling:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # # 権限エラーをシミュレートするモッククライアント
-            # mock_client = Mock()  # noqa: F841
-            # mock_client.table().insert().execute.side_effect = Exception("Permission denied")
-            #
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # with pytest.raises(PermissionError):
-            #     await crud.create_channel({"id": "test", "name": "test"})
+        # 実装後に期待される動作
+        # # 権限エラーをシミュレートするモッククライアント
+        # mock_client = Mock()  # noqa: F841
+        # mock_client.table().insert().execute.side_effect = Exception("Permission denied")
+        #
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # with pytest.raises(PermissionError):
+        #     await crud.create_channel({"id": "test", "name": "test"})
 
 
 class TestSupabaseCRUDPerformance:
@@ -470,18 +470,18 @@ class TestSupabaseCRUDPerformance:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # import time
-            # start_time = time.time()  # noqa: F841
-            # result = await crud.bulk_create_messages(messages_data)  # noqa: F841
-            # end_time = time.time()  # noqa: F841
-            #
-            # assert len(result) == message_count
-            # assert (end_time - start_time) < 5.0  # 5秒以内で完了
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # import time
+        # start_time = time.time()  # noqa: F841
+        # result = await crud.bulk_create_messages(messages_data)  # noqa: F841
+        # end_time = time.time()  # noqa: F841
+        #
+        # assert len(result) == message_count
+        # assert (end_time - start_time) < 5.0  # 5秒以内で完了
 
     def test_large_message_retrieval_performance(self):
         """
@@ -495,18 +495,18 @@ class TestSupabaseCRUDPerformance:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # import time
-            # start_time = time.time()  # noqa: F841
-            # messages = await crud.get_channel_messages(channel_id, 0, limit)  # noqa: F841
-            # end_time = time.time()  # noqa: F841
-            #
-            # assert isinstance(messages, list)
-            # assert (end_time - start_time) < 3.0  # 3秒以内で完了
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # import time
+        # start_time = time.time()  # noqa: F841
+        # messages = await crud.get_channel_messages(channel_id, 0, limit)  # noqa: F841
+        # end_time = time.time()  # noqa: F841
+        #
+        # assert isinstance(messages, list)
+        # assert (end_time - start_time) < 3.0  # 3秒以内で完了
 
 
 class TestSupabaseCRUDDataIntegrity:
@@ -531,15 +531,15 @@ class TestSupabaseCRUDDataIntegrity:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
-            #
-            # with pytest.raises(Exception) as exc_info:
-            #     await crud.create_message(message_create)
-            # assert "foreign key constraint" in str(exc_info.value).lower()
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        # message_create = MessageCreate.model_validate(message_data)  # noqa: F841
+        #
+        # with pytest.raises(Exception) as exc_info:
+        #     await crud.create_message(message_create)
+        # assert "foreign key constraint" in str(exc_info.value).lower()
 
     def test_unique_constraint_enforcement(self):
         """
@@ -556,19 +556,19 @@ class TestSupabaseCRUDDataIntegrity:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # # 最初の作成は成功
-            # result1 = await crud.create_channel(channel_data)  # noqa: F841
-            # assert result1["id"] == channel_data["id"]
-            #
-            # # 同じIDで再作成は失敗
-            # with pytest.raises(Exception) as exc_info:
-            #     await crud.create_channel(channel_data)
-            # assert "unique constraint" in str(exc_info.value).lower()
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # # 最初の作成は成功
+        # result1 = await crud.create_channel(channel_data)  # noqa: F841
+        # assert result1["id"] == channel_data["id"]
+        #
+        # # 同じIDで再作成は失敗
+        # with pytest.raises(Exception) as exc_info:
+        #     await crud.create_channel(channel_data)
+        # assert "unique constraint" in str(exc_info.value).lower()
 
     def test_data_type_validation(self):
         """
@@ -589,10 +589,10 @@ class TestSupabaseCRUDDataIntegrity:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_crud import SupabaseCRUD
+            from src.backend.supabase_crud import SupabaseCRUD
 
-            # 実装后に期待される動作
-            # crud = SupabaseCRUD(mock_client)  # noqa: F841
-            #
-            # with pytest.raises(ValueError):
-            #     MessageCreate.model_validate(invalid_message_data)
+        # 実装後に期待される動作
+        # crud = SupabaseCRUD(mock_client)  # noqa: F841
+        #
+        # with pytest.raises(ValueError):
+        #     MessageCreate.model_validate(invalid_message_data)

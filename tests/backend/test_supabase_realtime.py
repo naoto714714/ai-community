@@ -23,15 +23,15 @@ class TestSupabaseRealtimeConnection:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # assert realtime.client is mock_client
-            # assert realtime.channel is None
-            # assert realtime.subscriptions == {}
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # assert realtime.client is mock_client
+        # assert realtime.channel is None
+        # assert realtime.subscriptions == {}
 
     def test_create_channel_success(self):
         """
@@ -42,19 +42,19 @@ class TestSupabaseRealtimeConnection:
         # Arrange
         channel_name = "messages_channel"  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # channel = await realtime.create_channel(channel_name)
-            #
-            # assert channel is mock_channel
-            # mock_client.channel.assert_called_once_with(channel_name)
-            # assert realtime.channel is mock_channel
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # channel = await realtime.create_channel(channel_name)
+        #
+        # assert channel is mock_channel
+        # mock_client.channel.assert_called_once_with(channel_name)
+        # assert realtime.channel is mock_channel
 
     def test_multiple_channel_creation(self):
         """
@@ -65,21 +65,21 @@ class TestSupabaseRealtimeConnection:
         # Arrange
         channel_names = ["messages_channel", "notifications_channel", "presence_channel"]  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # channels = []
-            # for name in channel_names:
-            #     mock_channel = Mock()
-            #     mock_client.channel.return_value = mock_channel
-            #     channel = await realtime.create_channel(name)
-            #     channels.append(channel)
-            #
-            # assert len(realtime.channels) == len(channel_names)
-            # assert all(ch in realtime.channels.values() for ch in channels)
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # channels = []
+        # for name in channel_names:
+        #     mock_channel = Mock()
+        #     mock_client.channel.return_value = mock_channel
+        #     channel = await realtime.create_channel(name)
+        #     channels.append(channel)
+        #
+        # assert len(realtime.channels) == len(channel_names)
+        # assert all(ch in realtime.channels.values() for ch in channels)
 
 
 class TestSupabaseRealtimeMessageSubscription:
@@ -95,26 +95,26 @@ class TestSupabaseRealtimeMessageSubscription:
         # Arrange
         callback = AsyncMock()  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.subscribe_to_messages(callback)
-            #
-            # # on_postgres_changesが適切に呼ばれることを確認
-            # mock_channel.on_postgres_changes.assert_called_once_with(
-            #     event='INSERT',
-            #     schema='public',
-            #     table='messages',
-            #     callback=callback
-            # )
-            #
-            # # subscribeが呼ばれることを確認
-            # mock_channel.subscribe.assert_called_once()
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.subscribe_to_messages(callback)
+        #
+        # # on_postgres_changesが適切に呼ばれることを確認
+        # mock_channel.on_postgres_changes.assert_called_once_with(
+        #     event='INSERT',
+        #     schema='public',
+        #     table='messages',
+        #     callback=callback
+        # )
+        #
+        # # subscribeが呼ばれることを確認
+        # mock_channel.subscribe.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_subscribe_to_messages_update(self):
@@ -126,22 +126,22 @@ class TestSupabaseRealtimeMessageSubscription:
         # Arrange
         callback = AsyncMock()  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.subscribe_to_message_updates(callback)
-            #
-            # mock_channel.on_postgres_changes.assert_called_once_with(
-            #     event='UPDATE',
-            #     schema='public',
-            #     table='messages',
-            #     callback=callback
-            # )
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.subscribe_to_message_updates(callback)
+        #
+        # mock_channel.on_postgres_changes.assert_called_once_with(
+        #     event='UPDATE',
+        #     schema='public',
+        #     table='messages',
+        #     callback=callback
+        # )
 
     @pytest.mark.asyncio
     async def test_subscribe_to_messages_delete(self):
@@ -153,22 +153,22 @@ class TestSupabaseRealtimeMessageSubscription:
         # Arrange
         callback = AsyncMock()  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.subscribe_to_message_deletes(callback)
-            #
-            # mock_channel.on_postgres_changes.assert_called_once_with(
-            #     event='DELETE',
-            #     schema='public',
-            #     table='messages',
-            #     callback=callback
-            # )
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.subscribe_to_message_deletes(callback)
+        #
+        # mock_channel.on_postgres_changes.assert_called_once_with(
+        #     event='DELETE',
+        #     schema='public',
+        #     table='messages',
+        #     callback=callback
+        # )
 
     @pytest.mark.asyncio
     async def test_subscribe_to_all_message_events(self):
@@ -180,24 +180,24 @@ class TestSupabaseRealtimeMessageSubscription:
         # Arrange
         callbacks = {"insert": AsyncMock(), "update": AsyncMock(), "delete": AsyncMock()}  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.subscribe_to_all_message_events(callbacks)
-            #
-            # # 各イベントのコールバックが設定されることを確認
-            # assert mock_channel.on_postgres_changes.call_count == 3
-            #
-            # call_args_list = mock_channel.on_postgres_changes.call_args_list
-            # events = [call[1]['event'] for call in call_args_list]
-            # assert 'INSERT' in events
-            # assert 'UPDATE' in events
-            # assert 'DELETE' in events
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.subscribe_to_all_message_events(callbacks)
+        #
+        # # 各イベントのコールバックが設定されることを確認
+        # assert mock_channel.on_postgres_changes.call_count == 3
+        #
+        # call_args_list = mock_channel.on_postgres_changes.call_args_list
+        # events = [call[1]['event'] for call in call_args_list]
+        # assert 'INSERT' in events
+        # assert 'UPDATE' in events
+        # assert 'DELETE' in events
 
 
 class TestSupabaseRealtimeBroadcast:
@@ -223,22 +223,22 @@ class TestSupabaseRealtimeBroadcast:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("messages_channel")
-            # await realtime.broadcast_message(message_data)
-            #
-            # mock_channel.send.assert_called_once_with({
-            #     'type': 'broadcast',
-            #     'event': 'new_message',
-            #     'payload': message_data
-            # })
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("messages_channel")
+        # await realtime.broadcast_message(message_data)
+        #
+        # mock_channel.send.assert_called_once_with({
+        #     'type': 'broadcast',
+        #     'event': 'new_message',
+        #     'payload': message_data
+        # })
 
     @pytest.mark.asyncio
     async def test_broadcast_message_to_specific_channel(self):
@@ -257,16 +257,16 @@ class TestSupabaseRealtimeBroadcast:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # await realtime.broadcast_message_to_channel(channel_id, message_data)
-            #
-            # # 適切なチャンネルに送信されることを確認
-            # assert message_data["channel_id"] == channel_id
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # await realtime.broadcast_message_to_channel(channel_id, message_data)
+        #
+        # # 適切なチャンネルに送信されることを確認
+        # assert message_data["channel_id"] == channel_id
 
     @pytest.mark.asyncio
     async def test_broadcast_user_presence(self):
@@ -285,22 +285,22 @@ class TestSupabaseRealtimeBroadcast:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("presence_channel")
-            # await realtime.broadcast_user_presence(presence_data)
-            #
-            # mock_channel.send.assert_called_once_with({
-            #     'type': 'broadcast',
-            #     'event': 'user_presence',
-            #     'payload': presence_data
-            # })
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("presence_channel")
+        # await realtime.broadcast_user_presence(presence_data)
+        #
+        # mock_channel.send.assert_called_once_with({
+        #     'type': 'broadcast',
+        #     'event': 'user_presence',
+        #     'payload': presence_data
+        # })
 
 
 class TestSupabaseRealtimePresence:
@@ -317,20 +317,20 @@ class TestSupabaseRealtimePresence:
         user_id = "test_user_1"  # noqa: F841
         user_data = {"user_name": "テストユーザー", "status": "online", "last_seen": datetime.now(UTC).isoformat()}  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("presence_channel")
-            # await realtime.track_user_presence(user_id, user_data)
-            #
-            # mock_channel.track.assert_called_once_with({
-            #     user_id: user_data
-            # })
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("presence_channel")
+        # await realtime.track_user_presence(user_id, user_data)
+        #
+        # mock_channel.track.assert_called_once_with({
+        #     user_id: user_data
+        # })
 
     @pytest.mark.asyncio
     async def test_untrack_user_presence(self):
@@ -342,18 +342,18 @@ class TestSupabaseRealtimePresence:
         # Arrange
         user_id = "test_user_1"  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("presence_channel")
-            # await realtime.untrack_user_presence(user_id)
-            #
-            # mock_channel.untrack.assert_called_once()
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("presence_channel")
+        # await realtime.untrack_user_presence(user_id)
+        #
+        # mock_channel.untrack.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_presence_state(self):
@@ -364,23 +364,23 @@ class TestSupabaseRealtimePresence:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_presence_state = {
-            #     "user_1": {"status": "online"},
-            #     "user_2": {"status": "away"}
-            # }
-            # mock_channel.presenceState.return_value = mock_presence_state
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("presence_channel")
-            # state = await realtime.get_presence_state()
-            #
-            # assert state == mock_presence_state
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_presence_state = {
+        #     "user_1": {"status": "online"},
+        #     "user_2": {"status": "away"}
+        # }
+        # mock_channel.presenceState.return_value = mock_presence_state
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("presence_channel")
+        # state = await realtime.get_presence_state()
+        #
+        # assert state == mock_presence_state
 
 
 class TestSupabaseRealtimeWebSocketIntegration:
@@ -404,16 +404,16 @@ class TestSupabaseRealtimeWebSocketIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # await realtime.integrate_with_websocket(websocket_manager)
-            # await realtime.forward_message_to_websocket(message_data)
-            #
-            # websocket_manager.broadcast.assert_called_once()
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # await realtime.integrate_with_websocket(websocket_manager)
+        # await realtime.forward_message_to_websocket(message_data)
+        #
+        # websocket_manager.broadcast.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_websocket_to_realtime_message_flow(self):
@@ -438,19 +438,19 @@ class TestSupabaseRealtimeWebSocketIntegration:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("messages_channel")
-            # await realtime.handle_websocket_message(websocket_message)
-            #
-            # # メッセージがRealtimeでブロードキャストされることを確認
-            # mock_channel.send.assert_called_once()
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("messages_channel")
+        # await realtime.handle_websocket_message(websocket_message)
+        #
+        # # メッセージがRealtimeでブロードキャストされることを確認
+        # mock_channel.send.assert_called_once()
 
 
 class TestSupabaseRealtimeErrorHandling:
@@ -465,16 +465,16 @@ class TestSupabaseRealtimeErrorHandling:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_client.channel.side_effect = ConnectionError("Realtime connection failed")
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # with pytest.raises(ConnectionError):
-            #     await realtime.create_channel("test_channel")
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_client.channel.side_effect = ConnectionError("Realtime connection failed")
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # with pytest.raises(ConnectionError):
+        #     await realtime.create_channel("test_channel")
 
     @pytest.mark.asyncio
     async def test_subscription_error_handling(self):
@@ -486,18 +486,18 @@ class TestSupabaseRealtimeErrorHandling:
         # Arrange
         callback = AsyncMock()  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_channel.subscribe.side_effect = Exception("Subscription failed")
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            #
-            # with pytest.raises(Exception):
-            #     await realtime.subscribe_to_messages(callback)
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_channel.subscribe.side_effect = Exception("Subscription failed")
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        #
+        # with pytest.raises(Exception):
+        #     await realtime.subscribe_to_messages(callback)
 
     @pytest.mark.asyncio
     async def test_broadcast_error_recovery(self):
@@ -509,22 +509,22 @@ class TestSupabaseRealtimeErrorHandling:
         # Arrange
         message_data = {"id": "error_recovery_test", "content": "エラー回復テスト"}  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_channel.send.side_effect = [Exception("Send failed"), None]  # 最初は失敗、次は成功
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("messages_channel")
-            #
-            # # 再試行機能付きブロードキャスト
-            # result = await realtime.broadcast_message_with_retry(message_data, max_retries=2)
-            #
-            # assert result is True  # 最終的に成功
-            # assert mock_channel.send.call_count == 2  # 2回呼ばれた
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_channel.send.side_effect = [Exception("Send failed"), None]  # 最初は失敗、次は成功
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("messages_channel")
+        #
+        # # 再試行機能付きブロードキャスト
+        # result = await realtime.broadcast_message_with_retry(message_data, max_retries=2)
+        #
+        # assert result is True  # 最終的に成功
+        # assert mock_channel.send.call_count == 2  # 2回呼ばれた
 
     @pytest.mark.asyncio
     async def test_presence_tracking_error(self):
@@ -537,19 +537,19 @@ class TestSupabaseRealtimeErrorHandling:
         user_id = "error_test_user"  # noqa: F841
         user_data = {"status": "online"}  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_channel.track.side_effect = Exception("Presence tracking failed")
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("presence_channel")
-            #
-            # with pytest.raises(Exception):
-            #     await realtime.track_user_presence(user_id, user_data)
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_channel.track.side_effect = Exception("Presence tracking failed")
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("presence_channel")
+        #
+        # with pytest.raises(Exception):
+        #     await realtime.track_user_presence(user_id, user_data)
 
 
 class TestSupabaseRealtimePerformance:
@@ -576,28 +576,28 @@ class TestSupabaseRealtimePerformance:
 
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("performance_test_channel")
-            #
-            # import time
-            # start_time = time.time()
-            #
-            # # 高頻度でメッセージをブロードキャスト
-            # for message in messages:
-            #     await realtime.broadcast_message(message)
-            #
-            # end_time = time.time()
-            #
-            # # パフォーマンス要件: 100メッセージを5秒以内で処理
-            # assert (end_time - start_time) < 5.0
-            # assert mock_channel.send.call_count == message_count
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("performance_test_channel")
+        #
+        # import time
+        # start_time = time.time()
+        #
+        # # 高頻度でメッセージをブロードキャスト
+        # for message in messages:
+        #     await realtime.broadcast_message(message)
+        #
+        # end_time = time.time()
+        #
+        # # パフォーマンス要件: 100メッセージを5秒以内で処理
+        # assert (end_time - start_time) < 5.0
+        # assert mock_channel.send.call_count == message_count
 
     @pytest.mark.asyncio
     async def test_concurrent_subscriptions(self):
@@ -610,23 +610,23 @@ class TestSupabaseRealtimePerformance:
         callback_count = 10  # noqa: F841
         callbacks = [AsyncMock() for _ in range(callback_count)]  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_realtime import SupabaseRealtime
+            from src.backend.supabase_realtime import SupabaseRealtime
 
-            # 実装后に期待される動作
-            # mock_client = Mock(spec=Client)
-            # mock_channel = Mock()
-            # mock_client.channel.return_value = mock_channel
-            #
-            # realtime = SupabaseRealtime(mock_client)
-            # await realtime.create_channel("concurrent_test_channel")
-            #
-            # # 複数のサブスクリプションを同時実行
-            # tasks = []
-            # for callback in callbacks:
-            #     task = asyncio.create_task(realtime.subscribe_to_messages(callback))
-            #     tasks.append(task)
-            #
-            # await asyncio.gather(*tasks)
-            #
-            # # 全てのサブスクリプションが正常に完了したことを確認
-            # assert len(realtime.subscriptions) == callback_count
+        # 実装後に期待される動作
+        # mock_client = Mock(spec=Client)
+        # mock_channel = Mock()
+        # mock_client.channel.return_value = mock_channel
+        #
+        # realtime = SupabaseRealtime(mock_client)
+        # await realtime.create_channel("concurrent_test_channel")
+        #
+        # # 複数のサブスクリプションを同時実行
+        # tasks = []
+        # for callback in callbacks:
+        #     task = asyncio.create_task(realtime.subscribe_to_messages(callback))
+        #     tasks.append(task)
+        #
+        # await asyncio.gather(*tasks)
+        #
+        # # 全てのサブスクリプションが正常に完了したことを確認
+        # assert len(realtime.subscriptions) == callback_count
