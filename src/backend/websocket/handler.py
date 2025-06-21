@@ -2,7 +2,8 @@
 
 import json
 import logging
-from typing import Any
+import traceback
+from typing import Any, TypedDict
 
 from fastapi import WebSocket
 from sqlalchemy.orm import Session
@@ -21,14 +22,17 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+class WebSocketMessage(TypedDict):
+    type: str
+    data: dict[str, Any]
+
+
 async def handle_websocket_message(
     websocket: WebSocket,
-    data: dict[str, Any],
+    data: WebSocketMessage,
     db_session: Session | None = None,
 ):
     """WebSocketメッセージの処理"""
-    # 型安全性のためにWebSocketMessage型を想定しているが、
-    # 実行時は辞書として扱う（TypedDictは実行時は通常の辞書）
     message_type = data.get("type")
     message_data = data.get("data")
 
@@ -68,8 +72,6 @@ async def handle_websocket_message(
         except Exception as e:
             logger.error(f"メッセージ保存エラー: {str(e)}")
             # デバッグのため詳細なエラー情報もログに出力
-            import traceback
-
             logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）
