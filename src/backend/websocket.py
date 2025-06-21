@@ -7,9 +7,11 @@ from sqlalchemy.orm import Session
 
 try:
     from . import crud
+    from .gemini_api import get_gemini_client
     from .schemas import MessageCreate
 except ImportError:
     import crud
+    from gemini_api import get_gemini_client
     from schemas import MessageCreate
 
 
@@ -159,6 +161,9 @@ async def handle_websocket_message(
 
             logger.info(f"メッセージが保存されました: {saved_message.id}")
 
+            # AI応答の処理
+            await handle_ai_response(message_data, db_session)
+
         except Exception as e:
             logger.error(f"メッセージ保存エラー: {str(e)}")
 
@@ -180,3 +185,102 @@ async def handle_websocket_message(
 
     else:
         logger.warning(f"未知のメッセージタイプ: {message_type}")
+
+
+async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None):
+    """AI応答の処理"""
+    if not message_data or not isinstance(message_data, dict):
+        return
+
+    user_message = message_data.get("content", "")
+    channel_id = message_data.get("channel_id", "")
+
+    # @AI が含まれているかチェック（大文字小文字区別なし）
+    gemini_client = get_gemini_client()
+    if not gemini_client.should_respond_to_message(user_message):
+        return
+
+    try:
+        # AI応答を生成
+        ai_response = await gemini_client.generate_response(user_message)
+
+        # AI応答をメッセージとして保存・送信
+        ai_message_data = {
+            "id": f"ai_{channel_id}_{int(__import__('time').time() * 1000)}",
+            "channel_id": channel_id,
+            "user_id": "ai_haruto",
+            "user_name": "ハルト",
+            "content": ai_response,
+            "timestamp": __import__("datetime").datetime.now().isoformat(),
+            "is_own_message": False,
+        }
+
+        # AI応答をデータベースに保存
+        ai_message_create = MessageCreate.model_validate(ai_message_data)
+
+        try:
+            from .database import SessionLocal
+        except ImportError:
+            from database import SessionLocal
+
+        def save_ai_message_with_session(session: Session | None = None):
+            """AI応答をデータベースに保存"""
+            if session is not None:
+                try:
+                    saved_message = crud.create_message(session, ai_message_create)
+                    return saved_message
+                except Exception:
+                    session.rollback()
+                    raise
+            else:
+                db = SessionLocal()
+                try:
+                    saved_message = crud.create_message(db, ai_message_create)
+                    return saved_message
+                except Exception:
+                    db.rollback()
+                    raise
+                finally:
+                    db.close()
+
+        # データベースに保存
+        saved_ai_message = save_ai_message_with_session(db_session)
+
+        # AI応答を全クライアントにブロードキャスト
+        broadcast_message = {
+            "type": "message:broadcast",
+            "data": {
+                "id": saved_ai_message.id,
+                "channel_id": saved_ai_message.channel_id,
+                "user_id": saved_ai_message.user_id,
+                "user_name": saved_ai_message.user_name,
+                "content": saved_ai_message.content,
+                "timestamp": saved_ai_message.timestamp.isoformat(),
+                "is_own_message": False,
+            },
+        }
+
+        await manager.broadcast(json.dumps(broadcast_message))
+        logger.info(f"AI応答が送信されました: {saved_ai_message.id}")
+
+    except Exception as e:
+        logger.error(f"AI応答エラー: {str(e)}")
+
+        # エラー時のフォールバック応答
+        fallback_message_data = {
+            "id": f"ai_error_{channel_id}_{int(__import__('time').time() * 1000)}",
+            "channel_id": channel_id,
+            "user_id": "ai_haruto",
+            "user_name": "ハルト",
+            "content": "通信に失敗しました😅 もう一度試してみてください！",
+            "timestamp": __import__("datetime").datetime.now().isoformat(),
+            "is_own_message": False,
+        }
+
+        # エラーメッセージも全クライアントにブロードキャスト
+        error_broadcast_message = {
+            "type": "message:broadcast",
+            "data": fallback_message_data,
+        }
+
+        await manager.broadcast(json.dumps(error_broadcast_message))
