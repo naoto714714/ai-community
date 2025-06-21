@@ -25,24 +25,24 @@ class TestSupabaseFastAPIIntegration:
         """
         # Act & Assert
         with pytest.raises(ImportError):
-                from src.backend.supabase_main import app
-                from src.backend.supabase_crud import SupabaseCRUD
-                from src.backend.supabase_client import create_supabase_client
+            from src.backend.supabase_main import app  # noqa: F401
+            from src.backend.supabase_crud import SupabaseCRUD  # noqa: F401
+            from src.backend.supabase_client import create_supabase_client  # noqa: F401
 
-            # 実装后に期待される動作をコメントアウト
-            # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
-            #     response = await client.get("/api/channels")
-            #
-            #     assert response.status_code == 200
-            #     data = response.json()
-            #
-            #     assert isinstance(data, list)
-            #     assert len(data) >= 0
-            #
-            #     if data:
-            #         assert all("id" in channel for channel in data)
-            #         assert all("name" in channel for channel in data)
-            #         assert all("createdAt" in channel for channel in data)
+        # 実装后に期待される動作をコメントアウト
+        # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
+        #     response = await client.get("/api/channels")
+        #
+        #     assert response.status_code == 200
+        #     data = response.json()
+        #
+        #     assert isinstance(data, list)
+        #     assert len(data) >= 0
+        #
+        #     if data:
+        #         assert all("id" in channel for channel in data)
+        #         assert all("name" in channel for channel in data)
+        #         assert all("createdAt" in channel for channel in data)
 
     @pytest.mark.asyncio
     async def test_api_messages_with_supabase(self):
@@ -54,21 +54,21 @@ class TestSupabaseFastAPIIntegration:
         # Arrange
         channel_id = "test_channel_1"  # noqa: F841
         with pytest.raises(ImportError):
-                from src.backend.supabase_main import app
-                from src.backend.supabase_crud import SupabaseCRUD
-                from src.backend.supabase_client import create_supabase_client
+            from src.backend.supabase_main import app  # noqa: F401
+            from src.backend.supabase_crud import SupabaseCRUD  # noqa: F401
+            from src.backend.supabase_client import create_supabase_client  # noqa: F401
 
-            # 実装后に期待される動作をコメントアウト
-            # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
-            #     response = await client.get(f"/api/channels/{channel_id}/messages")
-            #
-            #     assert response.status_code == 200
-            #     data = response.json()
-            #
-            #     assert "messages" in data
-            #     assert "total" in data
-            #     assert "hasMore" in data
-            #     assert isinstance(data["messages"], list)
+        # 実装后に期待される動作をコメントアウト
+        # async with AsyncClient(app=supabase_app, base_url="http://test") as client:
+        #     response = await client.get(f"/api/channels/{channel_id}/messages")
+        #
+        #     assert response.status_code == 200
+        #     data = response.json()
+        #
+        #     assert "messages" in data
+        #     assert "total" in data
+        #     assert "hasMore" in data
+        #     assert isinstance(data["messages"], list)
 
     def test_dependency_injection_replacement(self):
         """
