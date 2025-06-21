@@ -1,22 +1,51 @@
 import os
 from pathlib import Path
+from urllib.parse import quote_plus
 
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-# データベースファイルのパスを確実に設定
+# 環境変数を読み込み
+load_dotenv()
+
+# データベース接続設定
 # テスト環境では ":memory:" を使用してファイル生成を防ぐ
 if os.getenv("TESTING") == "true":
     SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 else:
-    # 現在のファイルの場所を基準にして chat.db のパスを決定
-    DB_FILE_PATH = Path(__file__).parent / "chat.db"
-    SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
+    # Supabase PostgreSQL接続設定
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+    DB_NAME = os.getenv("DB_NAME")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
 
-# SQLiteの設定について：
-# check_same_thread=Falseは開発・プロトタイプ段階での利便性のために設定
-# 本番環境ではPostgreSQLやMySQLなどのマルチスレッド対応DBを推奨
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+    if all([DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD]):
+        # Supabase Direct Connection形式
+        # postgresql://user:password@host:port/dbname?sslmode=require
+        encoded_password = quote_plus(DB_PASSWORD or "")
+        SQLALCHEMY_DATABASE_URL = (
+            f"postgresql://{DB_USER}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
+        )
+    else:
+        # フォールバック: SQLite（環境変数が設定されていない場合）
+        DB_FILE_PATH = Path(__file__).parent / "chat.db"
+        SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
+
+# PostgreSQL用の設定（connection pooling）
+# SQLiteの場合は従来の設定を維持
+if SQLALCHEMY_DATABASE_URL.startswith("postgresql://"):
+    engine = create_engine(
+        SQLALCHEMY_DATABASE_URL,
+        pool_size=10,
+        max_overflow=20,
+        pool_timeout=30,
+        pool_recycle=3600,
+    )
+else:
+    # SQLite用設定（テスト環境やフォールバック時）
+    engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
