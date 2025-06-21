@@ -24,7 +24,7 @@ Google Gemini AI統合チャットアプリケーションの品質を確保し�
 ai-community/
 ├── tests/
 │   ├── conftest.py              # pytest設定
-│   ├── backend/                 # バックエンドテスト（3ファイル）
+│   ├── backend/                 # バックエンドテスト（4ファイル）
 │   │   ├── conftest.py         # バックエンド専用設定
 │   │   ├── test_models.py      # モデルテスト
 │   │   ├── test_api.py         # REST API テスト
@@ -78,7 +78,7 @@ async def test_websocket_connection(test_client):
 async def test_websocket_message_send(test_client):
     """WebSocketメッセージ送信テスト"""
 
-async def test_ai_response_trigger():
+async def test_ai_response_trigger(test_client):
     """@AI メンション機能テスト（モック使用）"""
 ```
 
