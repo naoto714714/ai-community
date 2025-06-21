@@ -167,6 +167,10 @@ async def handle_websocket_message(
 
         except Exception as e:
             logger.error(f"メッセージ保存エラー: {str(e)}")
+            # デバッグのため詳細なエラー情報もログに出力
+            import traceback
+
+            logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）
             # メッセージIDを安全に取得（None値の場合も考慮）
