@@ -36,39 +36,22 @@ else:
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
 
+    # 型安全性の確保
     if all([DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD]):
-        # 本番環境: Supabase PostgreSQL
-        # Supabase Direct Connection形式
-        # postgresql://user:password@host:port/dbname?sslmode=require
-
-        # 環境変数の型を明示的に検証（all()チェック後なので確実にstr型）
-        assert isinstance(DB_USER, str), "DB_USER must be a string"
-        assert isinstance(DB_PASSWORD, str), "DB_PASSWORD must be a string"
-        assert isinstance(DB_HOST, str), "DB_HOST must be a string"
-        assert isinstance(DB_PORT, str), "DB_PORT must be a string"
-        assert isinstance(DB_NAME, str), "DB_NAME must be a string"
-
         try:
-            # ユーザー名とパスワードをURLエンコード（特殊文字対応）
-            encoded_user = quote_plus(DB_USER)
-            encoded_password = quote_plus(DB_PASSWORD)
-
+            # 環境変数の型チェック済みのため安全にstr変換
+            encoded_user = quote_plus(str(DB_USER))
+            encoded_password = quote_plus(str(DB_PASSWORD))
             SQLALCHEMY_DATABASE_URL = (
                 f"postgresql://{encoded_user}:{encoded_password}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
             )
-
-            # 接続情報をログ出力（パスワードは除外）
-            logger.info(f"PostgreSQL接続設定完了: host={DB_HOST}, port={DB_PORT}, database={DB_NAME}, user={DB_USER}")
-
-        except Exception as e:
-            logger.error(f"PostgreSQL接続URL作成時にエラーが発生しました: {e}")
-            logger.info("SQLiteフォールバックモードに切り替えます")
-            # エラー時はSQLiteフォールバックに切り替え
+            logger.info("Supabase PostgreSQL接続設定を使用します")
+        except Exception:
+            logger.error("PostgreSQL接続情報の処理に失敗しました。SQLiteにフォールバックします")
             DB_FILE_PATH = Path(__file__).parent / "chat.db"
             SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
     else:
-        # 開発環境: SQLiteローカルファイル（環境変数が設定されていない場合のフォールバック）
-        # 注意: chat.dbファイルは.gitignoreで除外済み（セキュリティ・容量対策）
+        logger.info("PostgreSQL環境変数が不完全です。SQLiteを使用します")
         DB_FILE_PATH = Path(__file__).parent / "chat.db"
         SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH.as_posix()}"
 
