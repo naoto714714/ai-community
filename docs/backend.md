@@ -11,6 +11,10 @@ uv sync
 # 環境変数設定（AI機能使用時）
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
+# 環境変数設定（Supabase使用時）
+export SUPABASE_URL="あなたのSupabase URL"
+export SUPABASE_KEY="あなたのSupabase APIキー"
+
 # 開発サーバー起動
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
