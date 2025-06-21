@@ -1,7 +1,12 @@
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./chat.db"
+# データベースファイルのパスを確実に設定
+# 現在のファイルの場所を基準にして chat.db のパスを決定
+DB_FILE_PATH = Path(__file__).parent / "chat.db"
+SQLALCHEMY_DATABASE_URL = f"sqlite:///{DB_FILE_PATH}"
 
 # SQLiteの設定について：
 # check_same_thread=Falseは開発・プロトタイプ段階での利便性のために設定
