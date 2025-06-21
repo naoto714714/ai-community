@@ -157,18 +157,19 @@ class TestSupabaseCRUD:
         supabase_db_session.add(unicode_message)
         supabase_db_session.commit()
 
-        # 取得して確認
-        retrieved_message = supabase_db_session.query(Message).filter(Message.id == "unicode_msg_001").first()
+        try:
+            # 取得して確認
+            retrieved_message = supabase_db_session.query(Message).filter(Message.id == "unicode_msg_001").first()
 
-        assert retrieved_message is not None
-        assert retrieved_message.user_name == "テストユーザー👤"
-        assert "🌸" in retrieved_message.content
-        assert "Supabase PostgreSQL対応✨" in retrieved_message.content
-
-        # クリーンアップ
-        supabase_db_session.delete(unicode_message)
-        supabase_db_session.delete(test_channel)
-        supabase_db_session.commit()
+            assert retrieved_message is not None
+            assert retrieved_message.user_name == "テストユーザー👤"
+            assert "🌸" in retrieved_message.content
+            assert "Supabase PostgreSQL対応✨" in retrieved_message.content
+        finally:
+            # クリーンアップ（テストが失敗してもデータを削除）
+            supabase_db_session.delete(unicode_message)
+            supabase_db_session.delete(test_channel)
+            supabase_db_session.commit()
 
 
 class TestDatabaseFallback:
