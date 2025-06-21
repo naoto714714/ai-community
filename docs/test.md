@@ -381,6 +381,59 @@ npm run test:ui
 - 開発効率と品質のバランスを追求
 - **Supabase PostgreSQL対応**: 本番環境と同等のテスト環境
 
+## Supabase統合テスト詳細
+
+### 新規追加：test_supabase_integration.py（7テスト）
+
+#### 1. Supabase接続確認テスト（2個）
+```python
+def test_supabase_connection_with_valid_env():
+    """有効な環境変数でSupabase接続成功テスト"""
+    # 実際の環境変数が設定されている場合のみ実行
+    # 接続テスト（SELECT 1クエリ実行）
+
+def test_supabase_url_format_validation():
+    """Supabase接続URL形式の検証テスト"""
+    # PostgreSQL URL形式の正確性確認
+    # 環境変数からのURL構築ロジック検証
+```
+
+#### 2. PostgreSQL CRUD操作テスト（2個）
+```python
+def test_postgresql_channel_operations():
+    """PostgreSQLでのチャンネル操作テスト"""
+    # CREATE, READ, UPDATE, DELETE の基本動作確認
+    # 実PostgreSQL環境での動作検証
+
+def test_postgresql_message_with_unicode():
+    """PostgreSQLでの日本語メッセージ処理テスト"""
+    # 日本語・絵文字を含むデータの処理確認
+    # 文字エンコーディング・タイムゾーン処理の検証
+```
+
+#### 3. データベースフォールバック機能テスト（3個）
+```python
+def test_database_url_construction_logic():
+    """データベースURL構築ロジックの検証テスト"""
+    # 完全/不完全な環境変数設定での分岐確認
+    # SQLiteフォールバック条件の検証
+
+def test_sqlite_functionality_standalone():
+    """SQLite機能の独立テスト"""
+    # 基本的なSQLite動作確認
+    # フォールバック時の動作保証
+
+def test_environment_variable_validation():
+    """環境変数バリデーションロジックのテスト"""
+    # 必須環境変数の有無チェック
+    # all()関数を使った検証ロジックの確認
+```
+
+### テスト実行の特徴
+- **環境依存対応**: 環境変数未設定時は自動的にテストスキップ
+- **接続失敗時の安全動作**: 実際のSupabaseに接続できない場合もテストが停止しない
+- **開発効率重視**: ローカル開発環境でも支障なく動作
+
 ## AI機能特有のテスト考慮事項
 
 ### モック戦略
