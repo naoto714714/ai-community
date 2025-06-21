@@ -2,10 +2,12 @@
 
 import json
 import logging
+import os
 import traceback
 from typing import Any, NotRequired, Required, TypedDict
 
 from fastapi import WebSocket
+from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from ..ai.message_handlers import handle_ai_response
@@ -20,6 +22,41 @@ except ImportError:
     from schemas import MessageCreate
 
 logger = logging.getLogger(__name__)
+
+
+def is_production() -> bool:
+    """本番環境かどうかを判定"""
+    return os.getenv("ENVIRONMENT", "development").lower() == "production"
+
+
+def validate_message_data(message_data: dict[str, Any]) -> tuple[bool, str | None]:
+    """メッセージデータの詳細バリデーション"""
+    required_fields = {
+        "id": str,
+        "channel_id": str,
+        "user_id": str,
+        "user_name": str,
+        "content": str,
+        "timestamp": str,
+        "is_own_message": bool,
+    }
+
+    for field_name, field_type in required_fields.items():
+        if field_name not in message_data:
+            return False, f"必須フィールド '{field_name}' が不足しています"
+
+        value = message_data[field_name]
+        if not isinstance(value, field_type):
+            return False, f"フィールド '{field_name}' の型が正しくありません（期待値: {field_type.__name__}）"
+
+    # 追加的なバリデーション
+    if not message_data["content"].strip():
+        return False, "メッセージ内容は空にできません"
+
+    if len(message_data["content"]) > 10000:  # 例: 最大文字数制限
+        return False, "メッセージが長すぎます"
+
+    return True, None
 
 
 class WebSocketMessage(TypedDict):
@@ -73,8 +110,22 @@ async def handle_websocket_message(
             await safe_send_message(websocket, json.dumps(error_response))
             return
 
+        # 詳細なメッセージデータバリデーション
+        is_valid, validation_error = validate_message_data(message_data)
+        if not is_valid:
+            error_response = {
+                "type": "message:error",
+                "data": {
+                    "id": message_data.get("id"),
+                    "success": False,
+                    "error": f"メッセージデータが無効です: {validation_error}",
+                },
+            }
+            await safe_send_message(websocket, json.dumps(error_response))
+            return
+
         try:
-            # 共通のセッション管理ヘルパーを使用
+            # Pydanticバリデーション
             message_create = MessageCreate.model_validate(message_data)
             saved_message = save_message_with_session_management(
                 lambda session: crud.create_message(session, message_create), db_session
@@ -109,13 +160,31 @@ async def handle_websocket_message(
                 logger.error(f"AI応答処理エラー: {str(ai_error)}")
                 # AI応答エラーはユーザーメッセージ保存に影響しないため継続
 
+        except ValidationError as ve:
+            logger.warning(f"Pydanticバリデーションエラー: {str(ve)}")
+            # 本番環境では詳細なバリデーションエラーをログに出力しない
+            if not is_production():
+                logger.debug(f"バリデーション詳細: {ve.errors()}")
+
+            error_response = {
+                "type": "message:error",
+                "data": {
+                    "id": message_data.get("id") if message_data else None,
+                    "success": False,
+                    "error": "メッセージフォーマットが正しくありません",
+                },
+            }
+            await safe_send_message(websocket, json.dumps(error_response))
+
         except Exception as e:
-            logger.error(f"メッセージ保存エラー: {str(e)}")
-            # デバッグのため詳細なエラー情報もログに出力
-            logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
+            # 本番環境では詳細なエラー情報をログに出力しない
+            if is_production():
+                logger.error("メッセージ保存処理でエラーが発生しました")
+            else:
+                logger.error(f"メッセージ保存エラー: {str(e)}")
+                logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）
-            # メッセージIDを安全に取得（None値の場合も考慮）
             message_id = None
             if message_data and isinstance(message_data, dict):
                 message_id = message_data.get("id")
