@@ -17,6 +17,11 @@
   - 特に、機能追加(feature)とリファクタリング(refactor)など、異なる方向の作業を1つのcommitで行ってはいけない
   - 形式: `prefix: 日本語で説明`
 
+## 非推奨コマンド
+- `cat`: 代わりにあなた自身がファイルを読み込んでください
+- `find`: 代わりに`fd`を使ってください
+- `grep`: 代わりに`ripgrep`を使ってください
+
 # このプロジェクトについて
 
 ## プロジェクト概要
@@ -49,16 +54,22 @@ ai-community/
 ├── docs/                      # ドキュメント
 │   ├── backend.md            # バックエンド仕様書・API リファレンス
 │   ├── frontend.md           # フロントエンド開発ガイド
+│   ├── test.md               # テストガイド
+│   └── contributing.md       # コントリビューションガイド
+├── prompts/                   # プロンプトテンプレート・開発ガイドライン
+│   ├── 001_ハルト.md         # AI人格プロンプト
 │   ├── backend-guideline.md  # バックエンド開発ガイドライン
 │   ├── frontend-guideline.md # フロントエンド開発ガイドライン
-│   └── contributing.md       # 貢献ガイド
+│   ├── code_review_guide.md  # コードレビューガイド
+│   └── reviewer_personality.md # レビュー人格設定
 ├── src/
 │   ├── backend/              # バックエンド（FastAPI + SQLite + AI）
 │   │   ├── main.py          # FastAPIアプリケーション
-│   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── database.py      # データベース設定
+│   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── schemas.py       # Pydanticスキーマ
 │   │   ├── crud.py          # データベース操作
+│   │   ├── chat.db          # SQLiteデータベース
 │   │   ├── ai/              # AI機能
 │   │   │   ├── gemini_client.py      # Gemini API クライアント
 │   │   │   └── message_handlers.py   # AI応答処理
@@ -66,24 +77,42 @@ ai-community/
 │   │   │   ├── handler.py   # WebSocketハンドラー
 │   │   │   ├── manager.py   # 接続管理
 │   │   │   └── types.py     # WebSocket型定義
-│   │   ├── utils/           # ユーティリティ
-│   │   │   └── session_manager.py # セッション管理
-│   │   └── chat.db          # SQLiteデータベース
-│   └── frontend/            # フロントエンド（React + Mantine）
-│       ├── src/
-│       │   ├── components/  # Reactコンポーネント
-│       │   ├── types/       # TypeScript型定義
-│       │   └── data/        # 初期データ
-│       └── package.json     # NPM設定
-├── tests/                   # テスト（Python）
-├── prompts/                 # プロンプトテンプレート
-├── z/                       # 一時ファイル
+│   │   └── utils/           # ユーティリティ
+│   │       └── session_manager.py # セッション管理
+│   ├── frontend/            # フロントエンド（React + Mantine）
+│   │   ├── src/
+│   │   │   ├── App.tsx      # メインアプリケーション
+│   │   │   ├── main.tsx     # エントリーポイント
+│   │   │   ├── index.css    # グローバルスタイル
+│   │   │   ├── components/  # Reactコンポーネント
+│   │   │   │   ├── Layout.tsx       # アプリケーションレイアウト
+│   │   │   │   ├── ChannelList.tsx  # チャンネル一覧
+│   │   │   │   ├── ChatArea.tsx     # チャット画面
+│   │   │   │   ├── MessageList.tsx  # メッセージ一覧
+│   │   │   │   ├── MessageItem.tsx  # メッセージ表示
+│   │   │   │   └── MessageInput.tsx # メッセージ入力
+│   │   │   ├── types/       # TypeScript型定義
+│   │   │   │   └── chat.ts  # Message, Channel型
+│   │   │   └── data/        # 初期データ
+│   │   │       └── channels.ts # 初期チャンネルデータ
+│   │   ├── package.json     # フロントエンドNPM設定
+│   │   ├── vite.config.ts   # Vite設定
+│   │   └── tsconfig.json    # TypeScript設定
+│   └── shared/              # 共有モジュール（空）
+├── tests/                   # テスト
+│   ├── backend/             # バックエンドテスト
+│   │   ├── test_models.py   # モデルテスト
+│   │   ├── test_api.py      # REST APIテスト
+│   │   └── test_websocket.py # WebSocket + AI機能テスト
+│   └── frontend/            # フロントエンドテスト
+│       ├── components.test.tsx # コンポーネントテスト
+│       └── integration.test.tsx # 統合テスト
+├── z/                       # 一時ファイル・作業用
 ├── CLAUDE.md                # AI開発ガイドライン（このファイル）
 ├── README.md                # プロジェクトREADME
-├── .gitignore              # Git除外設定
-├── .pre-commit-config.yaml # pre-commit設定
-├── pyproject.toml          # Python設定
-└── uv.lock                 # UV依存関系ロック
+├── package.json             # ルートNPM設定（並行実行用）
+├── pyproject.toml          # Python設定・依存関係
+└── uv.lock                 # UV依存関係ロック
 ```
 
 ## 起動方法
@@ -199,5 +228,9 @@ uv run --frozen pyright          # 型チェック
 - **フォント**: システムフォント（-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP'）
 - **最小幅**: 1024px（PC版優先）
 
-- Frontend開発ガイドライン: @docs/frontend-guideline.md
-- Backend開発ガイドライン: @docs/backend-guideline.md
+- [バックエンド仕様書・API リファレンス](docs/backend.md)
+- [フロントエンド開発ガイド](docs/frontend.md)
+- [テストガイド](docs/test.md)
+- [コントリビューションガイド](docs/contributing.md)
+- [バックエンド開発ガイドライン](prompts/backend-guideline.md)
+- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md)
