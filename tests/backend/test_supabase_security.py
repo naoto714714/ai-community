@@ -28,9 +28,9 @@ class TestSupabaseRowLevelSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # policies = await security.create_rls_policies()
-        # 
+        #
         # assert "channels_policy" in policies
         # assert "messages_policy" in policies
         # assert policies["channels_policy"]["enabled"] is True
@@ -52,10 +52,10 @@ class TestSupabaseRowLevelSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # # ユーザー権限でのアクセステスト
         # access_result = await security.test_rls_access(test_user_id, channel_id)
-        # 
+        #
         # assert access_result["can_read"] is True
         # assert access_result["can_write"] is True
         # assert access_result["policy_applied"] is True
@@ -76,7 +76,7 @@ class TestSupabaseRowLevelSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # with pytest.raises(PermissionError):
         #     await security.access_protected_channel(unauthorized_user_id, protected_channel_id)
 
@@ -91,7 +91,7 @@ class TestSupabaseRowLevelSecurity:
             "policy_name": "updated_messages_policy",
             "table_name": "messages",
             "policy_definition": "USING (auth.uid() = user_id)",
-            "policy_command": "ALL"
+            "policy_command": "ALL",
         }
 
         # Act & Assert
@@ -100,9 +100,9 @@ class TestSupabaseRowLevelSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # result = await security.update_rls_policy(updated_policy)
-        # 
+        #
         # assert result["policy_updated"] is True
         # assert result["policy_name"] == updated_policy["policy_name"]
 
@@ -122,9 +122,9 @@ class TestSupabaseAuthentication:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # auth_config = await security.setup_authentication()
-        # 
+        #
         # assert auth_config["jwt_secret"] is not None
         # assert auth_config["providers"]["anonymous"] is True
         # assert auth_config["session_timeout"] > 0
@@ -144,9 +144,9 @@ class TestSupabaseAuthentication:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # anonymous_user = await security.create_anonymous_user(user_name)
-        # 
+        #
         # assert anonymous_user["id"] is not None
         # assert anonymous_user["user_name"] == user_name
         # assert anonymous_user["is_anonymous"] is True
@@ -167,9 +167,9 @@ class TestSupabaseAuthentication:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # session_validation = await security.validate_user_session(session_token)
-        # 
+        #
         # assert session_validation["is_valid"] is True
         # assert session_validation["user_id"] is not None
         # assert session_validation["expires_at"] > datetime.now(UTC)
@@ -189,7 +189,7 @@ class TestSupabaseAuthentication:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # with pytest.raises(AuthenticationError):
         #     await security.validate_user_session(expired_token)
 
@@ -213,9 +213,9 @@ class TestSupabaseAuthorization:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # authorization = await security.check_channel_access(user_id, channel_id)
-        # 
+        #
         # assert authorization["can_read"] is True
         # assert authorization["can_write"] is True
         # assert authorization["access_level"] == "full"
@@ -237,9 +237,9 @@ class TestSupabaseAuthorization:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # can_create = await security.authorize_message_creation(user_id, channel_id, message_content)
-        # 
+        #
         # assert can_create is True
 
     def test_admin_privilege_authorization(self):
@@ -258,9 +258,9 @@ class TestSupabaseAuthorization:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # is_authorized = await security.check_admin_privileges(admin_user_id, admin_operation)
-        # 
+        #
         # assert is_authorized is True
 
     def test_unauthorized_operation_prevention(self):
@@ -279,7 +279,7 @@ class TestSupabaseAuthorization:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # with pytest.raises(AuthorizationError):
         #     await security.execute_restricted_operation(regular_user_id, restricted_operation)
 
@@ -303,9 +303,9 @@ class TestSupabaseDataProtection:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # encrypted_data = await security.encrypt_sensitive_data(sensitive_data, encryption_key)
-        # 
+        #
         # assert encrypted_data != sensitive_data
         # assert len(encrypted_data) > len(sensitive_data)
         # assert security.is_encrypted(encrypted_data) is True
@@ -326,10 +326,10 @@ class TestSupabaseDataProtection:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # encrypted_data = await security.encrypt_sensitive_data(original_data, encryption_key)
         # decrypted_data = await security.decrypt_sensitive_data(encrypted_data, encryption_key)
-        # 
+        #
         # assert decrypted_data == original_data
 
     def test_user_data_anonymization(self):
@@ -343,7 +343,7 @@ class TestSupabaseDataProtection:
             "user_id": "user_123",
             "user_name": "実名ユーザー",
             "email": "user@example.com",
-            "ip_address": "192.168.1.1"
+            "ip_address": "192.168.1.1",
         }
 
         # Act & Assert
@@ -352,9 +352,9 @@ class TestSupabaseDataProtection:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # anonymized_data = await security.anonymize_user_data(user_data)
-        # 
+        #
         # assert anonymized_data["user_id"] != user_data["user_id"]
         # assert anonymized_data["user_name"] != user_data["user_name"]
         # assert anonymized_data["email"] != user_data["email"]
@@ -376,9 +376,9 @@ class TestSupabaseDataProtection:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # cleanup_result = await security.apply_data_retention_policy(retention_days)
-        # 
+        #
         # assert cleanup_result["messages_deleted"] >= 0
         # assert cleanup_result["policy_applied"] is True
         # assert cleanup_result["retention_period"] == retention_days
@@ -403,11 +403,11 @@ class TestSupabaseApiSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # # 有効なキーのテスト
         # valid_result = await security.validate_api_key(valid_api_key)
         # assert valid_result["is_valid"] is True
-        # 
+        #
         # # 無効なキーのテスト
         # invalid_result = await security.validate_api_key(invalid_api_key)
         # assert invalid_result["is_valid"] is False
@@ -429,15 +429,15 @@ class TestSupabaseApiSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # # レート制限設定
         # await security.set_rate_limit(user_id, max_requests, time_window)
-        # 
+        #
         # # 制限内のリクエスト
         # for i in range(max_requests):
         #     result = await security.check_rate_limit(user_id)
         #     assert result["allowed"] is True
-        # 
+        #
         # # 制限超過のリクエスト
         # exceeded_result = await security.check_rate_limit(user_id)
         # assert exceeded_result["allowed"] is False
@@ -458,10 +458,10 @@ class TestSupabaseApiSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # cors_config = await security.configure_cors(allowed_origins)
         # is_allowed = await security.check_cors_origin(request_origin)
-        # 
+        #
         # assert cors_config["configured"] is True
         # assert is_allowed is True
 
@@ -481,12 +481,12 @@ class TestSupabaseApiSecurity:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # # 悪意のある入力のテスト
         # malicious_result = await security.validate_input_safety(malicious_input)
         # assert malicious_result["is_safe"] is False
         # assert malicious_result["threat_detected"] is True
-        # 
+        #
         # # 安全な入力のテスト
         # safe_result = await security.validate_input_safety(safe_input)
         # assert safe_result["is_safe"] is True
@@ -506,7 +506,7 @@ class TestSupabaseSecurityAudit:
             "event_type": "unauthorized_access_attempt",
             "user_id": "suspicious_user",
             "timestamp": datetime.now(UTC).isoformat(),
-            "details": "Invalid API key used"
+            "details": "Invalid API key used",
         }
 
         # Act & Assert
@@ -515,9 +515,9 @@ class TestSupabaseSecurityAudit:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # log_result = await security.log_security_event(security_event)
-        # 
+        #
         # assert log_result["logged"] is True
         # assert log_result["event_id"] is not None
 
@@ -537,13 +537,13 @@ class TestSupabaseSecurityAudit:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # # 複数回のログイン失敗をシミュレート
         # for i in range(failed_attempts):
         #     await security.record_failed_login(user_id)
-        # 
+        #
         # monitor_result = await security.check_login_failures(user_id)
-        # 
+        #
         # assert monitor_result["failure_count"] == failed_attempts
         # assert monitor_result["account_locked"] is True
 
@@ -559,9 +559,9 @@ class TestSupabaseSecurityAudit:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # compliance_check = await security.run_security_compliance_check()
-        # 
+        #
         # assert compliance_check["rls_enabled"] is True
         # assert compliance_check["encryption_enabled"] is True
         # assert compliance_check["audit_logging_enabled"] is True
@@ -579,9 +579,9 @@ class TestSupabaseSecurityAudit:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # vulnerability_report = await security.run_vulnerability_assessment()
-        # 
+        #
         # assert "sql_injection_risk" in vulnerability_report
         # assert "authentication_security" in vulnerability_report
         # assert "data_encryption_status" in vulnerability_report
@@ -603,9 +603,9 @@ class TestSupabaseSecurityConfiguration:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # env_security = await security.validate_environment_security()
-        # 
+        #
         # assert env_security["supabase_url_set"] is True
         # assert env_security["supabase_key_set"] is True
         # assert env_security["secrets_exposed"] is False
@@ -625,9 +625,9 @@ class TestSupabaseSecurityConfiguration:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # prod_settings = await security.apply_production_security_settings(environment)
-        # 
+        #
         # assert prod_settings["https_only"] is True
         # assert prod_settings["debug_mode"] is False
         # assert prod_settings["detailed_errors"] is False
@@ -646,9 +646,9 @@ class TestSupabaseSecurityConfiguration:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # headers_config = await security.configure_security_headers()
-        # 
+        #
         # assert "X-Content-Type-Options" in headers_config
         # assert "X-Frame-Options" in headers_config
         # assert "X-XSS-Protection" in headers_config
@@ -671,9 +671,10 @@ class TestSupabaseSecurityConfiguration:
 
         # 実装后に期待される動作
         # security = SupabaseSecurity(mock_client)
-        # 
+        #
         # backup_security = await security.validate_backup_security(backup_location)
-        # 
+        #
         # assert backup_security["encrypted"] is True
         # assert backup_security["access_controlled"] is True
         # assert backup_security["integrity_verified"] is True
+
