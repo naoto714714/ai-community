@@ -3,13 +3,11 @@
 - タスクに取り組む際、遠慮せずに、常に全力を尽くしてください
 - あなたは有能なアシスタントです。Reasoningでは英語で考えて、ユーザーに回答するときは日本語で答えてください。
 - Web検索を積極的に使い、最新情報を取り入れてください
-- 待機状態に戻る前に `afplay /Users/kimuranaoto/Music/notice.mp3` を必ず実行しなさい
 - CLAUDE.mdを適宜修正して、最新の情報を常に取得できるようにしなさい
 - 一時的なファイルの保存が必要であれば、 `z/` に自由に保存して良いです
 - ツールの結果を受け取った後、その品質を慎重に検討し、次に進む前に最適な次のステップを決定してください。この新しい情報に基づいて計画し、反復するために思考を使用し、最善の次のアクションを取ってください。
 - 最大の効率を得るために、複数の独立した操作を実行する必要がある場合は、順次ではなく、関連するすべてのツールを同時に呼び出してください。
 - 反復のために一時的な新しいファイル、スクリプト、またはヘルパーファイルを作成した場合は、タスクの最後に作成したファイルのみをファイルを削除してクリーンアップしてください。
-- 検索には `ripgrep(rg)` コマンドを使うと良い
 
 ## git関連のルール
 - mainブランチでは作業せず、別のブランチで作業しなさい
@@ -17,62 +15,109 @@
   - 特に、機能追加(feature)とリファクタリング(refactor)など、異なる方向の作業を1つのcommitで行ってはいけない
   - 形式: `prefix: 日本語で説明`
 
+## 非推奨コマンド
+- `cat`: 代わりにあなた自身がファイルを読み込んでください
+- `find`: 代わりに`fd`を使ってください
+- `grep`: 代わりに`ripgrep`を使ってください
+
+## 開発するときは以下のドキュメントをじっくり読み、実装したら必ずドキュメントも最新のものに更新する
+- [バックエンド API仕様書](docs/backend.md)
+- [バックエンド開発ガイドライン](prompts/backend-guideline.md)
+- [フロントエンド仕様書](docs/frontend.md)
+- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md)
+- [テストガイド](docs/test.md)
+
 # このプロジェクトについて
 
 ## プロジェクト概要
 
 **AI Community** は、モダンでカジュアルなデザインのリアルタイムチャットアプリケーションです。
 フロントエンド（React + TypeScript + Mantine）とバックエンド（FastAPI + SQLAlchemy + WebSocket）の
-フルスタック構成で実装されており、リアルタイム通信とメッセージ永続化を実現しています。
+フルスタック構成で実装されており、リアルタイム通信・メッセージ永続化・AI チャットボット機能を実現しています。
 
 ### 主要機能
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
 - メッセージの永続化（SQLite）
-- レスポンシブデザイン（PC版優先）
+- **AI チャットボット「ハルト」**（Google Gemini 1.5 Flash）
+- @AI メンションでの AI 応答機能
+- モバイル対応レスポンシブデザイン
 - ダークモード対応
 
 ### 技術スタック
-- **Frontend**: React 18.x + TypeScript 5.x + Mantine 7.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite
+- **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
+- **Backend**: FastAPI + SQLAlchemy + WebSocket + SQLite + Google Gemini AI
+- **AI**: Google Gemini 1.5 Flash モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs
-- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright
+- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright + Vitest
 
 ## プロジェクト構成
 
-```
+```text
 ai-community/
 ├── docs/                      # ドキュメント
-│   ├── chat-app-spec.md      # フロントエンド仕様書
-│   ├── backend-implementation-guide.md  # バックエンド実装手順書
-│   ├── simple-backend-spec.md           # バックエンド仕様書
-│   ├── frontend-guideline.md           # フロントエンド開発ガイドライン
-│   └── backend-guideline.md            # バックエンド開発ガイドライン
+│   ├── backend.md            # バックエンド仕様書・API リファレンス
+│   ├── frontend.md           # フロントエンド開発ガイド
+│   ├── test.md               # テストガイド
+│   └── contributing.md       # コントリビューションガイド
+├── prompts/                   # プロンプトテンプレート・開発ガイドライン
+│   ├── 001_ハルト.md         # AI人格プロンプト
+│   ├── backend-guideline.md  # バックエンド開発ガイドライン
+│   ├── frontend-guideline.md # フロントエンド開発ガイドライン
+│   ├── code_review_guide.md  # コードレビューガイド
+│   └── reviewer_personality.md # レビュー人格設定
 ├── src/
-│   ├── backend/              # バックエンド（FastAPI + SQLite）
+│   ├── backend/              # バックエンド（FastAPI + SQLite + AI）
 │   │   ├── main.py          # FastAPIアプリケーション
-│   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── database.py      # データベース設定
+│   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── schemas.py       # Pydanticスキーマ
-│   │   ├── websocket.py     # WebSocket処理
 │   │   ├── crud.py          # データベース操作
-│   │   └── chat.db          # SQLiteデータベース
-│   └── frontend/            # フロントエンド（React + Mantine）
-│       ├── src/
-│       │   ├── components/  # Reactコンポーネント
-│       │   ├── types/       # TypeScript型定義
-│       │   └── data/        # 初期データ
-│       └── package.json     # NPM設定
-├── tests/                   # テスト（Python）
-├── prompts/                 # プロンプトテンプレート
-├── z/                       # 一時ファイル
+│   │   ├── chat.db          # SQLiteデータベース
+│   │   ├── ai/              # AI機能
+│   │   │   ├── gemini_client.py      # Gemini API クライアント
+│   │   │   └── message_handlers.py   # AI応答処理
+│   │   ├── websocket/       # WebSocket処理
+│   │   │   ├── handler.py   # WebSocketハンドラー
+│   │   │   ├── manager.py   # 接続管理
+│   │   │   └── types.py     # WebSocket型定義
+│   │   └── utils/           # ユーティリティ
+│   │       └── session_manager.py # セッション管理
+│   ├── frontend/            # フロントエンド（React + Mantine）
+│   │   ├── src/
+│   │   │   ├── App.tsx      # メインアプリケーション
+│   │   │   ├── main.tsx     # エントリーポイント
+│   │   │   ├── index.css    # グローバルスタイル
+│   │   │   ├── components/  # Reactコンポーネント
+│   │   │   │   ├── Layout.tsx       # アプリケーションレイアウト
+│   │   │   │   ├── ChannelList.tsx  # チャンネル一覧
+│   │   │   │   ├── ChatArea.tsx     # チャット画面
+│   │   │   │   ├── MessageList.tsx  # メッセージ一覧
+│   │   │   │   ├── MessageItem.tsx  # メッセージ表示
+│   │   │   │   └── MessageInput.tsx # メッセージ入力
+│   │   │   ├── types/       # TypeScript型定義
+│   │   │   │   └── chat.ts  # Message, Channel型
+│   │   │   └── data/        # 初期データ
+│   │   │       └── channels.ts # 初期チャンネルデータ
+│   │   ├── package.json     # フロントエンドNPM設定
+│   │   ├── vite.config.ts   # Vite設定
+│   │   └── tsconfig.json    # TypeScript設定
+│   └── shared/              # 共有モジュール（空）
+├── tests/                   # テスト
+│   ├── backend/             # バックエンドテスト
+│   │   ├── test_models.py   # モデルテスト
+│   │   ├── test_api.py      # REST APIテスト
+│   │   └── test_websocket.py # WebSocket + AI機能テスト
+│   └── frontend/            # フロントエンドテスト
+│       ├── components.test.tsx # コンポーネントテスト
+│       └── integration.test.tsx # 統合テスト
+├── z/                       # 一時ファイル・作業用
 ├── CLAUDE.md                # AI開発ガイドライン（このファイル）
 ├── README.md                # プロジェクトREADME
-├── .gitignore              # Git除外設定
-├── .pre-commit-config.yaml # pre-commit設定
-├── pyproject.toml          # Python設定
-└── uv.lock                 # UV依存関系ロック
+├── package.json             # ルートNPM設定（並行実行用）
+├── pyproject.toml          # Python設定・依存関係
+└── uv.lock                 # UV依存関係ロック
 ```
 
 ## 起動方法
@@ -82,36 +127,54 @@ ai-community/
 - Python 3.13以上
 - npm
 - uv (Python package manager)
+- Google Gemini API キー（AI機能使用時）
 
-### 2. バックエンド起動
+### 2. 🎯 一発起動（推奨）
+
 ```bash
-# バックエンドディレクトリに移動
-cd src/backend
-
-# 依存関係インストール（初回のみ）
-uv sync
-
-# 開発サーバー起動
-uv run python main.py
-```
-
-バックエンドAPI: `http://localhost:8000`
-
-### 3. フロントエンド起動（別ターミナル）
-```bash
-# フロントエンドディレクトリに移動
-cd src/frontend
-
-# 依存関係インストール（初回のみ）
+# ルートディレクトリで
 npm install
-
-# 開発サーバー起動
 npm run dev
 ```
 
-フロントエンド: `http://localhost:5173`
+これでフロントエンドとバックエンドが同時に起動します！
+（バックエンドの依存関係は自動で`uv sync`が実行されます）
 
-### 4. その他のコマンド
+- **フロントエンド**: `http://localhost:5173`
+- **バックエンド**: `http://localhost:8000`
+
+### 3. 個別起動（従来の方法）
+
+#### バックエンドのみ
+```bash
+npm run backend:only
+# または
+cd src/backend
+uv sync
+uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+```
+
+#### フロントエンドのみ
+```bash
+npm run frontend:only
+# または
+cd src/frontend
+npm install
+npm run dev
+```
+
+### 4. AI機能の設定（オプション）
+
+Google Gemini AIを使用する場合は、環境変数を設定してください：
+
+```bash
+# 環境変数設定（.env ファイルまたは直接設定）
+export GEMINI_API_KEY="あなたのGemini APIキー"
+```
+
+AI機能なしでも基本的なチャット機能は利用できます。
+
+### 5. その他のコマンド
 
 #### フロントエンド
 ```bash
@@ -148,6 +211,10 @@ uv run --frozen pyright          # 型チェック
 - [x] REST API実装（チャンネル一覧、メッセージ履歴）
 - [x] WebSocket通信実装
 - [x] メッセージ永続化機能
+- [x] **Google Gemini AI統合**
+- [x] **AI チャットボット「ハルト」実装**
+- [x] **@AI メンション機能**
+- [x] 接続管理・セッション管理強化
 - [x] フロントエンドとの連携
 - [x] 総合テスト
 
@@ -157,14 +224,3 @@ uv run --frozen pyright          # 型チェック
 - [ ] ファイルアップロード機能
 - [ ] 絵文字リアクション機能
 - [x] スマートフォン対応（モバイルレスポンシブ対応済み）
-
-## デザイン仕様
-
-- **レイアウト**: 左サイドバー（280px）+ メインエリア
-- **カラーテーマ**: ダークモード対応（Mantineデフォルト）
-- **アクセントカラー**: blue/violet系
-- **フォント**: システムフォント（-apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans JP'）
-- **最小幅**: 1024px（PC版優先）
-
-- Frontend開発ガイドライン: @docs/frontend-guideline.md
-- Backend開発ガイドライン: @docs/backend-guideline.md

@@ -1,26 +1,28 @@
 # AI Community
 
-モダンでカジュアルなデザインのリアルタイムチャットアプリケーション。フロントエンド（React）とバックエンド（FastAPI）のフルスタック構成で実装されています。
+**AI チャットボット「ハルト」搭載**のモダンなリアルタイムチャットアプリケーション。フロントエンド（React）とバックエンド（FastAPI）のフルスタック構成で実装されています。
 
 ## 📋 プロジェクト概要
 
 このプロジェクトは、React + TypeScript + Mantineを使用したフロントエンドと、FastAPI + SQLAlchemy + WebSocketを使用したバックエンドで構成されるチャットアプリケーションです。
-リアルタイム通信とメッセージの永続化を実現しています。
+リアルタイム通信・メッセージの永続化・AI チャットボット機能を実現しています。
 
 ### 主要機能
 
 - 複数チャンネルでのチャット機能
 - リアルタイムメッセージ送受信（WebSocket）
 - メッセージの永続化（SQLite）
-- レスポンシブデザイン（PC版優先）
+- **🤖 AI チャットボット「ハルト」**（Google Gemini 1.5 Flash）
+- **@AI メンションでの AI 応答機能**
+- モバイル対応レスポンシブデザイン
 - ダークモード対応
 
 ## 🛠 技術スタック
 
 ### フロントエンド
-- **React**: 18.x
+- **React**: 19.x
 - **TypeScript**: 5.x
-- **Mantine**: 7.x（UIコンポーネントライブラリ）
+- **Mantine**: 8.x（UIコンポーネントライブラリ）
 - **Mantine Hooks**: カスタムフック集
 - **Tabler Icons**: アイコンライブラリ
 - **Vite**: ビルドツール
@@ -32,47 +34,17 @@
 - **SQLite**: データベース
 - **WebSocket**: リアルタイム通信
 - **Pydantic**: データバリデーション
+- **Google Gemini AI**: AI チャットボット
 - **Python**: 3.13
 
 ### 開発環境
 - **ESLint**: コード品質管理（フロントエンド）
 - **Prettier**: コードフォーマット
+- **Vitest**: テストフレームワーク（フロントエンド）
 - **Ruff**: リンター・フォーマッター（バックエンド）
 - **Pyright**: 型チェッカー（バックエンド）
 - **pre-commit**: Gitフック管理
 - **uv**: Pythonパッケージマネージャー
-
-## 📁 プロジェクト構成
-
-```
-ai-community/
-├── docs/                      # ドキュメント
-│   ├── chat-app-spec.md      # フロントエンド仕様書
-│   ├── backend-implementation-guide.md  # バックエンド実装手順書
-│   ├── simple-backend-spec.md           # バックエンド仕様書
-│   ├── frontend-guideline.md           # フロントエンド開発ガイドライン
-│   └── backend-guideline.md            # バックエンド開発ガイドライン
-├── src/
-│   ├── backend/              # バックエンド（FastAPI + SQLite）
-│   │   ├── main.py          # FastAPIアプリケーション
-│   │   ├── models.py        # SQLAlchemyモデル
-│   │   ├── database.py      # データベース設定
-│   │   ├── schemas.py       # Pydanticスキーマ
-│   │   ├── websocket.py     # WebSocket処理
-│   │   ├── crud.py          # データベース操作
-│   │   └── chat.db          # SQLiteデータベース
-│   └── frontend/            # フロントエンド（React + Mantine）
-│       ├── src/
-│       │   ├── components/  # Reactコンポーネント
-│       │   ├── types/       # TypeScript型定義
-│       │   └── data/        # 初期データ
-│       └── package.json     # NPM設定
-├── CLAUDE.md                # AI開発ガイドライン
-├── .gitignore              # Git除外設定
-├── .pre-commit-config.yaml # pre-commit設定
-├── pyproject.toml          # Python設定
-└── README.md               # このファイル
-```
 
 ## 🚀 セットアップ・起動方法
 
@@ -82,6 +54,7 @@ ai-community/
 - Python 3.13以上
 - npm
 - uv (Python package manager)
+- Google Gemini API キー（AI機能使用時、オプション）
 
 ### 2. 🎯 一発起動（推奨）
 
@@ -148,7 +121,15 @@ uv run --frozen pyright          # 型チェック
 2. ブラウザで `http://localhost:5173` にアクセス
 3. 左側のチャンネル一覧から好きなチャンネルを選択
 4. メッセージを入力（**Shift+Enter**で送信、**Enter**で改行）
-5. メッセージはSQLiteデータベースに永続化されます
+5. **🤖 AI機能**: メッセージに「@AI」を含めると、ハルトが応答します
+6. メッセージはSQLiteデータベースに永続化されます
+
+### AI機能の使用例
+```text
+@AI こんにちは！
+@AI プログラミングで困ってます
+@AI 今日の天気はどう？
+```
 
 ## ✨ 実装済み機能
 
@@ -163,6 +144,10 @@ uv run --frozen pyright          # 型チェック
 - [x] REST API（チャンネル一覧、メッセージ履歴）
 - [x] WebSocketによるリアルタイム通信
 - [x] SQLiteデータベースによるメッセージ永続化
+- [x] **Google Gemini AI統合**
+- [x] **AI チャットボット「ハルト」**
+- [x] **@AI メンション機能**
+- [x] 堅牢な接続管理システム
 - [x] チャンネル別メッセージ管理
 - [x] CORS対応
 
@@ -172,16 +157,5 @@ uv run --frozen pyright          # 型チェック
 - [ ] メッセージ検索機能
 - [ ] ファイルアップロード機能
 - [ ] 絵文字リアクション機能
-- [ ] スマートフォン対応
-
-## 📝 ドキュメント
-
-- [フロントエンド仕様書](docs/chat-app-spec.md)
-- [バックエンド実装手順書](docs/backend-implementation-guide.md)
-- [バックエンド仕様書](docs/simple-backend-spec.md)
-- [フロントエンド開発ガイドライン](docs/frontend-guideline.md)
-- [バックエンド開発ガイドライン](docs/backend-guideline.md)
-
-## 🔧 開発について
-
-詳細な開発ガイドラインは [CLAUDE.md](CLAUDE.md) を参照してください。
+- [ ] AI応答のカスタマイズ機能
+- [ ] プッシュ通知機能
