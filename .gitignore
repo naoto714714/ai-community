@@ -2,11 +2,13 @@
 z/*
 !z/.gitkeep
 
-# バックエンド関連
-/src/backend/chat.db
-/tests/chat.db
-src/backend/*.sqlite
-src/backend/*.sqlite3
+# データベースファイル - 意図しない場所での作成を防ぐ
+# 正しい場所のデータベースファイルは除外しない
+chat.db
+*.sqlite
+*.sqlite3
+# 正しい場所は例外として追加
+!src/backend/chat.db
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
