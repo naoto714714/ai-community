@@ -2,13 +2,11 @@
 Supabase AI Integration Tests (TDD)
 
 This module contains comprehensive tests for AI functionality integration with Supabase
-following Test-Driven Development approach. These tests ensure that AI features 
+following Test-Driven Development approach. These tests ensure that AI features
 (Gemini 2.5 Flash) work seamlessly with Supabase database operations.
 """
 
-import json
 from datetime import UTC, datetime
-from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
@@ -31,7 +29,7 @@ class TestSupabaseAIMessageProcessing:
             "user_name": "テストユーザー",
             "content": "@AI 今日の天気はどうですか？",
             "timestamp": datetime.now(UTC).isoformat(),
-            "is_own_message": False
+            "is_own_message": False,
         }
 
         # Act & Assert
@@ -40,9 +38,9 @@ class TestSupabaseAIMessageProcessing:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # mention_detected = await ai_integration.detect_ai_mention(ai_message_with_mention)
-        # 
+        #
         # assert mention_detected["has_mention"] is True
         # assert mention_detected["mention_type"] == "@AI"
         # assert mention_detected["query"] == "今日の天気はどうですか？"
@@ -58,7 +56,7 @@ class TestSupabaseAIMessageProcessing:
         user_query = "Supabaseの利点を教えてください"  # noqa: F841
         context_messages = [  # noqa: F841
             {"content": "データベースについて話そう", "user_name": "ユーザーA"},
-            {"content": "PostgreSQLがいいかな", "user_name": "ユーザーB"}
+            {"content": "PostgreSQLがいいかな", "user_name": "ユーザーB"},
         ]
 
         # Act & Assert
@@ -67,9 +65,9 @@ class TestSupabaseAIMessageProcessing:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # ai_response = await ai_integration.generate_ai_response(user_query, context_messages)
-        # 
+        #
         # assert ai_response["response_text"] is not None
         # assert len(ai_response["response_text"]) > 0
         # assert ai_response["generation_time"] < 5.0  # 5秒以内
@@ -85,14 +83,14 @@ class TestSupabaseAIMessageProcessing:
         # Arrange
         ai_response_data = {  # noqa: F841
             "id": "ai_response_001",
-            "channel_id": "test_channel_001", 
+            "channel_id": "test_channel_001",
             "user_id": "ai_system",
             "user_name": "ハルト",
             "content": "Supabaseはリアルタイム機能を持つBaaSです。",
             "timestamp": datetime.now(UTC).isoformat(),
             "is_own_message": False,
             "is_ai_response": True,
-            "response_to_message_id": "user_message_001"
+            "response_to_message_id": "user_message_001",
         }
 
         # Act & Assert
@@ -101,9 +99,9 @@ class TestSupabaseAIMessageProcessing:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # stored_response = await ai_integration.store_ai_response(ai_response_data)
-        # 
+        #
         # assert stored_response["id"] == ai_response_data["id"]
         # assert stored_response["is_ai_response"] is True
         # assert stored_response["user_name"] == "ハルト"
@@ -126,9 +124,9 @@ class TestSupabaseAIMessageProcessing:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # context_messages = await ai_integration.get_conversation_context(channel_id, context_limit)
-        # 
+        #
         # assert isinstance(context_messages, list)
         # assert len(context_messages) <= context_limit
         # if context_messages:
@@ -154,8 +152,8 @@ class TestSupabaseAIRealtimeIntegration:
                 "id": "realtime_trigger_001",
                 "channel_id": "realtime_channel",
                 "content": "@AI プログラミングのコツは？",
-                "user_name": "リアルタイムユーザー"
-            }
+                "user_name": "リアルタイムユーザー",
+            },
         }
 
         # Act & Assert
@@ -164,9 +162,9 @@ class TestSupabaseAIRealtimeIntegration:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # trigger_result = await ai_integration.handle_realtime_ai_trigger(incoming_message)
-        # 
+        #
         # assert trigger_result["ai_triggered"] is True
         # assert trigger_result["processing_started"] is True
         # assert trigger_result["response_queued"] is True
@@ -184,7 +182,7 @@ class TestSupabaseAIRealtimeIntegration:
             "channel_id": "broadcast_channel",
             "user_name": "ハルト",
             "content": "プログラミングのコツは継続的な学習です。",
-            "is_ai_response": True
+            "is_ai_response": True,
         }
 
         # Act & Assert
@@ -193,9 +191,9 @@ class TestSupabaseAIRealtimeIntegration:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # broadcast_result = await ai_integration.broadcast_ai_response(ai_response)
-        # 
+        #
         # assert broadcast_result["broadcast_success"] is True
         # assert broadcast_result["channel_id"] == ai_response["channel_id"]
         # assert broadcast_result["message_delivered"] is True
@@ -211,7 +209,7 @@ class TestSupabaseAIRealtimeIntegration:
         ai_requests = [  # noqa: F841
             {"id": "queue_request_001", "query": "質問1", "priority": "normal"},
             {"id": "queue_request_002", "query": "質問2", "priority": "high"},
-            {"id": "queue_request_003", "query": "質問3", "priority": "normal"}
+            {"id": "queue_request_003", "query": "質問3", "priority": "normal"},
         ]
 
         # Act & Assert
@@ -220,12 +218,12 @@ class TestSupabaseAIRealtimeIntegration:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # for request in ai_requests:
         #     await ai_integration.queue_ai_request(request)
-        # 
+        #
         # queue_status = await ai_integration.get_processing_queue_status()
-        # 
+        #
         # assert queue_status["total_requests"] == len(ai_requests)
         # assert queue_status["high_priority_requests"] == 1
         # assert queue_status["processing_order"][0]["priority"] == "high"  # 高優先度が先頭
@@ -246,7 +244,7 @@ class TestSupabaseAIMessageHistory:
             {"user": "ユーザー", "content": "@AI TypeScriptについて教えて"},
             {"user": "ハルト", "content": "TypeScriptはJavaScriptの上位集合です", "is_ai": True},
             {"user": "ユーザー", "content": "具体的な利点は？"},
-            {"user": "ハルト", "content": "型安全性とIDEサポートが主な利点です", "is_ai": True}
+            {"user": "ハルト", "content": "型安全性とIDEサポートが主な利点です", "is_ai": True},
         ]
 
         # Act & Assert
@@ -255,9 +253,9 @@ class TestSupabaseAIMessageHistory:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # tracked_conversation = await ai_integration.track_ai_conversation(conversation_thread)
-        # 
+        #
         # assert tracked_conversation["conversation_id"] is not None
         # assert tracked_conversation["total_exchanges"] == 2
         # assert tracked_conversation["ai_responses"] == 2
@@ -276,7 +274,7 @@ class TestSupabaseAIMessageHistory:
             "generation_time": 2.3,
             "response_length": 150,
             "user_feedback": "helpful",
-            "context_relevance": 0.85
+            "context_relevance": 0.85,
         }
 
         # Act & Assert
@@ -285,9 +283,9 @@ class TestSupabaseAIMessageHistory:
 
         # 实装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # quality_tracking = await ai_integration.track_response_quality(ai_response_metrics)
-        # 
+        #
         # assert quality_tracking["metrics_stored"] is True
         # assert quality_tracking["quality_score"] >= 0.8
         # assert quality_tracking["performance_category"] == "good"
@@ -305,7 +303,7 @@ class TestSupabaseAIMessageHistory:
             "ai_response": "Reactは仮想DOM、Vueはリアクティブシステムです",
             "user_satisfaction": "satisfied",
             "topic_category": "frontend_frameworks",
-            "complexity_level": "intermediate"
+            "complexity_level": "intermediate",
         }
 
         # Act & Assert
@@ -314,9 +312,9 @@ class TestSupabaseAIMessageHistory:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # collection_result = await ai_integration.collect_learning_data(learning_data)
-        # 
+        #
         # assert collection_result["data_collected"] is True
         # assert collection_result["anonymized"] is True
         # assert collection_result["category"] == learning_data["topic_category"]
@@ -342,9 +340,9 @@ class TestSupabaseAIErrorHandling:
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
         # mock_ai_client.generate_content.side_effect = Exception(error_message)
-        # 
+        #
         # error_response = await ai_integration.handle_ai_error("テスト質問")
-        # 
+        #
         # assert error_response["error_handled"] is True
         # assert error_response["fallback_response"] is not None
         # assert "申し訳ございません" in error_response["fallback_response"]
@@ -365,12 +363,12 @@ class TestSupabaseAIErrorHandling:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # with patch('asyncio.wait_for') as mock_wait:
         #     mock_wait.side_effect = asyncio.TimeoutError()
-        #     
+        #
         #     timeout_response = await ai_integration.handle_ai_timeout("長い質問")
-        #     
+        #
         #     assert timeout_response["timeout_handled"] is True
         #     assert timeout_response["response"] == "処理時間が長くなっています。少々お待ちください。"
 
@@ -391,12 +389,12 @@ class TestSupabaseAIErrorHandling:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # # 不適切なコンテンツのテスト
         # inappropriate_result = await ai_integration.filter_content(inappropriate_query)
         # assert inappropriate_result["is_safe"] is False
         # assert inappropriate_result["filtered"] is True
-        # 
+        #
         # # 安全なコンテンツのテスト
         # safe_result = await ai_integration.filter_content(safe_query)
         # assert safe_result["is_safe"] is True
@@ -423,12 +421,12 @@ class TestSupabaseAIPerformance:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # import time
         # start_time = time.time()
         # response = await ai_integration.generate_optimized_response(test_query)
         # end_time = time.time()
-        # 
+        #
         # response_time = end_time - start_time
         # assert response_time < max_response_time
         # assert response["optimization_applied"] is True
@@ -449,11 +447,11 @@ class TestSupabaseAIPerformance:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # # 初回リクエスト
         # first_response = await ai_integration.get_cached_response(repeated_query)
         # assert first_response["from_cache"] is False
-        # 
+        #
         # # 2回目リクエスト（キャッシュ使用）
         # second_response = await ai_integration.get_cached_response(repeated_query)
         # assert second_response["from_cache"] is True
@@ -469,8 +467,8 @@ class TestSupabaseAIPerformance:
         # Arrange
         concurrent_queries = [  # noqa: F841
             "質問1: JavaScriptとは？",
-            "質問2: Pythonとは？", 
-            "質問3: SQLとは？"
+            "質問2: Pythonとは？",
+            "質問3: SQLとは？",
         ]
 
         # Act & Assert
@@ -479,16 +477,16 @@ class TestSupabaseAIPerformance:
 
         # 実装后に期待される動作
         # import asyncio
-        # 
+        #
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # start_time = time.time()
         # results = await asyncio.gather(*[
-        #     ai_integration.process_concurrent_request(query) 
+        #     ai_integration.process_concurrent_request(query)
         #     for query in concurrent_queries
         # ])
         # end_time = time.time()
-        # 
+        #
         # assert len(results) == len(concurrent_queries)
         # assert all(result["success"] for result in results)
         # assert (end_time - start_time) < 15.0  # 並行処理により短縮
@@ -511,7 +509,7 @@ class TestSupabaseAIDataMigration:
                 "content": "こんにちは！何かお手伝いできることはありますか？",
                 "user_name": "ハルト",
                 "is_ai_response": True,
-                "response_to_message_id": "user_msg_001"
+                "response_to_message_id": "user_msg_001",
             }
         ]
 
@@ -521,9 +519,9 @@ class TestSupabaseAIDataMigration:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # migration_result = await ai_integration.migrate_ai_messages(sqlite_ai_messages)
-        # 
+        #
         # assert migration_result["migrated_count"] == len(sqlite_ai_messages)
         # assert migration_result["ai_metadata_preserved"] is True
         # assert migration_result["relationships_maintained"] is True
@@ -538,7 +536,7 @@ class TestSupabaseAIDataMigration:
         # Arrange
         conversation_history = [  # noqa: F841
             {"id": "conv_001", "thread_id": "thread_001", "participants": ["user_001", "ai_system"]},
-            {"id": "conv_002", "thread_id": "thread_001", "participants": ["user_001", "ai_system"]}
+            {"id": "conv_002", "thread_id": "thread_001", "participants": ["user_001", "ai_system"]},
         ]
 
         # Act & Assert
@@ -547,9 +545,9 @@ class TestSupabaseAIDataMigration:
 
         # 実装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # history_migration = await ai_integration.migrate_conversation_history(conversation_history)
-        # 
+        #
         # assert history_migration["conversations_migrated"] == len(conversation_history)
         # assert history_migration["thread_relationships_preserved"] is True
 
@@ -566,7 +564,7 @@ class TestSupabaseAIDataMigration:
             "temperature": 0.7,
             "max_tokens": 1000,
             "context_window": 10,
-            "response_language": "ja"
+            "response_language": "ja",
         }
 
         # Act & Assert
@@ -575,9 +573,9 @@ class TestSupabaseAIDataMigration:
 
         # 实装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # config_migration = await ai_integration.migrate_ai_configuration(ai_config)
-        # 
+        #
         # assert config_migration["config_migrated"] is True
         # assert config_migration["settings_validated"] is True
         # assert config_migration["model_compatibility_checked"] is True
@@ -596,11 +594,7 @@ class TestSupabaseAIIntegrationCompatibility:
         # Arrange
         websocket_ai_message = {  # noqa: F841
             "type": "ai:response",
-            "data": {
-                "response": "WebSocket経由のAI応答",
-                "user_name": "ハルト",
-                "channel_id": "websocket_channel"
-            }
+            "data": {"response": "WebSocket経由のAI応答", "user_name": "ハルト", "channel_id": "websocket_channel"},
         }
 
         # Act & Assert
@@ -609,9 +603,9 @@ class TestSupabaseAIIntegrationCompatibility:
 
         # 实装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # compatibility_result = await ai_integration.handle_websocket_ai_compatibility(websocket_ai_message)
-        # 
+        #
         # assert compatibility_result["websocket_compatible"] is True
         # assert compatibility_result["supabase_stored"] is True
         # assert compatibility_result["realtime_broadcasted"] is True
@@ -627,7 +621,7 @@ class TestSupabaseAIIntegrationCompatibility:
         api_request = {  # noqa: F841
             "query": "API経由での質問",
             "channel_id": "api_channel",
-            "user_id": "api_user"
+            "user_id": "api_user",
         }
 
         # Act & Assert
@@ -636,9 +630,9 @@ class TestSupabaseAIIntegrationCompatibility:
 
         # 实装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # api_integration = await ai_integration.integrate_with_fastapi_endpoint(api_request)
-        # 
+        #
         # assert api_integration["endpoint_compatible"] is True
         # assert api_integration["response_format_maintained"] is True
         # assert api_integration["supabase_integration_active"] is True
@@ -656,9 +650,9 @@ class TestSupabaseAIIntegrationCompatibility:
 
         # 实装后に期待される動作
         # ai_integration = SupabaseAIIntegration(mock_supabase_client, mock_ai_client)
-        # 
+        #
         # health_status = await ai_integration.check_ai_system_health()
-        # 
+        #
         # assert health_status["ai_api_status"] == "healthy"
         # assert health_status["supabase_connection"] == "healthy"
         # assert health_status["realtime_integration"] == "healthy"
