@@ -22,7 +22,7 @@ class GeminiAPIClient:
             logger.error("GEMINI_API_KEY環境変数が設定されていません")
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
-        logger.info(f"GEMINI_API_KEY確認済み (末尾: ...{self.api_key[-4:]})")
+        logger.info("GEMINI_API_KEY確認済み")
         genai.configure(api_key=self.api_key)  # type: ignore
         self.model = genai.GenerativeModel("gemini-1.5-flash")  # type: ignore
         logger.info("Gemini 1.5 Flashモデル初期化完了")
