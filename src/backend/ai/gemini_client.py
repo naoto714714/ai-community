@@ -72,9 +72,6 @@ class GeminiAPIClient:
 ユーザーとの会話を楽しみ、役に立つ情報を提供します。
 """
         logger.info("フォールバックプロンプトを設定")
-        return
-
-        # 空の処理（上記で設定済み）
 
     def _select_random_personality(self) -> AIPersonality:
         """ランダムに人格を選択し、フォールバックを管理."""
