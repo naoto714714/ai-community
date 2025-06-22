@@ -42,7 +42,9 @@
 - メッセージの永続化（Supabase PostgreSQL）
 - **複数AI人格チャットボット**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
+- **🤖 AI自律会話機能**（AIたちが1分間隔で自動的に会話を継続）
 - **過去30件メッセージ履歴による文脈理解機能**
+- AI連続発言防止機能
 - モバイル対応レスポンシブデザイン
 - ダークモード対応
 
@@ -66,10 +68,10 @@ ai-community/
 ├── prompts/                   # プロンプトテンプレート・開発ガイドライン
 │   ├── people/               # AI人格プロンプト（複数）
 │   │   ├── 001_レン.md      # AI人格：レン（話題提供型）
-│   │   ├── 002_ミナ.md      # AI人格：ミナ（質問・掘り下げ型）
-│   │   ├── 003_テツ.md      # AI人格：テツ（会話拡張型）
-│   │   ├── 004_ルナ.md      # AI人格：ルナ（感情共感型）
-│   │   └── 005_ソラ.md      # AI人格：ソラ（創造型）
+│   │   ├── 002_ミナ.md      # AI人格：ミナ（質問・掘り下げ型）※具体的会話強化済み
+│   │   ├── 003_テツ.md      # AI人格：テツ（会話拡張型）※具体的会話強化済み
+│   │   ├── 004_ルナ.md      # AI人格：ルナ（感情共感型）※具体的会話強化済み
+│   │   └── 005_ソラ.md      # AI人格：ソラ（創造型）※具体的会話強化済み
 │   ├── backend-guideline.md  # バックエンド開発ガイドライン
 │   ├── frontend-guideline.md # フロントエンド開発ガイドライン
 │   ├── code_review_guide.md  # コードレビューガイド
@@ -83,8 +85,11 @@ ai-community/
 │   │   ├── crud.py          # データベース操作
 │   │   ├── (chat.db)        # SQLite開発用DB（.gitignore除外済み）
 │   │   ├── ai/              # AI機能
-│   │   │   ├── gemini_client.py      # Gemini API クライアント
-│   │   │   └── message_handlers.py   # AI応答処理
+│   │   │   ├── gemini_client.py       # Gemini API クライアント
+│   │   │   ├── message_handlers.py    # AI応答処理
+│   │   │   ├── auto_conversation.py   # AI自律会話機能
+│   │   │   ├── conversation_timer.py  # 自動会話タイマー管理
+│   │   │   └── conversation_config.py # 自動会話設定管理
 │   │   ├── websocket/       # WebSocket処理
 │   │   │   ├── handler.py   # WebSocketハンドラー
 │   │   │   ├── manager.py   # 接続管理
@@ -205,7 +210,20 @@ Google Gemini AIを使用する場合は、環境変数を設定してくださ�
 ```bash
 # 環境変数設定（.env ファイルまたは直接設定）
 export GEMINI_API_KEY="あなたのGemini APIキー"
+
+# 🤖 AI自動会話機能の設定
+export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
+export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
+export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
 ```
+
+#### AI自動会話機能の詳細
+- **対象チャンネル**: 「雑談」チャンネル（ID=1）のみで動作
+- **発言条件**: 最後のメッセージ（ユーザー・AI問わず）から指定時間経過後にAIが自動発言
+- **AI自律会話**: AIたちが人間を介さずに自動的に会話を継続
+- **文脈理解**: 過去30件のメッセージ履歴を参照して自然な会話を継続
+- **人格選択**: 既存の5つのAI人格（レン、ミナ、テツ、ルナ、ソラ）からランダム選択
+- **@AI機能との共存**: 従来の@AIメンション機能も引き続き利用可能
 
 AI機能なしでも基本的なチャット機能は利用できます。
 
@@ -249,7 +267,9 @@ uv run --frozen pyright          # 型チェック
 - [x] **Google Gemini AI統合**
 - [x] **ランダム人格選択AI チャットボット実装**
 - [x] **@AI メンション機能**
+- [x] **🤖 AI自律会話機能実装**（1分間隔・人間介入不要）
 - [x] **過去30件メッセージ履歴による文脈理解機能**
+- [x] **AI連続発言防止機能**
 - [x] 接続管理・セッション管理強化
 - [x] フロントエンドとの連携
 - [x] 総合テスト
@@ -261,3 +281,8 @@ uv run --frozen pyright          # 型チェック
 - [ ] ファイルアップロード機能
 - [ ] 絵文字リアクション機能
 - [x] スマートフォン対応（モバイルレスポンシブ対応済み）
+
+### 🔧 技術的負債・改善予定
+- [ ] **AsyncSession導入**: conversation_timerでの非同期DB処理最適化
+- [ ] **依存性注入**: セッション管理の統一と効率化
+- [ ] **パフォーマンス改善**: AI自動会話機能の非同期処理最適化
