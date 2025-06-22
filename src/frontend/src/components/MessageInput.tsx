@@ -9,6 +9,8 @@ interface MessageInputProps {
 export function MessageInput({ onSendMessage }: MessageInputProps) {
   const [message, setMessage] = useState('');
   const isComposingRef = useRef(false);
+  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+  const shortcutText = isMac ? '⌘+Enter' : 'Ctrl+Enter';
 
   const handleSend = () => {
     if (message.trim()) {
@@ -18,7 +20,8 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isComposingRef.current) {
+    const correctModifier = isMac ? e.metaKey : e.ctrlKey;
+    if (e.key === 'Enter' && correctModifier && !isComposingRef.current) {
       e.preventDefault();
       handleSend();
     }
@@ -35,7 +38,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   return (
     <Group gap='sm' style={{ padding: '1.5rem 1.5rem 3rem 1.5rem' }}>
       <Textarea
-        placeholder='メッセージを入力... (⌘+Enterで送信)'
+        placeholder={`メッセージを入力... (${shortcutText}で送信)`}
         value={message}
         onChange={(e) => setMessage(e.currentTarget.value)}
         onKeyDown={handleKeyPress}
