@@ -42,7 +42,7 @@
 - メッセージの永続化（Supabase PostgreSQL）
 - **複数AI人格チャットボット**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
-- **🤖 AI自動会話機能**（5分間隔でAIが自発的に会話を開始）
+- **🤖 AI自動会話機能**（1分間隔でAIが自発的に会話を開始）
 - **過去30件メッセージ履歴による文脈理解機能**
 - AI連続発言防止機能
 - モバイル対応レスポンシブデザイン
@@ -209,7 +209,7 @@ Google Gemini AIを使用する場合は、環境変数を設定してくださ�
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
 # 🤖 AI自動会話機能の設定
-export AI_CONVERSATION_INTERVAL_MINUTES=5    # 自動会話の間隔（分単位、デフォルト: 5分）
+export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
 export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
 ```
@@ -264,7 +264,7 @@ uv run --frozen pyright          # 型チェック
 - [x] **Google Gemini AI統合**
 - [x] **ランダム人格選択AI チャットボット実装**
 - [x] **@AI メンション機能**
-- [x] **🤖 AI自動会話機能実装**（5分間隔・設定可能）
+- [x] **🤖 AI自動会話機能実装**（1分間隔・設定可能）
 - [x] **過去30件メッセージ履歴による文脈理解機能**
 - [x] **AI連続発言防止機能**
 - [x] 接続管理・セッション管理強化
