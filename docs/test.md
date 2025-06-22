@@ -11,7 +11,7 @@ Google Gemini AI統合チャットアプリケーションの品質を確保し�
 - **品質 > 完璧性**: 重要機能の確実な動作を優先
 - **保守性 > 網羅性**: メンテナンスしやすいテストを重視
 - **段階的導入**: 必要最小限から始めて徐々に拡張
-- **AI機能対応**: Google Gemini統合によるチャットボット「ハルト」の応答品質とWebSocket通信の安定性を確保
+- **AI機能対応**: Google Gemini統合による複数AI人格チャットボットの応答品質とWebSocket通信の安定性を確保
 
 ### テストレベル
 
@@ -223,10 +223,10 @@ describe('MessageItem', () => {
     expect(screen.getByTestId('own-message')).toHaveClass('own-message-style');
   });
   
-  it('AI応答メッセージ（ハルト）が正しく表示される', () => {
-    const aiMessage = { content: "こんにちは！", userName: "ハルト" };
+  it('AI応答メッセージが正しく表示される', () => {
+    const aiMessage = { content: "こんにちは！", userName: "レン" };
     render(<MessageItem message={aiMessage} />);
-    expect(screen.getByText("ハルト")).toBeInTheDocument();
+    expect(screen.getByText("レン")).toBeInTheDocument();
     expect(screen.getByTestId('ai-message')).toBeInTheDocument();
   });
 });
@@ -285,9 +285,9 @@ describe('ChatApp Integration', () => {
     await userEvent.type(input, '@AI こんにちは');
     await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
     
-    // AI応答の表示を確認
+    // AI応答の表示を確認（いずれかのAI人格名が表示される）
     await waitFor(() => {
-      expect(screen.getByText(/ハルト/)).toBeInTheDocument();
+      expect(screen.getByText(/レン|ミナ|テツ|ルナ|ソラ/)).toBeInTheDocument();
     });
   });
 });

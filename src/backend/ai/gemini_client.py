@@ -11,11 +11,13 @@ from pathlib import Path
 try:
     # パッケージとして実行される場合
     from .. import crud
+    from .personality_manager import AIPersonality, get_personality_manager
 except ImportError:
     # 直接実行される場合
     import crud
-import google.generativeai as genai  # type: ignore
-from google.generativeai.types import GenerateContentResponse  # type: ignore
+    from ai.personality_manager import AIPersonality, get_personality_manager
+from google import genai  # type: ignore
+from google.genai import types  # type: ignore
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -27,8 +29,9 @@ class GeminiAPIClient:
     # フォールバックメッセージの一元管理
     FALLBACK_MESSAGE = "通信に失敗しました😅 もう一度試してみてください！"
 
-    # AI ID定数
-    AI_HARUTO_ID = "ai_haruto"
+    # フォールバック人格（システムメッセージ用）
+    FALLBACK_AI_NAME = "システム"
+    FALLBACK_AI_ID = "ai_system"
 
     def __init__(self) -> None:
         """初期化."""
@@ -39,14 +42,14 @@ class GeminiAPIClient:
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
         logger.info("GEMINI_API_KEY確認済み")
-        genai.configure(api_key=self.api_key)  # type: ignore
-        self.model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")  # type: ignore
-        logger.info("Gemini 2.5 Flash Preview 05-20モデル初期化完了")
-        self._system_prompt: str | None = None
-        self._load_system_prompt()
+        self.client = genai.Client(api_key=self.api_key)  # type: ignore
+        logger.info("Gemini 2.5 Flash Preview 05-20クライアント初期化完了")
+        self.personality_manager = get_personality_manager()
+        self._fallback_prompt: str | None = None
+        self._load_fallback_prompt()
 
-    def _load_system_prompt(self) -> None:
-        """システムプロンプトを読み込む."""
+    def _load_fallback_prompt(self) -> None:
+        """フォールバック用システムプロンプトを読み込む."""
         # 環境変数から基本パスを取得
         base_path = os.getenv("AI_COMMUNITY_BASE_PATH")
         if not base_path:
@@ -63,20 +66,32 @@ class GeminiAPIClient:
                 logger.error("プロジェクトルートが見つかりません")
                 raise FileNotFoundError("プロジェクトルートの特定に失敗しました")
 
-        prompt_path = Path(base_path) / "prompts" / "001_ハルト.md"
-
-        logger.info(f"プロンプトファイル読み込み試行: {prompt_path}")
-        try:
-            with open(prompt_path, encoding="utf-8") as f:
-                self._system_prompt = f.read()
-            logger.info(f"プロンプトファイル読み込み成功: 文字数={len(self._system_prompt)}")
-        except FileNotFoundError:
-            logger.warning(f"プロンプトファイルが見つかりません: {prompt_path}、デフォルトプロンプトを使用")
-            self._system_prompt = """
-あなたは「ハルト」という名前の明るく親しみやすい男性です。
-太陽のように温かく、人とのコミュニケーションを大切にする性格です。
-親しみやすく、フレンドリーな口調で話してください。
+        # フォールバック用のシンプルなプロンプトを設定
+        self._fallback_prompt = """
+あなたは親しみやすいAIアシスタントです。
+ユーザーとの会話を楽しみ、役に立つ情報を提供します。
 """
+        logger.info("フォールバックプロンプトを設定")
+
+    def _select_random_personality(self) -> AIPersonality:
+        """ランダムに人格を選択し、フォールバックを管理."""
+        try:
+            # ランダムに人格を選択
+            personality = self.personality_manager.get_random_personality()
+            if personality:
+                logger.debug(f"ランダム人格選択: {personality.name}")
+                return personality
+        except Exception as e:
+            logger.error(f"人格選択エラー: {str(e)}")
+
+        # フォールバック人格を返す
+        logger.warning("フォールバック人格を使用")
+        return AIPersonality(
+            file_name="fallback.md",
+            name=self.FALLBACK_AI_NAME,
+            prompt_content=self._fallback_prompt or "親しみやすいAIです。",
+            user_id=self.FALLBACK_AI_ID,
+        )
 
     def _format_conversation_history(self, messages: list) -> str:
         """過去の会話履歴をフォーマットする"""
@@ -88,11 +103,7 @@ class GeminiAPIClient:
             # user_typeを使ってAIかユーザーかを判定
             if hasattr(msg, "user_type") and msg.user_type == "ai":
                 # AIの場合は、どのAIかを明確にする
-                if msg.user_id == self.AI_HARUTO_ID:
-                    history_lines.append(f"[AI:ハルト]: {msg.content}")
-                else:
-                    # 他のAIの場合（将来対応）
-                    history_lines.append(f"[AI:{msg.user_name}]: {msg.content}")
+                history_lines.append(f"[AI:{msg.user_name}]: {msg.content}")
             else:
                 # ユーザーの場合
                 history_lines.append(f"[ユーザー:{msg.user_name}]: {msg.content}")
@@ -118,15 +129,9 @@ class GeminiAPIClient:
             logger.error(f"エラー詳細: {traceback.format_exc()}")
             return ""
 
-    def _build_prompt(self, user_message: str, conversation_history: str) -> str:
-        """プロンプトを構築する"""
-        if conversation_history:
-            return f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\n[ユーザー]: {user_message}\n[AI:ハルト]:"
-        return f"{self._system_prompt}\n\n[ユーザー]: {user_message}\n[AI:ハルト]:"
-
     async def generate_response(
         self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
-    ) -> str:
+    ) -> tuple[str, AIPersonality]:
         """
         ユーザーメッセージに対する応答を生成する.
 
@@ -137,9 +142,13 @@ class GeminiAPIClient:
             max_retries: 最大リトライ回数
 
         Returns:
-            AIの応答テキスト
+            tuple[AIの応答テキスト, 選択された人格]
         """
         logger.info(f"Gemini API応答生成開始: user_message='{user_message[:50]}...' max_retries={max_retries}")
+
+        # ランダムに人格を選択
+        personality = self._select_random_personality()
+        logger.info(f"選択された人格: {personality.name}")
 
         # 過去の会話履歴を取得
         conversation_history = ""
@@ -151,31 +160,29 @@ class GeminiAPIClient:
                 f"デバッグ: 会話履歴取得をスキップ - channel_id={channel_id}, db_session={db_session is not None}"
             )
 
-        # プロンプトを構築
-        prompt = self._build_prompt(user_message, conversation_history)
+        # 新しいAPIではsystem_instructionでプロンプト設定
+        logger.debug(f"選択された人格のプロンプト長: {len(personality.prompt_content)}")
         if conversation_history:
-            logger.debug("デバッグ: 会話履歴付きプロンプトを使用")
+            logger.debug(f"会話履歴長: {len(conversation_history)}")
+            # 会話履歴がある場合は文脈も含めてメッセージを構築
+            enhanced_message = f"{conversation_history}\n\n現在の質問: {user_message}"
         else:
-            logger.debug("デバッグ: 会話履歴なしプロンプトを使用")
-
-        # プロンプトの一部をログに出力（デバッグ用、本番では出力されない）
-        logger.debug(f"デバッグ: プロンプト長={len(prompt)}")
-        if len(prompt) > 2000:
-            logger.debug(f"デバッグ: プロンプト先頭1000文字: {prompt[:1000]}...")
-        else:
-            logger.debug(f"デバッグ: プロンプト全体: {prompt}")
+            enhanced_message = user_message
 
         for attempt in range(max_retries):
             try:
                 logger.info(f"Gemini API呼び出し試行 {attempt + 1}/{max_retries}")
                 # 非同期でGemini APIを呼び出し
                 loop = asyncio.get_event_loop()
-                response: GenerateContentResponse = await loop.run_in_executor(None, self._sync_generate, prompt)
+                response = await loop.run_in_executor(None, self._sync_generate, enhanced_message, personality)
 
-                if response.text:
-                    response_text = response.text.strip()
-                    logger.info(f"Gemini API応答成功: response_length={len(response_text)}")
-                    return response_text
+                if hasattr(response, "text") and response.text:  # type: ignore
+                    response_text = response.text.strip()  # type: ignore
+                    if response_text:  # 空でない文字列かチェック
+                        logger.info(
+                            f"Gemini API応答成功: response_length={len(response_text)}, personality={personality.name}"
+                        )
+                        return response_text, personality
 
                 logger.warning("Gemini APIから空の応答を受信")
                 raise Exception("Empty response from Gemini API")
@@ -192,7 +199,7 @@ class GeminiAPIClient:
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
                     logger.error("Gemini API: 全リトライ試行が失敗、フォールバック応答を返す")
-                    return self.FALLBACK_MESSAGE
+                    return self.FALLBACK_MESSAGE, personality
 
                 # 指数バックオフでリトライ
                 wait_time = 2**attempt
@@ -200,21 +207,34 @@ class GeminiAPIClient:
                 await asyncio.sleep(wait_time)
                 continue
 
-        return self.FALLBACK_MESSAGE
+        return self.FALLBACK_MESSAGE, personality
 
-    def _sync_generate(self, prompt: str) -> GenerateContentResponse:
+    def _sync_generate(self, user_message: str, personality: AIPersonality) -> object:
         """
         同期的にコンテンツを生成する（run_in_executor用）.
 
-        Gemini 2.5 Flash Preview 05-20用の基本設定でコンテンツを生成します。
-        """
-        # Gemini 2.5 Flash用の基本設定
-        generation_config = {
-            "temperature": 0.7,
-            "max_output_tokens": 1000,
-        }
+        新しいGoogle Genai APIを使用してコンテンツを生成します。
 
-        return self.model.generate_content(prompt, generation_config=generation_config)  # type: ignore
+        Args:
+            user_message: ユーザーメッセージ
+            personality: AI人格
+
+        Returns:
+            Gemini APIのレスポンスオブジェクト
+
+        Raises:
+            Exception: API呼び出しに失敗した場合（認証エラー、ネットワークエラーなど）
+        """
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash-preview-05-20",
+            contents=user_message,
+            config=types.GenerateContentConfig(  # type: ignore
+                system_instruction=personality.prompt_content,
+                temperature=0.9,
+                max_output_tokens=2000,
+            ),
+        )
+        return response
 
     def should_respond_to_message(self, message: str) -> bool:
         """

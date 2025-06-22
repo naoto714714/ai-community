@@ -25,13 +25,15 @@ def save_message_with_session_management(
         保存されたメッセージオブジェクト
     """
     try:
+        # パッケージとして実行される場合
         from ..database import SessionLocal
     except ImportError:
-        import logging
-
-        logger = logging.getLogger(__name__)
-        logger.warning("相対インポートに失敗、絶対インポートを試行")
-        from database import SessionLocal
+        try:
+            # 直接実行される場合
+            from src.backend.database import SessionLocal
+        except ImportError:
+            # 最後の手段として
+            from database import SessionLocal
 
     if db_session is not None:
         # 外部セッション使用時: トランザクション境界管理をauto_commitで制御
