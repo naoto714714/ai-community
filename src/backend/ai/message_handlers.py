@@ -165,7 +165,12 @@ async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
 
     # Discord webhook送信
     try:
-        from ..utils.discord_webhook import discord_sender
+        try:
+            # パッケージとして実行される場合
+            from ..utils.discord_webhook import discord_sender
+        except ImportError:
+            # 直接実行される場合
+            from utils.discord_webhook import discord_sender
 
         await discord_sender.send_ai_message(message_data.user_name, message_data.content)
     except Exception as e:
