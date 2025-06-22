@@ -54,13 +54,13 @@ def generate_ai_error_message_id(channel_id: str) -> str:
     return f"ai_error_{channel_id}_{uuid.uuid4().hex[:8]}"
 
 
-def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
+def create_ai_message_data(channel_id: str, content: str, personality) -> dict[str, Any]:
     """AI応答メッセージデータを作成"""
     return {
         "id": generate_ai_message_id(channel_id),
         "channel_id": channel_id,
-        "user_id": "ai_haruto",
-        "user_name": "ハルト",
+        "user_id": personality.user_id,
+        "user_name": personality.name,
         "user_type": "ai",
         "content": content,
         "timestamp": datetime.now(JST).isoformat(),
@@ -103,13 +103,15 @@ async def _generate_ai_response(
     """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
-    ai_response = await gemini_client.generate_response(
+    ai_response, personality = await gemini_client.generate_response(
         user_message, channel_id=channel_id, db_session=db_session, max_retries=3
     )
     generation_time = time.time() - generation_start
-    logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
+    logger.info(
+        f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}, personality={personality.name}"
+    )
 
-    ai_message_data = create_ai_message_data(channel_id, ai_response)
+    ai_message_data = create_ai_message_data(channel_id, ai_response, personality)
     return MessageCreate.model_validate(ai_message_data), generation_time
 
 
@@ -161,8 +163,8 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
     fallback_message_data = {
         "id": generate_ai_error_message_id(channel_id),
         "channel_id": channel_id,
-        "user_id": "ai_haruto",
-        "user_name": "ハルト",
+        "user_id": GeminiAPIClient.FALLBACK_AI_ID,
+        "user_name": GeminiAPIClient.FALLBACK_AI_NAME,
         "user_type": "ai",
         "content": GeminiAPIClient.FALLBACK_MESSAGE,
         "timestamp": datetime.now(JST).isoformat(),
