@@ -5,7 +5,8 @@ import { nanoid } from 'nanoid';
 import { ChannelList } from './ChannelList';
 import { ChatArea } from './ChatArea';
 import { initialChannels } from '../data/channels';
-import type { Message } from '../types/chat';
+import type { Message, MessageResponse } from '../types/chat';
+import { API_CONFIG, WEBSOCKET_CONFIG } from '../config/constants';
 
 export function Layout() {
   const [opened, { toggle, close }] = useDisclosure();
@@ -24,16 +25,13 @@ export function Layout() {
 
   // WebSocket接続の初期化
   useEffect(() => {
-    const MAX_RETRY_COUNT = 5;
-    const RETRY_DELAY = 3000;
-
     // バックエンドの起動を待ってからWebSocket接続
     const connectWebSocket = async () => {
       try {
         // バックエンドの動作確認
-        await fetch('http://localhost:8000/');
+        await fetch(API_CONFIG.BASE_URL);
 
-        const ws = new WebSocket('ws://localhost:8000/ws');
+        const ws = new WebSocket(API_CONFIG.WS_URL);
         wsRef.current = ws;
 
         ws.onopen = () => {
@@ -83,12 +81,15 @@ export function Layout() {
 
         ws.onclose = (event) => {
           // 接続が予期せず閉じられた場合の再接続処理
-          if (!event.wasClean && retryCountRef.current < MAX_RETRY_COUNT) {
+          if (!event.wasClean && retryCountRef.current < WEBSOCKET_CONFIG.MAX_RETRY_COUNT) {
             console.log(
-              `WebSocket disconnected unexpectedly. Retry ${retryCountRef.current + 1}/${MAX_RETRY_COUNT}`,
+              `WebSocket disconnected unexpectedly. Retry ${retryCountRef.current + 1}/${WEBSOCKET_CONFIG.MAX_RETRY_COUNT}`,
             );
             retryCountRef.current += 1;
-            retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
+            retryTimeoutRef.current = window.setTimeout(
+              connectWebSocket,
+              WEBSOCKET_CONFIG.RETRY_DELAY_MS,
+            );
           }
         };
 
@@ -99,9 +100,12 @@ export function Layout() {
         console.error('Failed to connect to backend:', error);
 
         // 最大再試行回数に達していない場合のみ再試行
-        if (retryCountRef.current < MAX_RETRY_COUNT) {
+        if (retryCountRef.current < WEBSOCKET_CONFIG.MAX_RETRY_COUNT) {
           retryCountRef.current += 1;
-          retryTimeoutRef.current = window.setTimeout(connectWebSocket, RETRY_DELAY);
+          retryTimeoutRef.current = window.setTimeout(
+            connectWebSocket,
+            WEBSOCKET_CONFIG.RETRY_DELAY_MS,
+          );
         } else {
           console.error('Max retry count reached. WebSocket connection failed.');
         }
@@ -124,32 +128,21 @@ export function Layout() {
   // チャンネル変更時にメッセージ履歴を取得
   useEffect(() => {
     if (activeChannelId) {
-      fetch(`http://localhost:8000/api/channels/${activeChannelId}/messages`)
+      fetch(`${API_CONFIG.BASE_URL}/api/channels/${activeChannelId}/messages`)
         .then((res) => res.json())
         .then((data) => {
           // バックエンドから取得したメッセージを適合させる
           // PydanticスキーマでcamelCaseに変換されているため、camelCaseで参照
-          const adaptedMessages: Message[] = data.messages.map(
-            (msg: {
-              id: string;
-              channelId: string;
-              userId: string;
-              userName: string;
-              userType: 'user' | 'ai';
-              content: string;
-              timestamp: string;
-              isOwnMessage: boolean;
-            }) => ({
-              id: msg.id,
-              channelId: msg.channelId,
-              userId: msg.userId,
-              userName: msg.userName,
-              userType: msg.userType || 'user', // デフォルトはuser
-              content: msg.content,
-              timestamp: new Date(msg.timestamp),
-              isOwnMessage: msg.isOwnMessage,
-            }),
-          );
+          const adaptedMessages: Message[] = data.messages.map((msg: MessageResponse) => ({
+            id: msg.id,
+            channelId: msg.channelId,
+            userId: msg.userId,
+            userName: msg.userName,
+            userType: msg.userType || 'user', // デフォルトはuser
+            content: msg.content,
+            timestamp: new Date(msg.timestamp),
+            isOwnMessage: msg.isOwnMessage,
+          }));
           setMessages(adaptedMessages);
         })
         .catch((err) => console.error('Error loading messages:', err));

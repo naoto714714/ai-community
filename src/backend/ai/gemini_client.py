@@ -231,7 +231,7 @@ class GeminiAPIClient:
             config=types.GenerateContentConfig(  # type: ignore
                 system_instruction=personality.prompt_content,
                 temperature=0.9,
-                max_output_tokens=2000,
+                max_output_tokens=1000,
             ),
         )
         return response
