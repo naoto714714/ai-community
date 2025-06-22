@@ -89,12 +89,33 @@ class PersonalityManager:
                 with open(file_path, encoding="utf-8") as f:
                     prompt_content = f.read()
 
+                # 空ファイルチェック
+                if not prompt_content.strip():
+                    logger.warning(f"空の人格ファイル: {file_path.name}")
+                    continue
+
+                # 内容の最小長チェック（意味のあるプロンプトかどうか）
+                if len(prompt_content.strip()) < 10:
+                    logger.warning(
+                        f"人格ファイルの内容が短すぎます: {file_path.name} (長さ: {len(prompt_content.strip())})"
+                    )
+                    continue
+
                 personality = AIPersonality(
                     file_name=file_path.name, name=name, prompt_content=prompt_content, user_id=user_id
                 )
 
                 self.personalities[name] = personality
                 logger.info(f"人格読み込み成功: {name} (file: {file_path.name}, user_id: {user_id})")
+
+            except UnicodeDecodeError as e:
+                logger.error(f"人格ファイルの文字エンコーディングエラー: {file_path.name} - {str(e)}")
+            except FileNotFoundError as e:
+                logger.error(f"人格ファイルが見つかりません: {file_path.name} - {str(e)}")
+            except PermissionError as e:
+                logger.error(f"人格ファイルの読み込み権限がありません: {file_path.name} - {str(e)}")
+            except OSError as e:
+                logger.error(f"人格ファイルの読み込み中にOSエラー: {file_path.name} - {str(e)}")
 
             except Exception as e:
                 logger.error(f"人格ファイル読み込みエラー: {file_path.name} - {str(e)}")
