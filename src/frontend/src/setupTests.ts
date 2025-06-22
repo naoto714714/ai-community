@@ -8,7 +8,8 @@ import { afterEach, vi } from 'vitest';
 // 各テスト後にクリーンアップ
 afterEach(() => {
   cleanup();
-  vi.resetAllMocks();
+  // matchMediaとResizeObserverのモックはリセットしない
+  vi.clearAllMocks();
 });
 
 // matchMediaのモック

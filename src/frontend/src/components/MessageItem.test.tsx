@@ -5,6 +5,7 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
+import dayjs from 'dayjs';
 import { MessageItem } from './MessageItem';
 import type { Message } from '../types/chat';
 
@@ -14,7 +15,8 @@ function renderWithProvider(component: React.ReactElement) {
 }
 
 describe('MessageItem', () => {
-  const utcTimestamp = new Date('2025-01-16T10:00:00.000Z');
+  // より明確な時刻を使用し、テストの意図を明確にする
+  const utcTimestamp = new Date('2025-01-16T10:00:00.000Z'); // 10:00 UTC = 19:00 JST
 
   const mockMessage: Message = {
     id: '1',
@@ -41,5 +43,46 @@ describe('MessageItem', () => {
     const messageContainer = screen.getByTestId('message-container');
     expect(messageContainer).not.toBeNull();
     expect(messageContainer).toHaveStyle({ justifyContent: 'flex-end' });
+  });
+
+  it('空のコンテンツでも正常に表示される', () => {
+    const emptyMessage = { ...mockMessage, content: '' };
+    renderWithProvider(<MessageItem message={emptyMessage} />);
+
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    // 空のコンテンツでもクラッシュしないことを確認
+    expect(screen.getByTestId('message-container')).toBeInTheDocument();
+  });
+
+  it('長いメッセージコンテンツが正常に表示される', () => {
+    const longContent = 'a'.repeat(1000);
+    const longMessage = { ...mockMessage, content: longContent };
+    renderWithProvider(<MessageItem message={longMessage} />);
+
+    expect(screen.getByText(longContent)).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+  });
+
+  it('タイムスタンプが正しい形式で表示される', () => {
+    renderWithProvider(<MessageItem message={mockMessage} />);
+
+    // dayjsを使って期待される形式を動的に計算（環境のタイムゾーンに依存しない）
+    const expectedTimeString = dayjs(utcTimestamp).format('HH:mm');
+    expect(screen.getByText(expectedTimeString)).toBeInTheDocument();
+  });
+
+  it('AIメッセージの場合はAIバッジが表示される', () => {
+    const aiMessage = { ...mockMessage, userType: 'ai' as const };
+    renderWithProvider(<MessageItem message={aiMessage} />);
+
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.getByText('AI')).toBeInTheDocument();
+  });
+
+  it('ユーザーメッセージの場合はAIバッジが表示されない', () => {
+    renderWithProvider(<MessageItem message={mockMessage} />);
+
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.queryByText('AI')).not.toBeInTheDocument();
   });
 });
