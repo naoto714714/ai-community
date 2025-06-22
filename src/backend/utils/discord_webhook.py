@@ -31,8 +31,8 @@ class DiscordWebhookSender:
             logger.debug("Discord Webhook URLが未設定のため送信をスキップ")
             return False
 
-        # Discord送信内容: 1行目にAI名、2行目にメッセージ本文
-        discord_message = f"{ai_name}\n{message_content}"
+        # Discord送信内容: 1行目にAI名、2行目にメッセージ本文、最下部に区切り線
+        discord_message = f"{ai_name}\n{message_content}\n----------"
 
         payload = {"content": discord_message}
 
