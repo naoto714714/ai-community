@@ -36,7 +36,9 @@ src/backend/
 ├── ai/                  # AI機能
 │   ├── gemini_client.py         # Gemini API クライアント
 │   ├── message_handlers.py      # AI応答処理
-│   └── personality_manager.py   # AI人格管理
+│   ├── auto_conversation.py     # AI自律会話機能
+│   ├── conversation_timer.py    # 自動会話タイマー管理
+│   └── conversation_config.py   # 自動会話設定管理
 ├── websocket/           # WebSocket処理
 │   ├── handler.py       # WebSocketハンドラー
 │   ├── manager.py       # 接続管理
@@ -89,6 +91,7 @@ created_at: datetime # 作成時刻
 - **利用可能人格**: レン、ミナ、テツ、ルナ、ソラ  
 - **応答速度**: 平均2-3秒
 - **プロンプト**: `prompts/people/` ディレクトリで管理
+- **会話品質強化**: 具体的で実用的な会話を実現（抽象的・ありきたりな内容を回避）
 - **最適化**: チャット用途に最適化（思考機能を無効化して応答速度を重視）
 
 #### Gemini 2.5 Flash の特徴

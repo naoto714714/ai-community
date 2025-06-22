@@ -68,10 +68,10 @@ ai-community/
 ├── prompts/                   # プロンプトテンプレート・開発ガイドライン
 │   ├── people/               # AI人格プロンプト（複数）
 │   │   ├── 001_レン.md      # AI人格：レン（話題提供型）
-│   │   ├── 002_ミナ.md      # AI人格：ミナ（質問・掘り下げ型）
-│   │   ├── 003_テツ.md      # AI人格：テツ（会話拡張型）
-│   │   ├── 004_ルナ.md      # AI人格：ルナ（感情共感型）
-│   │   └── 005_ソラ.md      # AI人格：ソラ（創造型）
+│   │   ├── 002_ミナ.md      # AI人格：ミナ（質問・掘り下げ型）※具体的会話強化済み
+│   │   ├── 003_テツ.md      # AI人格：テツ（会話拡張型）※具体的会話強化済み
+│   │   ├── 004_ルナ.md      # AI人格：ルナ（感情共感型）※具体的会話強化済み
+│   │   └── 005_ソラ.md      # AI人格：ソラ（創造型）※具体的会話強化済み
 │   ├── backend-guideline.md  # バックエンド開発ガイドライン
 │   ├── frontend-guideline.md # フロントエンド開発ガイドライン
 │   ├── code_review_guide.md  # コードレビューガイド
@@ -85,8 +85,11 @@ ai-community/
 │   │   ├── crud.py          # データベース操作
 │   │   ├── (chat.db)        # SQLite開発用DB（.gitignore除外済み）
 │   │   ├── ai/              # AI機能
-│   │   │   ├── gemini_client.py      # Gemini API クライアント
-│   │   │   └── message_handlers.py   # AI応答処理
+│   │   │   ├── gemini_client.py       # Gemini API クライアント
+│   │   │   ├── message_handlers.py    # AI応答処理
+│   │   │   ├── auto_conversation.py   # AI自律会話機能
+│   │   │   ├── conversation_timer.py  # 自動会話タイマー管理
+│   │   │   └── conversation_config.py # 自動会話設定管理
 │   │   ├── websocket/       # WebSocket処理
 │   │   │   ├── handler.py   # WebSocketハンドラー
 │   │   │   ├── manager.py   # 接続管理
