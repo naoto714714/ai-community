@@ -20,6 +20,9 @@ class GeminiAPIClient:
     # フォールバックメッセージの一元管理
     FALLBACK_MESSAGE = "通信に失敗しました😅 もう一度試してみてください！"
 
+    # AI ID定数
+    AI_HARUTO_ID = "ai_haruto"
+
     def __init__(self) -> None:
         """初期化."""
         logger.info("GeminiAPIClient初期化開始")
@@ -78,7 +81,7 @@ class GeminiAPIClient:
             # user_typeを使ってAIかユーザーかを判定
             if hasattr(msg, "user_type") and msg.user_type == "ai":
                 # AIの場合は、どのAIかを明確にする
-                if msg.user_id == "ai_haruto":
+                if msg.user_id == self.AI_HARUTO_ID:
                     history_lines.append(f"[AI:ハルト]: {msg.content}")
                 else:
                     # 他のAIの場合（将来対応）
