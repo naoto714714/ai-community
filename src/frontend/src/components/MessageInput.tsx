@@ -18,7 +18,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && e.shiftKey && !isComposingRef.current) {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !isComposingRef.current) {
       e.preventDefault();
       handleSend();
     }
@@ -35,7 +35,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
   return (
     <Group gap='sm' style={{ padding: '1.5rem 1.5rem 3rem 1.5rem' }}>
       <Textarea
-        placeholder='メッセージを入力... (Shift+Enterで送信)'
+        placeholder='メッセージを入力... (⌘+Enterで送信)'
         value={message}
         onChange={(e) => setMessage(e.currentTarget.value)}
         onKeyDown={handleKeyPress}

@@ -59,20 +59,51 @@ describe('MessageInput', () => {
   it('テキスト入力が正常に動作する', () => {
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
-    const input = screen.getByPlaceholderText('メッセージを入力...')
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
     fireEvent.change(input, { target: { value: 'テストメッセージ' } })
 
     expect(input).toHaveValue('テストメッセージ')
   })
 
-  it('Enterキーでメッセージが送信される', () => {
+  it('Command+Enterキーでメッセージが送信される', () => {
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
-    const input = screen.getByPlaceholderText('メッセージを入力...')
-    fireEvent.change(input, { target: { value: 'Enterテスト' } })
-    fireEvent.keyDown(input, { key: 'Enter', shiftKey: false })
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
+    fireEvent.change(input, { target: { value: 'Command+Enterテスト' } })
+    fireEvent.keyDown(input, { key: 'Enter', metaKey: true })
 
     expect(mockOnSendMessage).toHaveBeenCalledTimes(1)
-    expect(mockOnSendMessage).toHaveBeenCalledWith('Enterテスト')
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Command+Enterテスト')
+  })
+
+  it('Ctrl+Enterキーでメッセージが送信される（Windows/Linux）', () => {
+    renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
+
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
+    fireEvent.change(input, { target: { value: 'Ctrl+Enterテスト' } })
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true })
+
+    expect(mockOnSendMessage).toHaveBeenCalledTimes(1)
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Ctrl+Enterテスト')
+  })
+
+  it('Shift+Enterキーではメッセージが送信されない', () => {
+    renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
+
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
+    fireEvent.change(input, { target: { value: 'Shift+Enterテスト' } })
+    fireEvent.keyDown(input, { key: 'Enter', shiftKey: true })
+
+    expect(mockOnSendMessage).toHaveBeenCalledTimes(0)
+  })
+
+  it('単純なEnterキーではメッセージが送信されない', () => {
+    renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
+
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
+    fireEvent.change(input, { target: { value: '単純なEnterテスト' } })
+    fireEvent.keyDown(input, { key: 'Enter' })
+
+    expect(mockOnSendMessage).toHaveBeenCalledTimes(0)
   })
 })
