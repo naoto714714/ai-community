@@ -64,7 +64,7 @@ src/backend/
 │   ├── env.py           # マイグレーション環境設定
 │   ├── script.py.mako   # マイグレーションスクリプトテンプレート
 │   └── versions/        # マイグレーションバージョン管理
-# （本番環境ではSupabase PostgreSQLを使用）
+# Supabase PostgreSQLを使用
 ```
 
 ## 🔧 技術スタック
@@ -432,9 +432,9 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 - **REST API**: 60リクエスト/分/IP
 - **AI応答**: 3件/分/チャンネル
 
-### Supabase移行完了
+### Supabase PostgreSQL環境
 
-- ✅ **本番データベース**: SQLiteからSupabase PostgreSQLに移行完了
+- ✅ **データベース**: Supabase PostgreSQLを使用
 - ✅ **環境変数設定**: DB接続情報の環境変数化
 - ✅ **セッション管理**: Supabase PostgreSQL対応
 - ✅ **データ永続化**: クラウドベースのデータ保存

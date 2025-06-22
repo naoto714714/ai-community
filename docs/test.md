@@ -343,8 +343,8 @@ describe('ChatApp Integration', () => {
 - **pytest-asyncio**: 非同期テスト対応
 - **httpx**: 非同期HTTPクライアント（FastAPI テスト用）
 - **pytest-mock**: モック機能（AI応答テスト用）
-- **SQLite**: インメモリテスト用データベース（テスト専用）
-- **Supabase PostgreSQL**: 本番データベース（統合テスト時）
+- **Supabase PostgreSQL**: 本番・開発データベース（統合テスト時）
+- **PostgreSQL**: インメモリテスト用データベース（テスト専用）
 - **anyio**: 非同期フレームワーク（uvと互換）
 
 ### フロントエンド（React 19 + TypeScript）
@@ -468,12 +468,12 @@ def test_postgresql_message_with_unicode():
 def test_database_url_construction_logic():
     """データベースURL構築ロジックの検証テスト"""
     # 完全/不完全な環境変数設定での分岐確認
-    # SQLiteフォールバック条件の検証
+    # フォールバック条件の検証
 
-def test_sqlite_functionality_standalone():
-    """SQLite機能の独立テスト"""
-    # 基本的なSQLite動作確認
-    # フォールバック時の動作保証
+def test_fallback_functionality_standalone():
+    """フォールバック機能の独立テスト"""
+    # 基本的なフォールバック動作確認
+    # エラー時の動作保証
 
 def test_environment_variable_validation():
     """環境変数バリデーションロジックのテスト"""

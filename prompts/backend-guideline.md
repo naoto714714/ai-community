@@ -12,10 +12,9 @@
    - 禁止事項: `uv pip install`、`@latest`構文
 
 2. データベース
-   - **本番環境**: Supabase PostgreSQL使用
+   - **本番・開発環境**: Supabase PostgreSQL使用
    - **開発時**: 環境変数でDB接続情報設定
    - **セッション管理**: SQLAlchemy + PostgreSQL対応
-   - **SQLite**: 開発時のローカルテストのみ
    - **セキュリティ**: 
      - 環境変数による機密情報管理（パスワード等はログ出力禁止）
      - SSL接続の強制（sslmode=require）
