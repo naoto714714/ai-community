@@ -48,9 +48,9 @@ class DiscordWebhookSender:
                 if response.status_code == 204:
                     logger.info(f"Discord Webhook送信成功: {ai_name}")
                     return True
-                else:
-                    logger.error(f"Discord Webhook送信失敗: {response.status_code} - {response.text}")
-                    return False
+
+                logger.error(f"Discord Webhook送信失敗: {response.status_code} - {response.text}")
+                return False
 
         except Exception as e:
             logger.error(f"Discord Webhook送信エラー: {str(e)}")
