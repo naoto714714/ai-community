@@ -4,8 +4,7 @@ import json
 import logging
 import time
 import uuid
-from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from typing import Any
 
 from sqlalchemy.orm import Session
@@ -13,7 +12,8 @@ from sqlalchemy.orm import Session
 try:
     # パッケージとして実行される場合
     from .. import crud
-    from ..schemas import MessageCreate
+    from ..constants.timezone import JST
+    from ..schemas import MessageBroadcastData, MessageCreate
     from ..utils.session_manager import save_message_with_session_management
     from ..websocket.manager import manager
     from .gemini_client import GeminiAPIClient, get_gemini_client
@@ -21,27 +21,12 @@ except ImportError:
     # 直接実行される場合
     import crud
     from ai.gemini_client import GeminiAPIClient, get_gemini_client
-    from schemas import MessageCreate
+    from constants.timezone import JST
+    from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
     from websocket.manager import manager
 
 logger = logging.getLogger(__name__)
-
-# タイムゾーン定数（将来的な拡張性を考慮）
-JST = timezone(timedelta(hours=9))
-
-
-@dataclass
-class MessageBroadcastData:
-    """ブロードキャスト用メッセージデータ"""
-
-    message_id: str
-    channel_id: str
-    user_id: str
-    user_name: str
-    user_type: str
-    content: str
-    timestamp: datetime
 
 
 def generate_ai_message_id(channel_id: str) -> str:

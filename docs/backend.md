@@ -34,17 +34,28 @@ src/backend/
 ├── schemas.py           # Pydanticスキーマ
 ├── crud.py              # データベース操作
 ├── ai/                  # AI機能
+│   ├── __init__.py              # AI機能パッケージ初期化
 │   ├── gemini_client.py         # Gemini API クライアント
 │   ├── message_handlers.py      # AI応答処理
 │   ├── auto_conversation.py     # AI自律会話機能
 │   ├── conversation_timer.py    # 自動会話タイマー管理
-│   └── conversation_config.py   # 自動会話設定管理
+│   ├── conversation_config.py   # 自動会話設定管理
+│   └── personality_manager.py   # AI人格管理
+├── constants/           # 共通定数モジュール
+│   ├── __init__.py      # パッケージ初期化
+│   ├── ai_config.py     # AI機能関連定数
+│   ├── logging.py       # ログ設定定数
+│   └── timezone.py      # タイムゾーン定数
 ├── websocket/           # WebSocket処理
 │   ├── handler.py       # WebSocketハンドラー
 │   ├── manager.py       # 接続管理
 │   └── types.py         # WebSocket型定義
 ├── utils/               # ユーティリティ
 │   └── session_manager.py # セッション管理
+├── alembic/             # データベースマイグレーション
+│   ├── env.py           # マイグレーション環境設定
+│   ├── script.py.mako   # マイグレーションスクリプトテンプレート
+│   └── versions/        # マイグレーションバージョン管理
 # （本番環境ではSupabase PostgreSQLを使用）
 ```
 

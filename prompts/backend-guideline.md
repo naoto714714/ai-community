@@ -30,6 +30,10 @@
    - 関数は焦点を絞って小さくする
    - 既存のパターンに正確に従う
    - 行の長さ: 最大120文字
+   - **定数管理**: マジックナンバーや固定文字列は`src/backend/constants/`モジュールで管理
+     - AI設定: `constants/ai_config.py`
+     - ログ設定: `constants/logging.py`
+     - タイムゾーン: `constants/timezone.py`
 
 4. テスト要件
    - フレームワーク: `uv run --frozen pytest`

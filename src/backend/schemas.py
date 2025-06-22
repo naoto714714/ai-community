@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
 
@@ -98,3 +99,16 @@ class MessagesListResponse(BaseModel):
     messages: list[MessageResponse]
     total: int
     has_more: bool
+
+
+@dataclass
+class MessageBroadcastData:
+    """ブロードキャスト用メッセージデータ."""
+
+    message_id: str
+    channel_id: str
+    user_id: str
+    user_name: str
+    user_type: str
+    content: str
+    timestamp: datetime
