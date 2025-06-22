@@ -91,7 +91,17 @@ class ConversationTimer:
             logger.error(f"自動会話タイマーループで予期しないエラー: {str(e)}")
 
     async def _check_and_execute_auto_conversation(self) -> None:
-        """自動会話のチェック・実行."""
+        """自動会話のチェック・実行.
+
+        TODO: 将来的な改善事項
+        - AsyncSessionの使用を検討
+        - 依存性注入によるセッション管理
+        - より効率的な非同期DB処理への移行
+
+        現在は同期Session（SessionLocal）を使用しているが、
+        非同期アプリケーションとしてAsyncSessionの導入により
+        パフォーマンスと一貫性の向上が期待できる。
+        """
         db = SessionLocal()
         try:
             # 対象チャンネルで自動会話をチェック
