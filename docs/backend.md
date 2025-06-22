@@ -280,7 +280,7 @@ interface MessageBroadcastResponse {
   data: {
     id: string;
     channel_id: string;
-    user_id: string;         // AI応答時は人格に応じたID (ai_ren, ai_mina等)
+    user_id: string;         // AI応答時は人格に応じたID (ai_001, ai_002等)
     user_name: string;       // AI応答時は人格に応じた名前 (レン, ミナ等)
     content: string;
     timestamp: string;

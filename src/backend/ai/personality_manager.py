@@ -55,17 +55,19 @@ class PersonalityManager:
             return name_part.split("_", 1)[1]
         return name_part
 
-    def _generate_user_id(self, name: str) -> str:
+    def _generate_user_id_from_filename(self, filename: str) -> str:
         """
-        名前からuser_idを生成.
+        ファイル名からuser_idを生成.
 
-        例: "レン" -> "ai_ren"
+        例: "001_レン.md" -> "ai_001"
         """
-        # 名前をローマ字変換（簡易版）
-        name_map = {"レン": "ren", "ミナ": "mina", "テツ": "tetsu", "ルナ": "luna", "ソラ": "sora", "ハルト": "haruto"}
-
-        romanized_name = name_map.get(name, name.lower())
-        return f"ai_{romanized_name}"
+        # .mdを削除し、_で分割して1番目の要素（番号）を取得
+        name_part = filename.replace(".md", "")
+        if "_" in name_part:
+            number_part = name_part.split("_", 1)[0]
+            return f"ai_{number_part}"
+        # フォールバック: ファイル名全体を使用
+        return f"ai_{name_part}"
 
     def _load_personalities(self) -> None:
         """人格ファイルを読み込み."""
@@ -80,7 +82,7 @@ class PersonalityManager:
             try:
                 # ファイル名から名前を抽出
                 name = self._extract_name_from_filename(file_path.name)
-                user_id = self._generate_user_id(name)
+                user_id = self._generate_user_id_from_filename(file_path.name)
 
                 # ファイル内容を読み込み
                 with open(file_path, encoding="utf-8") as f:
