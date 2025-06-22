@@ -9,15 +9,15 @@ from sqlalchemy.orm import Session
 try:
     # パッケージとして実行される場合（テスト等）
     from . import crud
-    from .database import SessionLocal, engine, get_db
-    from .models import Base, Channel
+    from .database import SessionLocal, get_db
+    from .models import Channel
     from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
     from .websocket import handle_websocket_message, manager
 except ImportError:
     # 直接実行される場合
     import crud
-    from database import SessionLocal, engine, get_db
-    from models import Base, Channel
+    from database import SessionLocal, get_db
+    from models import Channel
     from schemas import ChannelResponse, MessageResponse, MessagesListResponse
     from websocket import handle_websocket_message, manager
 
@@ -48,7 +48,7 @@ def init_channels():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # 起動時処理
-    Base.metadata.create_all(bind=engine)  # テーブル作成
+    # 注意: テーブル作成はAlembicマイグレーションで実行済み
     init_channels()  # 初期チャンネル作成
     yield
     # 終了時処理
