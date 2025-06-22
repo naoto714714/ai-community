@@ -5,9 +5,9 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { MessageItem } from '../../../src/frontend/src/components/MessageItem'
-import { MessageInput } from '../../../src/frontend/src/components/MessageInput'
-import type { Message } from '../../../src/frontend/src/types/chat'
+import { MessageItem } from '../../src/frontend/src/components/MessageItem'
+import { MessageInput } from '../../src/frontend/src/components/MessageInput'
+import type { Message } from '../../src/frontend/src/types/chat'
 
 // テスト用のrender関数
 function renderWithProvider(component: React.ReactElement) {
@@ -27,6 +27,7 @@ describe('MessageItem', () => {
     channelId: '1',
     userId: 'user1',
     userName: 'Test User',
+    userType: 'user',
     content: 'Hello, World!',
     timestamp: utcTimestamp,
     isOwnMessage: false

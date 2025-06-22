@@ -11,7 +11,8 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     css: true,
-    include: ['../../tests/frontend/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+    setupFiles: ['src/setupTests.ts'],
   },
   resolve: {
     alias: {

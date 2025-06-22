@@ -5,7 +5,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { Layout } from '../../../src/frontend/src/components/Layout'
+import { Layout } from '../../src/frontend/src/components/Layout'
 
 // モックWebSocket
 class MockWebSocket {
