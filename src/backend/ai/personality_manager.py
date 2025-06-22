@@ -2,6 +2,7 @@
 
 import logging
 import random
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -125,11 +126,15 @@ class PersonalityManager:
 
 # グローバルインスタンス
 _personality_manager: PersonalityManager | None = None
+_lock = threading.Lock()
 
 
 def get_personality_manager() -> PersonalityManager:
     """PersonalityManagerのシングルトンインスタンスを取得."""
     global _personality_manager
     if _personality_manager is None:
-        _personality_manager = PersonalityManager()
+        with _lock:
+            # ダブルチェックロッキング
+            if _personality_manager is None:
+                _personality_manager = PersonalityManager()
     return _personality_manager
