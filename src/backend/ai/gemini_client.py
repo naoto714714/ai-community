@@ -11,13 +11,13 @@ from pathlib import Path
 try:
     # パッケージとして実行される場合
     from .. import crud
-    from ..constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT
+    from ..constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT, DEFAULT_MAX_OUTPUT_TOKENS
     from .personality_manager import AIPersonality, get_personality_manager
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.personality_manager import AIPersonality, get_personality_manager
-    from constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT
+    from constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT, DEFAULT_MAX_OUTPUT_TOKENS
 from google import genai  # type: ignore
 from google.genai import types  # type: ignore
 from sqlalchemy.orm import Session
@@ -235,7 +235,7 @@ class GeminiAPIClient:
             config=types.GenerateContentConfig(  # type: ignore
                 system_instruction=personality.prompt_content,
                 temperature=0.9,
-                max_output_tokens=1000,
+                max_output_tokens=DEFAULT_MAX_OUTPUT_TOKENS,
             ),
         )
         return response

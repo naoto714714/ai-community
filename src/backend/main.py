@@ -15,6 +15,9 @@ try:
     from .models import Channel
     from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
     from .websocket import handle_websocket_message, manager
+
+    # ログ設定（早期初期化）
+    logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 except ImportError:
     try:
         # 直接実行される場合（backend ディレクトリから）
@@ -25,6 +28,9 @@ except ImportError:
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
         from websocket import handle_websocket_message, manager
+
+        # ログ設定（早期初期化）
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
     except ImportError:
         # CIやテスト環境での絶対パス
         import sys
@@ -39,6 +45,9 @@ except ImportError:
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
         from websocket import handle_websocket_message, manager
+
+        # ログ設定（早期初期化）
+        logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 
 # 初期チャンネルデータ
 INITIAL_CHANNELS = [
@@ -88,8 +97,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ログ設定（時刻表示付き）
-logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 logger = logging.getLogger(__name__)
 
 # CORS設定
