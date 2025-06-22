@@ -8,7 +8,12 @@ import threading
 from pathlib import Path
 
 # 動的インポートを避けるための静的インポート
-import crud
+try:
+    # パッケージとして実行される場合
+    from .. import crud
+except ImportError:
+    # 直接実行される場合
+    import crud
 import google.generativeai as genai  # type: ignore
 from google.generativeai.types import GenerateContentResponse  # type: ignore
 from sqlalchemy.orm import Session

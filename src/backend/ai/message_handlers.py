@@ -8,12 +8,22 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
-import crud
-from ai.gemini_client import GeminiAPIClient, get_gemini_client
-from schemas import MessageCreate
 from sqlalchemy.orm import Session
-from utils.session_manager import save_message_with_session_management
-from websocket.manager import manager
+
+try:
+    # パッケージとして実行される場合
+    from .. import crud
+    from ..schemas import MessageCreate
+    from ..utils.session_manager import save_message_with_session_management
+    from ..websocket.manager import manager
+    from .gemini_client import GeminiAPIClient, get_gemini_client
+except ImportError:
+    # 直接実行される場合
+    import crud
+    from ai.gemini_client import GeminiAPIClient, get_gemini_client
+    from schemas import MessageCreate
+    from utils.session_manager import save_message_with_session_management
+    from websocket.manager import manager
 
 logger = logging.getLogger(__name__)
 

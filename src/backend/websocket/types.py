@@ -2,7 +2,12 @@
 
 from typing import TypedDict
 
-from schemas import UserType
+try:
+    # パッケージとして実行される場合
+    from ..schemas import UserType
+except ImportError:
+    # 直接実行される場合
+    from schemas import UserType
 
 
 class WebSocketMessageData(TypedDict):
