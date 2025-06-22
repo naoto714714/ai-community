@@ -15,7 +15,8 @@ function renderWithProvider(component: React.ReactElement) {
 }
 
 describe('MessageItem', () => {
-  const utcTimestamp = new Date('2025-01-16T10:00:00.000Z');
+  // より明確な時刻を使用し、テストの意図を明確にする
+  const utcTimestamp = new Date('2025-01-16T10:00:00.000Z'); // 10:00 UTC = 19:00 JST
 
   const mockMessage: Message = {
     id: '1',
@@ -71,10 +72,10 @@ describe('MessageItem', () => {
   });
 
   it('AIメッセージの場合はAIバッジが表示される', () => {
-    const aiMessage = { ...mockMessage, userType: 'ai' as const, userName: 'AI Assistant' };
+    const aiMessage = { ...mockMessage, userType: 'ai' as const };
     renderWithProvider(<MessageItem message={aiMessage} />);
 
-    expect(screen.getByText('AI Assistant')).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
     expect(screen.getByText('AI')).toBeInTheDocument();
   });
 
