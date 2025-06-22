@@ -91,7 +91,7 @@ src/frontend/
 - **日本語IME対応**: Enter送信時の変換中防止でUX向上
 - **最大2000文字制限**: 長文投稿の制御とバリデーション
 - **オプティミスティックアップデート**: 送信前の即時UI反映
-- **キーボード制御**: Enter送信、Shift+Enter改行対応
+- **キーボード制御**: Command+Enter（Mac）/ Ctrl+Enter（Windows/Linux）送信対応
 
 ### MessageItem.tsx（メッセージ表示）
 
@@ -210,7 +210,7 @@ npm run test:ui
 - ✅ AppShellレスポンシブレイアウト
 - ✅ チャンネル一覧表示
 - ✅ メッセージ一覧表示
-- ✅ メッセージ入力・送信（Shift+Enter送信、Enter改行）
+- ✅ メッセージ入力・送信（Command+Enter / Ctrl+Enter送信）
 - ✅ WebSocket通信
 - ✅ リアルタイムメッセージ受信
 - ✅ **AI応答の自動受信・表示**
