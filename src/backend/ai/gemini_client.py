@@ -176,12 +176,13 @@ class GeminiAPIClient:
                 loop = asyncio.get_event_loop()
                 response = await loop.run_in_executor(None, self._sync_generate, enhanced_message, personality)
 
-                if response and hasattr(response, "text") and response.text:  # type: ignore
+                if hasattr(response, "text") and response.text:  # type: ignore
                     response_text = response.text.strip()  # type: ignore
-                    logger.info(
-                        f"Gemini API応答成功: response_length={len(response_text)}, personality={personality.name}"
-                    )
-                    return response_text, personality
+                    if response_text:  # 空でない文字列かチェック
+                        logger.info(
+                            f"Gemini API応答成功: response_length={len(response_text)}, personality={personality.name}"
+                        )
+                        return response_text, personality
 
                 logger.warning("Gemini APIから空の応答を受信")
                 raise Exception("Empty response from Gemini API")
@@ -208,26 +209,32 @@ class GeminiAPIClient:
 
         return self.FALLBACK_MESSAGE, personality
 
-    def _sync_generate(self, user_message: str, personality) -> object | None:
+    def _sync_generate(self, user_message: str, personality: AIPersonality) -> object:
         """
         同期的にコンテンツを生成する（run_in_executor用）.
 
         新しいGoogle Genai APIを使用してコンテンツを生成します。
+
+        Args:
+            user_message: ユーザーメッセージ
+            personality: AI人格
+
+        Returns:
+            Gemini APIのレスポンスオブジェクト
+
+        Raises:
+            Exception: API呼び出しに失敗した場合（認証エラー、ネットワークエラーなど）
         """
-        try:
-            response = self.client.models.generate_content(
-                model="gemini-2.5-flash-preview-05-20",
-                contents=user_message,
-                config=types.GenerateContentConfig(  # type: ignore
-                    system_instruction=personality.prompt_content,
-                    temperature=0.9,
-                    max_output_tokens=2000,
-                ),
-            )
-            return response
-        except Exception as e:
-            logger.error(f"Gemini API呼び出しエラー: {str(e)}")
-            return None
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash-preview-05-20",
+            contents=user_message,
+            config=types.GenerateContentConfig(  # type: ignore
+                system_instruction=personality.prompt_content,
+                temperature=0.9,
+                max_output_tokens=2000,
+            ),
+        )
+        return response
 
     def should_respond_to_message(self, message: str) -> bool:
         """
