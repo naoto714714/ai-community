@@ -27,6 +27,7 @@ describe('MessageItem', () => {
     channelId: '1',
     userId: 'user1',
     userName: 'Test User',
+    userType: 'user',
     content: 'Hello, World!',
     timestamp: utcTimestamp,
     isOwnMessage: false

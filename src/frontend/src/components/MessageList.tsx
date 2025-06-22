@@ -2,6 +2,7 @@ import { ScrollArea, Text } from '@mantine/core';
 import type { Message } from '../types/chat';
 import { MessageItem } from './MessageItem';
 import { useEffect, useRef } from 'react';
+import { MESSAGE_CONFIG } from '../config/constants';
 
 interface MessageListProps {
   messages: Message[];
@@ -27,7 +28,7 @@ export function MessageList({ messages }: MessageListProps) {
     }
 
     // メッセージが変更されたら少し遅延してスクロール
-    scrollTimerRef.current = window.setTimeout(scrollToBottom, 100);
+    scrollTimerRef.current = window.setTimeout(scrollToBottom, MESSAGE_CONFIG.SCROLL_DELAY_MS);
 
     return () => {
       if (scrollTimerRef.current) {

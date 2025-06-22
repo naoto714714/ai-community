@@ -1,6 +1,7 @@
 import { Group, Textarea, ActionIcon } from '@mantine/core';
 import { IconSend } from '@tabler/icons-react';
 import { useState, useRef } from 'react';
+import { MESSAGE_CONFIG } from '../config/constants';
 
 interface MessageInputProps {
   onSendMessage: (content: string) => void;
@@ -44,7 +45,7 @@ export function MessageInput({ onSendMessage }: MessageInputProps) {
         onKeyDown={handleKeyPress}
         onCompositionStart={handleCompositionStart}
         onCompositionEnd={handleCompositionEnd}
-        maxLength={2000}
+        maxLength={MESSAGE_CONFIG.MAX_LENGTH}
         style={{ flex: 1 }}
         size='md'
         radius='xl'
