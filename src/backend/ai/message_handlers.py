@@ -88,12 +88,36 @@ async def _generate_ai_response(
     """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
+
+    # 連続発言防止：最新メッセージがAIの場合は、そのuser_idを除外対象とする
+    exclude_user_id = None
+    if db_session:
+        try:
+            recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=1)
+            if recent_messages:
+                latest_msg = recent_messages[-1]  # 最新メッセージを取得
+                logger.debug(
+                    f"@AI応答 - 最新メッセージ詳細: user_name={latest_msg.user_name}, user_id={latest_msg.user_id}, user_type={latest_msg.user_type}"
+                )
+
+                if latest_msg.user_type == "ai":
+                    exclude_user_id = latest_msg.user_id
+                    logger.info(
+                        f"@AI応答での連続発言防止: 前回AI発言者を除外 user_id={exclude_user_id}, user_name={latest_msg.user_name}"
+                    )
+                else:
+                    logger.debug(
+                        f"@AI応答 - 前回発言者はユーザー: {latest_msg.user_name} (user_type={latest_msg.user_type})"
+                    )
+        except Exception as e:
+            logger.warning(f"連続発言防止チェック時のエラー: {str(e)}")
+
     ai_response, personality = await gemini_client.generate_response(
-        user_message, channel_id=channel_id, db_session=db_session, max_retries=3
+        user_message, channel_id=channel_id, db_session=db_session, max_retries=3, exclude_user_id=exclude_user_id
     )
     generation_time = time.time() - generation_start
     logger.info(
-        f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}, personality={personality.name}"
+        f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}, selected_personality={personality.name} (user_id={personality.user_id}), excluded_user_id={exclude_user_id}"
     )
 
     ai_message_data = create_ai_message_data(channel_id, ai_response, personality)

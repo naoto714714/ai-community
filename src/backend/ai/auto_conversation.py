@@ -132,12 +132,12 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
             logger.debug("メッセージ履歴が存在しない")
             return False
 
-        latest_message = recent_messages[0]
+        latest_message = recent_messages[-1]  # 最新メッセージを取得
 
-        # AIたちが自由に会話できるよう、連続発言防止は一旦無効化
-        # 将来的に必要があれば、同じAI人格による連続発言のみ防止可能
+        # AI連続発言防止機能を有効化
+        # 同じAI人格による連続発言を防止し、会話の多様性を保つ
         if latest_message.user_type == "ai":
-            logger.debug(f"直前のメッセージがAI（{latest_message.user_name}）による発言です - 自動会話継続")
+            logger.debug(f"直前のメッセージがAI（{latest_message.user_name}）による発言 - 連続発言防止処理")
 
         # 最後のメッセージからの経過時間をチェック
         now = datetime.now(UTC)
@@ -175,6 +175,24 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
         # 過去の会話履歴を取得
         recent_messages = crud.get_recent_channel_messages(db_session, channel_id, config.history_limit)
 
+        # 連続発言防止：最新メッセージがAIの場合は、そのuser_idを除外対象とする
+        exclude_user_id = None
+        if recent_messages:
+            latest_msg = recent_messages[-1]  # 最新メッセージを取得
+            logger.debug(
+                f"最新メッセージ詳細: user_name={latest_msg.user_name}, user_id={latest_msg.user_id}, user_type={latest_msg.user_type}"
+            )
+
+            if latest_msg.user_type == "ai":
+                exclude_user_id = latest_msg.user_id
+                logger.info(
+                    f"連続発言防止: 前回AI発言者を除外 user_id={exclude_user_id}, user_name={latest_msg.user_name}"
+                )
+            else:
+                logger.debug(f"前回発言者はユーザー: {latest_msg.user_name} (user_type={latest_msg.user_type})")
+        else:
+            logger.debug("メッセージ履歴が見つかりません")
+
         # 会話履歴をフォーマット（既存のロジックを再利用）
         conversation_history = gemini_client._format_conversation_history(recent_messages)
 
@@ -187,14 +205,20 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
 
 上記の会話履歴を踏まえて、今の流れに合った話題や感想を自然に述べてください。"""
 
-        # AI応答を生成（既存のロジックを再利用）
+        # AI応答を生成（連続発言防止考慮）
         start_time = time.time()
         response_text, personality = await gemini_client.generate_response(
-            auto_conversation_message, channel_id=channel_id, db_session=db_session, max_retries=3
+            auto_conversation_message,
+            channel_id=channel_id,
+            db_session=db_session,
+            max_retries=3,
+            exclude_user_id=exclude_user_id,
         )
         generation_time = time.time() - start_time
 
-        logger.info(f"自動会話AI応答生成完了: time={generation_time:.2f}s, personality={personality.name}")
+        logger.info(
+            f"自動会話AI応答生成完了: time={generation_time:.2f}s, selected_personality={personality.name} (user_id={personality.user_id}), excluded_user_id={exclude_user_id}"
+        )
 
         # メッセージデータを作成
         ai_message_data = create_auto_ai_message_data(channel_id, response_text, personality)

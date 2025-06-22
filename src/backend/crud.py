@@ -52,7 +52,7 @@ def get_channel_messages_count(db: Session, channel_id: str) -> int:
     return db.query(Message).filter(Message.channel_id == channel_id).count()
 
 
-def get_recent_channel_messages(db: Session, channel_id: str, limit: int = 30) -> list[Message]:
+def get_recent_channel_messages(db: Session, channel_id: str, limit: int = 10) -> list[Message]:
     """指定チャンネルの最新メッセージを指定件数取得（時系列順）"""
     if limit <= 0:
         raise ValueError("limit parameter must be positive")

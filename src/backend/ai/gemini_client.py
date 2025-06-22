@@ -75,13 +75,26 @@ class GeminiAPIClient:
 """
         logger.info("フォールバックプロンプトを設定")
 
-    def _select_random_personality(self) -> AIPersonality:
-        """ランダムに人格を選択し、フォールバックを管理."""
+    def _select_random_personality(self, exclude_user_id: str | None = None) -> AIPersonality:
+        """
+        ランダムに人格を選択し、フォールバックを管理.
+
+        Args:
+            exclude_user_id: 除外するAI人格のuser_id（連続発言防止用）
+
+        Returns:
+            選択された人格
+        """
         try:
-            # ランダムに人格を選択
-            personality = self.personality_manager.get_random_personality()
+            # ランダムに人格を選択（除外対象考慮）
+            personality = self.personality_manager.get_random_personality(exclude_user_id)
             if personality:
-                logger.debug(f"ランダム人格選択: {personality.name}")
+                if exclude_user_id:
+                    logger.info(
+                        f"連続発言防止考慮でランダム人格選択: {personality.name} (user_id: {personality.user_id}), 除外対象: {exclude_user_id}"
+                    )
+                else:
+                    logger.debug(f"ランダム人格選択: {personality.name} (user_id: {personality.user_id})")
                 return personality
         except Exception as e:
             logger.error(f"人格選択エラー: {str(e)}")
@@ -134,7 +147,12 @@ class GeminiAPIClient:
             return ""
 
     async def generate_response(
-        self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
+        self,
+        user_message: str,
+        channel_id: str | None = None,
+        db_session: Session | None = None,
+        max_retries: int = 5,
+        exclude_user_id: str | None = None,
     ) -> tuple[str, AIPersonality]:
         """
         ユーザーメッセージに対する応答を生成する.
@@ -144,14 +162,15 @@ class GeminiAPIClient:
             channel_id: チャンネルID（過去の会話履歴取得用）
             db_session: データベースセッション
             max_retries: 最大リトライ回数
+            exclude_user_id: 除外するAI人格のuser_id（連続発言防止用）
 
         Returns:
             tuple[AIの応答テキスト, 選択された人格]
         """
         logger.info(f"Gemini API応答生成開始: user_message='{user_message[:50]}...' max_retries={max_retries}")
 
-        # ランダムに人格を選択
-        personality = self._select_random_personality()
+        # ランダムに人格を選択（連続発言防止考慮）
+        personality = self._select_random_personality(exclude_user_id)
         logger.info(f"選択された人格: {personality.name}")
 
         # 過去の会話履歴を取得
@@ -229,13 +248,23 @@ class GeminiAPIClient:
         Raises:
             Exception: API呼び出しに失敗した場合（認証エラー、ネットワークエラーなど）
         """
+        # 環境変数からmax_output_tokensをカスタマイズ可能にする（安全な変換処理）
+        try:
+            max_tokens = int(os.getenv("AI_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS))
+        except (ValueError, TypeError):
+            logger.warning(
+                f"Invalid AI_MAX_OUTPUT_TOKENS value: {os.getenv('AI_MAX_OUTPUT_TOKENS')}. "
+                f"Using default: {DEFAULT_MAX_OUTPUT_TOKENS}"
+            )
+            max_tokens = DEFAULT_MAX_OUTPUT_TOKENS
+
         response = self.client.models.generate_content(
             model="gemini-2.5-flash-preview-05-20",
             contents=user_message,
             config=types.GenerateContentConfig(  # type: ignore
                 system_instruction=personality.prompt_content,
                 temperature=0.9,
-                max_output_tokens=DEFAULT_MAX_OUTPUT_TOKENS,
+                max_output_tokens=max_tokens,
             ),
         )
         return response
