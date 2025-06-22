@@ -86,7 +86,7 @@ class DiscordWebhookSender:
         escaped_message_content = self._escape_discord_markdown(message_content)
 
         # Discord送信内容: 1行目にAI名、2行目にメッセージ本文、最下部に区切り線
-        discord_message = f"{escaped_ai_name}\n{escaped_message_content}\n----------"
+        discord_message = f"{escaped_ai_name}\n{escaped_message_content}\n{'-' * 20}"
 
         # メッセージ長制限チェック
         discord_message = self._truncate_message(discord_message)
