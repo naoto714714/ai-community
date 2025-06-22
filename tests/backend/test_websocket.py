@@ -18,7 +18,7 @@ def test_websocket_message_send(client: TestClient, seed_channels, test_db):
     # WebSocketハンドラーでテスト用データベースセッションを使用するようにパッチ
     from src.backend.websocket import handle_websocket_message
 
-    async def mock_handle_websocket_message(websocket, data):
+    async def mock_handle_websocket_message(websocket, data, db_session=None):
         return await handle_websocket_message(websocket, data, db_session=test_db)
 
     with patch("src.backend.main.handle_websocket_message", side_effect=mock_handle_websocket_message):
@@ -31,6 +31,7 @@ def test_websocket_message_send(client: TestClient, seed_channels, test_db):
                     "channel_id": "1",
                     "user_id": "test_user",
                     "user_name": "テストユーザー",
+                    "user_type": "user",
                     "content": "WebSocketテスト",
                     "timestamp": "2025-01-16T10:00:00.000Z",
                     "is_own_message": True,

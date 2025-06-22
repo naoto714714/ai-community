@@ -3,6 +3,7 @@ export interface Message {
   channelId: string;
   userId: string;
   userName: string;
+  userType: 'user' | 'ai';
   content: string;
   timestamp: Date;
   isOwnMessage: boolean;

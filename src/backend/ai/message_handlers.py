@@ -37,6 +37,7 @@ class MessageBroadcastData:
     channel_id: str
     user_id: str
     user_name: str
+    user_type: str
     content: str
     timestamp: datetime
 
@@ -58,6 +59,7 @@ def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
         "channel_id": channel_id,
         "user_id": "ai_haruto",
         "user_name": "ハルト",
+        "user_type": "ai",
         "content": content,
         "timestamp": datetime.now(JST).isoformat(),
         "is_own_message": False,
@@ -73,6 +75,7 @@ def create_broadcast_message(message_data: MessageBroadcastData) -> dict[str, An
             "channel_id": message_data.channel_id,
             "user_id": message_data.user_id,
             "user_name": message_data.user_name,
+            "user_type": message_data.user_type,
             "content": message_data.content,
             "timestamp": message_data.timestamp.isoformat(),
             "is_own_message": False,
@@ -80,22 +83,27 @@ def create_broadcast_message(message_data: MessageBroadcastData) -> dict[str, An
     }
 
 
-def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, str, str, str, datetime]:
+def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, str, str, str, str, datetime]:
     """メッセージ属性を抽出"""
     return (
         ai_message_create.id,
         ai_message_create.user_id,
         ai_message_create.user_name,
+        ai_message_create.user_type,
         ai_message_create.content,
         ai_message_create.timestamp,
     )
 
 
-async def _generate_ai_response(user_message: str, channel_id: str) -> tuple[MessageCreate, float]:
+async def _generate_ai_response(
+    user_message: str, channel_id: str, db_session: Session | None = None
+) -> tuple[MessageCreate, float]:
     """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
-    ai_response = await gemini_client.generate_response(user_message, max_retries=3)
+    ai_response = await gemini_client.generate_response(
+        user_message, channel_id=channel_id, db_session=db_session, max_retries=3
+    )
     generation_time = time.time() - generation_start
     logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
 
@@ -108,10 +116,10 @@ async def generate_and_save_ai_response(
 ) -> MessageBroadcastData:
     """AI応答を生成してデータベースに保存"""
     # AI応答を生成
-    ai_message_create, _ = await _generate_ai_response(user_message, channel_id)
+    ai_message_create, _ = await _generate_ai_response(user_message, channel_id, db_session)
 
     # セッションから切り離される前に必要な情報を取得
-    message_id, user_id, user_name, content, timestamp = _extract_message_attributes(ai_message_create)
+    message_id, user_id, user_name, user_type, content, timestamp = _extract_message_attributes(ai_message_create)
 
     # データベースに保存
     db_start = time.time()
@@ -126,6 +134,7 @@ async def generate_and_save_ai_response(
         channel_id=channel_id,
         user_id=user_id,
         user_name=user_name,
+        user_type=user_type,
         content=content,
         timestamp=timestamp,
     )
@@ -152,6 +161,7 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
         "channel_id": channel_id,
         "user_id": "ai_haruto",
         "user_name": "ハルト",
+        "user_type": "ai",
         "content": GeminiAPIClient.FALLBACK_MESSAGE,
         "timestamp": datetime.now(JST).isoformat(),
         "is_own_message": False,

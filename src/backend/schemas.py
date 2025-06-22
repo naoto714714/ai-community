@@ -1,6 +1,14 @@
 from datetime import UTC, datetime
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, field_serializer
+
+
+class UserType(str, Enum):
+    """ユーザータイプ列挙型"""
+
+    USER = "user"
+    AI = "ai"
 
 
 def to_camel(string: str) -> str:
@@ -35,6 +43,7 @@ class MessageBase(BaseModel):
     channel_id: str
     user_id: str
     user_name: str
+    user_type: UserType = UserType.USER
     content: str
     timestamp: datetime
     is_own_message: bool

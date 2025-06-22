@@ -122,7 +122,12 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text()
             try:
                 message = json.loads(data)
-                await handle_websocket_message(websocket, message)
+                # データベースセッションを作成して渡す
+                db = SessionLocal()
+                try:
+                    await handle_websocket_message(websocket, message, db_session=db)
+                finally:
+                    db.close()
             except json.JSONDecodeError:
                 logger.error(f"無効なJSONを受信: {data}")
                 # クライアントにエラー応答を送信

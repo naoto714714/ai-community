@@ -29,6 +29,7 @@ class Message(Base):
     channel_id: Mapped[str] = mapped_column(String, nullable=False, index=True)
     user_id: Mapped[str] = mapped_column(String, nullable=False)
     user_name: Mapped[str] = mapped_column(String, nullable=False)
+    user_type: Mapped[str] = mapped_column(String, nullable=False, default="user")  # "user", "ai"
     content: Mapped[str] = mapped_column(Text, nullable=False)
     timestamp: Mapped[datetime] = mapped_column(nullable=False)
     is_own_message: Mapped[bool] = mapped_column(default=False)

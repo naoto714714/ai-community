@@ -9,6 +9,13 @@ from pathlib import Path
 
 import google.generativeai as genai  # type: ignore
 from google.generativeai.types import GenerateContentResponse  # type: ignore
+from sqlalchemy.orm import Session
+
+# 動的インポートを避けるための静的インポート
+try:
+    from .. import crud
+except ImportError:
+    import crud
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +25,9 @@ class GeminiAPIClient:
 
     # フォールバックメッセージの一元管理
     FALLBACK_MESSAGE = "通信に失敗しました😅 もう一度試してみてください！"
+
+    # AI ID定数
+    AI_HARUTO_ID = "ai_haruto"
 
     def __init__(self) -> None:
         """初期化."""
@@ -67,19 +77,92 @@ class GeminiAPIClient:
 親しみやすく、フレンドリーな口調で話してください。
 """
 
-    async def generate_response(self, user_message: str, max_retries: int = 5) -> str:
+    def _format_conversation_history(self, messages: list) -> str:
+        """過去の会話履歴をフォーマットする"""
+        if not messages:
+            return ""
+
+        history_lines = ["===== 過去の会話履歴 ====="]
+        for msg in messages:
+            # user_typeを使ってAIかユーザーかを判定
+            if hasattr(msg, "user_type") and msg.user_type == "ai":
+                # AIの場合は、どのAIかを明確にする
+                if msg.user_id == self.AI_HARUTO_ID:
+                    history_lines.append(f"[AI:ハルト]: {msg.content}")
+                else:
+                    # 他のAIの場合（将来対応）
+                    history_lines.append(f"[AI:{msg.user_name}]: {msg.content}")
+            else:
+                # ユーザーの場合
+                history_lines.append(f"[ユーザー:{msg.user_name}]: {msg.content}")
+
+        history_lines.append("")  # 空行を追加
+        return "\n".join(history_lines)
+
+    async def _fetch_conversation_history(self, channel_id: str, db_session: Session) -> str:
+        """会話履歴を取得してフォーマットする"""
+        try:
+            recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=30)
+            logger.debug(f"デバッグ: 取得したメッセージ数={len(recent_messages)}")
+            for i, msg in enumerate(recent_messages[-5:]):  # 最新5件をログ出力
+                logger.debug(f"デバッグ: メッセージ{i}: user_id={msg.user_id}, content='{msg.content[:30]}...'")
+            conversation_history = self._format_conversation_history(recent_messages)
+            logger.info(f"過去の会話履歴を取得: {len(recent_messages)}件のメッセージ")
+            logger.debug(f"デバッグ: conversation_history の長さ={len(conversation_history)}")
+            return conversation_history
+        except Exception as e:
+            logger.error(f"過去の会話履歴取得エラー: {str(e)}")
+            import traceback
+
+            logger.error(f"エラー詳細: {traceback.format_exc()}")
+            return ""
+
+    def _build_prompt(self, user_message: str, conversation_history: str) -> str:
+        """プロンプトを構築する"""
+        if conversation_history:
+            return f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+        return f"{self._system_prompt}\n\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+
+    async def generate_response(
+        self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
+    ) -> str:
         """
         ユーザーメッセージに対する応答を生成する.
 
         Args:
             user_message: ユーザーからのメッセージ
+            channel_id: チャンネルID（過去の会話履歴取得用）
+            db_session: データベースセッション
             max_retries: 最大リトライ回数
 
         Returns:
             AIの応答テキスト
         """
         logger.info(f"Gemini API応答生成開始: user_message='{user_message[:50]}...' max_retries={max_retries}")
-        prompt = f"{self._system_prompt}\n\nユーザー: {user_message}\nハルト:"
+
+        # 過去の会話履歴を取得
+        conversation_history = ""
+        logger.debug(f"デバッグ: channel_id={channel_id}, db_session={db_session is not None}")
+        if channel_id and db_session:
+            conversation_history = await self._fetch_conversation_history(channel_id, db_session)
+        else:
+            logger.debug(
+                f"デバッグ: 会話履歴取得をスキップ - channel_id={channel_id}, db_session={db_session is not None}"
+            )
+
+        # プロンプトを構築
+        prompt = self._build_prompt(user_message, conversation_history)
+        if conversation_history:
+            logger.debug("デバッグ: 会話履歴付きプロンプトを使用")
+        else:
+            logger.debug("デバッグ: 会話履歴なしプロンプトを使用")
+
+        # プロンプトの一部をログに出力（デバッグ用、本番では出力されない）
+        logger.debug(f"デバッグ: プロンプト長={len(prompt)}")
+        if len(prompt) > 2000:
+            logger.debug(f"デバッグ: プロンプト先頭1000文字: {prompt[:1000]}...")
+        else:
+            logger.debug(f"デバッグ: プロンプト全体: {prompt}")
 
         for attempt in range(max_retries):
             try:
