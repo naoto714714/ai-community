@@ -5,6 +5,7 @@ description = "AI Community - Modern chat application with React frontend and Fa
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "alembic>=1.13.0",
     "fastapi>=0.115.13",
     "google-generativeai>=0.8.5",
     "psycopg2-binary>=2.9.10",
