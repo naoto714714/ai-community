@@ -11,11 +11,20 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 from starlette.websockets import WebSocketState
 
-from .. import crud
-from ..ai.message_handlers import handle_ai_response
-from ..schemas import MessageCreate
-from ..utils.session_manager import save_message_with_session_management
-from .manager import manager
+try:
+    # パッケージとして実行される場合
+    from .. import crud
+    from ..ai.message_handlers import handle_ai_response
+    from ..schemas import MessageCreate
+    from ..utils.session_manager import save_message_with_session_management
+    from .manager import manager
+except ImportError:
+    # 直接実行される場合
+    import crud
+    from ai.message_handlers import handle_ai_response
+    from schemas import MessageCreate
+    from utils.session_manager import save_message_with_session_management
+    from websocket.manager import manager
 
 
 class MessageTypes:
