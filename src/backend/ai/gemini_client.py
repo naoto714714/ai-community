@@ -75,11 +75,17 @@ class GeminiAPIClient:
 
         history_lines = ["===== 過去の会話履歴 ====="]
         for msg in messages:
-            # AIメッセージかユーザーメッセージかを判定
-            if msg.user_id == "ai_haruto":
-                history_lines.append(f"ハルト: {msg.content}")
+            # user_typeを使ってAIかユーザーかを判定
+            if hasattr(msg, "user_type") and msg.user_type == "ai":
+                # AIの場合は、どのAIかを明確にする
+                if msg.user_id == "ai_haruto":
+                    history_lines.append(f"[AI:ハルト]: {msg.content}")
+                else:
+                    # 他のAIの場合（将来対応）
+                    history_lines.append(f"[AI:{msg.user_name}]: {msg.content}")
             else:
-                history_lines.append(f"{msg.user_name}: {msg.content}")
+                # ユーザーの場合
+                history_lines.append(f"[ユーザー:{msg.user_name}]: {msg.content}")
 
         history_lines.append("")  # 空行を追加
         return "\n".join(history_lines)
@@ -103,6 +109,7 @@ class GeminiAPIClient:
 
         # 過去の会話履歴を取得
         conversation_history = ""
+        logger.info(f"デバッグ: channel_id={channel_id}, db_session={db_session is not None}")
         if channel_id and db_session:
             try:
                 # 動的インポートでcrudを取得
@@ -112,17 +119,37 @@ class GeminiAPIClient:
                     import crud
 
                 recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=30)
+                logger.info(f"デバッグ: 取得したメッセージ数={len(recent_messages)}")
+                for i, msg in enumerate(recent_messages[-5:]):  # 最新5件をログ出力
+                    logger.info(f"デバッグ: メッセージ{i}: user_id={msg.user_id}, content='{msg.content[:30]}...'")
                 conversation_history = self._format_conversation_history(recent_messages)
                 logger.info(f"過去の会話履歴を取得: {len(recent_messages)}件のメッセージ")
+                logger.info(f"デバッグ: conversation_history の長さ={len(conversation_history)}")
             except Exception as e:
-                logger.warning(f"過去の会話履歴取得エラー: {str(e)}")
+                logger.error(f"過去の会話履歴取得エラー: {str(e)}")
+                import traceback
+
+                logger.error(f"エラー詳細: {traceback.format_exc()}")
                 conversation_history = ""
+        else:
+            logger.warning(
+                f"デバッグ: 会話履歴取得をスキップ - channel_id={channel_id}, db_session={db_session is not None}"
+            )
 
         # プロンプトを構成
         if conversation_history:
-            prompt = f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\nユーザー: {user_message}\nハルト:"
+            prompt = f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+            logger.info("デバッグ: 会話履歴付きプロンプトを使用")
         else:
-            prompt = f"{self._system_prompt}\n\nユーザー: {user_message}\nハルト:"
+            prompt = f"{self._system_prompt}\n\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+            logger.warning("デバッグ: 会話履歴なしプロンプトを使用")
+
+        # プロンプトの一部をログに出力（デバッグ用）
+        logger.info(f"デバッグ: プロンプト長={len(prompt)}")
+        if len(prompt) > 2000:
+            logger.info(f"デバッグ: プロンプト先頭1000文字: {prompt[:1000]}...")
+        else:
+            logger.info(f"デバッグ: プロンプト全体: {prompt}")
 
         for attempt in range(max_retries):
             try:

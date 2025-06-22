@@ -15,6 +15,7 @@ def create_message(db: Session, message: MessageCreate) -> Message:
         channel_id=message.channel_id,
         user_id=message.user_id,
         user_name=message.user_name,
+        user_type=message.user_type,
         content=message.content,
         timestamp=message.timestamp,
         is_own_message=message.is_own_message,

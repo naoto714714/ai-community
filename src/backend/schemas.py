@@ -35,6 +35,7 @@ class MessageBase(BaseModel):
     channel_id: str
     user_id: str
     user_name: str
+    user_type: str = "user"  # "user", "ai"
     content: str
     timestamp: datetime
     is_own_message: bool

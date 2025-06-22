@@ -1,4 +1,4 @@
-import { Box, Text, Group } from '@mantine/core';
+import { Box, Text, Group, Badge } from '@mantine/core';
 import dayjs from 'dayjs';
 import type { Message } from '../types/chat';
 
@@ -7,6 +7,8 @@ interface MessageItemProps {
 }
 
 export function MessageItem({ message }: MessageItemProps) {
+  const isAI = message.userType === 'ai';
+
   return (
     <Box
       data-testid='message-container'
@@ -22,7 +24,9 @@ export function MessageItem({ message }: MessageItemProps) {
           maxWidth: '70%',
           backgroundColor: message.isOwnMessage
             ? 'var(--mantine-color-blue-6)'
-            : 'var(--mantine-color-gray-7)',
+            : isAI
+              ? 'var(--mantine-color-violet-6)'
+              : 'var(--mantine-color-gray-7)',
           color: 'white',
           padding: '0.75rem 1rem',
           borderRadius: '12px',
@@ -30,9 +34,16 @@ export function MessageItem({ message }: MessageItemProps) {
         }}
       >
         <Group justify='space-between' gap='xs' mb='xs'>
-          <Text size='sm' fw={600}>
-            {message.userName}
-          </Text>
+          <Group gap='xs'>
+            <Text size='sm' fw={600}>
+              {message.userName}
+            </Text>
+            {isAI && (
+              <Badge size='xs' variant='light' color='violet'>
+                AI
+              </Badge>
+            )}
+          </Group>
           <Text size='xs' opacity={0.7}>
             {dayjs(message.timestamp).format('HH:mm')}
           </Text>

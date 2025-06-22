@@ -61,6 +61,7 @@ export function Layout() {
                   channelId: data.data.channel_id,
                   userId: data.data.user_id,
                   userName: data.data.user_name,
+                  userType: data.data.user_type || 'user', // デフォルトはuser
                   content: data.data.content,
                   timestamp: new Date(data.data.timestamp),
                   isOwnMessage: data.data.is_own_message,
@@ -134,6 +135,7 @@ export function Layout() {
               channelId: string;
               userId: string;
               userName: string;
+              userType: 'user' | 'ai';
               content: string;
               timestamp: string;
               isOwnMessage: boolean;
@@ -142,6 +144,7 @@ export function Layout() {
               channelId: msg.channelId,
               userId: msg.userId,
               userName: msg.userName,
+              userType: msg.userType || 'user', // デフォルトはuser
               content: msg.content,
               timestamp: new Date(msg.timestamp),
               isOwnMessage: msg.isOwnMessage,
@@ -171,6 +174,7 @@ export function Layout() {
         channelId: activeChannelId,
         userId: 'user',
         userName: 'ユーザー',
+        userType: 'user',
         content,
         timestamp: new Date(),
         isOwnMessage: true,
@@ -188,6 +192,7 @@ export function Layout() {
             channel_id: userMessage.channelId,
             user_id: userMessage.userId,
             user_name: userMessage.userName,
+            user_type: userMessage.userType,
             content: userMessage.content,
             timestamp: userMessage.timestamp.toISOString(),
             is_own_message: userMessage.isOwnMessage,

@@ -58,6 +58,7 @@ def create_ai_message_data(channel_id: str, content: str) -> dict[str, Any]:
         "channel_id": channel_id,
         "user_id": "ai_haruto",
         "user_name": "ハルト",
+        "user_type": "ai",
         "content": content,
         "timestamp": datetime.now(JST).isoformat(),
         "is_own_message": False,
