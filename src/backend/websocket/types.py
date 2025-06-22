@@ -10,6 +10,7 @@ class WebSocketMessageData(TypedDict):
     channel_id: str
     user_id: str
     user_name: str
+    user_type: str
     content: str
     timestamp: str
     is_own_message: bool

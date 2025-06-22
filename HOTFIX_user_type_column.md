@@ -4,7 +4,7 @@
 
 `npm run dev`実行時に以下のエラーが発生：
 
-```
+```sql
 psycopg2.errors.UndefinedColumn: column messages.user_type does not exist
 ```
 

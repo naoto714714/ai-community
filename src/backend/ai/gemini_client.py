@@ -90,6 +90,37 @@ class GeminiAPIClient:
         history_lines.append("")  # 空行を追加
         return "\n".join(history_lines)
 
+    async def _fetch_conversation_history(self, channel_id: str, db_session: Session) -> str:
+        """会話履歴を取得してフォーマットする"""
+        try:
+            # 動的インポートでcrudを取得
+            try:
+                from .. import crud
+            except ImportError:
+                import crud
+
+            recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=30)
+            logger.info(f"デバッグ: 取得したメッセージ数={len(recent_messages)}")
+            for i, msg in enumerate(recent_messages[-5:]):  # 最新5件をログ出力
+                logger.info(f"デバッグ: メッセージ{i}: user_id={msg.user_id}, content='{msg.content[:30]}...'")
+            conversation_history = self._format_conversation_history(recent_messages)
+            logger.info(f"過去の会話履歴を取得: {len(recent_messages)}件のメッセージ")
+            logger.info(f"デバッグ: conversation_history の長さ={len(conversation_history)}")
+            return conversation_history
+        except Exception as e:
+            logger.error(f"過去の会話履歴取得エラー: {str(e)}")
+            import traceback
+
+            logger.error(f"エラー詳細: {traceback.format_exc()}")
+            return ""
+
+    def _build_prompt(self, user_message: str, conversation_history: str) -> str:
+        """プロンプトを構築する"""
+        if conversation_history:
+            return f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+        else:
+            return f"{self._system_prompt}\n\n[ユーザー]: {user_message}\n[AI:ハルト]:"
+
     async def generate_response(
         self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
     ) -> str:
