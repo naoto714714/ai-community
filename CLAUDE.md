@@ -226,6 +226,9 @@ export GEMINI_API_KEY="あなたのGemini APIキー"
 export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
 export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
+
+# 🔧 AI応答設定
+export AI_MAX_OUTPUT_TOKENS=2048             # AI応答の最大トークン数（デフォルト: 2048）
 ```
 
 #### AI自動会話機能の詳細
@@ -297,3 +300,6 @@ uv run --frozen pyright          # 型チェック
 - [ ] **AsyncSession導入**: conversation_timerでの非同期DB処理最適化
 - [ ] **依存性注入**: セッション管理の統一と効率化
 - [ ] **パフォーマンス改善**: AI自動会話機能の非同期処理最適化
+
+### 🐛 最近の修正
+- [x] **AIメッセージ途切れ問題修正**（2025-06-22）: 最大出力トークン数を1000→2048に増加
