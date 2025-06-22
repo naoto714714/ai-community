@@ -42,4 +42,44 @@ describe('MessageItem', () => {
     expect(messageContainer).not.toBeNull();
     expect(messageContainer).toHaveStyle({ justifyContent: 'flex-end' });
   });
+
+  it('空のコンテンツでも正常に表示される', () => {
+    const emptyMessage = { ...mockMessage, content: '' };
+    renderWithProvider(<MessageItem message={emptyMessage} />);
+
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    // 空のコンテンツでもクラッシュしないことを確認
+    expect(screen.getByTestId('message-container')).toBeInTheDocument();
+  });
+
+  it('長いメッセージコンテンツが正常に表示される', () => {
+    const longContent = 'a'.repeat(1000);
+    const longMessage = { ...mockMessage, content: longContent };
+    renderWithProvider(<MessageItem message={longMessage} />);
+
+    expect(screen.getByText(longContent)).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+  });
+
+  it('タイムスタンプが正しい形式で表示される', () => {
+    renderWithProvider(<MessageItem message={mockMessage} />);
+
+    // HH:mm形式でタイムスタンプが表示されることを確認
+    expect(screen.getByText('19:00')).toBeInTheDocument(); // UTCから+9時間（JST）
+  });
+
+  it('AIメッセージの場合はAIバッジが表示される', () => {
+    const aiMessage = { ...mockMessage, userType: 'ai' as const, userName: 'AI Assistant' };
+    renderWithProvider(<MessageItem message={aiMessage} />);
+
+    expect(screen.getByText('AI Assistant')).toBeInTheDocument();
+    expect(screen.getByText('AI')).toBeInTheDocument();
+  });
+
+  it('ユーザーメッセージの場合はAIバッジが表示されない', () => {
+    renderWithProvider(<MessageItem message={mockMessage} />);
+
+    expect(screen.getByText('Test User')).toBeInTheDocument();
+    expect(screen.queryByText('AI')).not.toBeInTheDocument();
+  });
 });
