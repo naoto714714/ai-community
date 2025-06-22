@@ -83,8 +83,7 @@ ai-community/
 │   │   ├── models.py        # SQLAlchemyモデル
 │   │   ├── schemas.py       # Pydanticスキーマ
 │   │   ├── crud.py          # データベース操作
-│   │   ├── (chat.db)        # SQLite開発用DB（.gitignore除外済み）
-│   │   ├── ai/              # AI機能
+│   │   │   │   ├── ai/              # AI機能
 │   │   │   ├── __init__.py              # AI機能パッケージ初期化
 │   │   │   ├── gemini_client.py         # Gemini API クライアント
 │   │   │   ├── message_handlers.py      # AI応答処理
@@ -196,16 +195,7 @@ npm run dev
 
 ### 4. データベース設定
 
-プロジェクトは3つのデータベース環境に対応しています：
-
-#### 🧪 テスト環境（自動設定）
-```bash
-# テスト実行時は自動的にインメモリDBを使用
-TESTING=true
-# SQLite :memory: を使用（ファイル生成なし）
-```
-
-#### 🚀 本番・ステージング環境（Supabase PostgreSQL）
+#### 🚀 Supabase PostgreSQL（本番・開発環境）
 ```bash
 # Supabase環境変数を設定
 export DB_HOST="aws-0-ap-northeast-1.pooler.supabase.com"
@@ -215,12 +205,13 @@ export DB_USER="postgres.your-project-id"
 export DB_PASSWORD="your-database-password"
 ```
 
-#### 💻 ローカル開発環境（SQLite - フォールバック）
+#### 🧪 テスト環境（自動設定）
 ```bash
-# 環境変数を設定しない場合、自動的にSQLiteファイル（chat.db）を使用
-# chat.dbは.gitignoreで除外済み（セキュリティ・容量対策）
-# ローカル開発・デバッグ時のみ使用
+# テスト実行時は自動的にインメモリDBを使用
+TESTING=true
+# PostgreSQL :memory: を使用（ファイル生成なし）
 ```
+
 
 ### 5. AI機能の設定（オプション）
 

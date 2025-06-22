@@ -163,6 +163,21 @@ async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
         f"AI応答ブロードキャスト完了: broadcast_time={broadcast_time:.2f}s, message_id={message_data.message_id}"
     )
 
+    # Discord webhook送信
+    try:
+        try:
+            # パッケージとして実行される場合
+            from ..utils.discord_webhook import discord_sender
+        except ImportError:
+            # 直接実行される場合
+            from utils.discord_webhook import discord_sender
+
+        success = await discord_sender.send_ai_message(message_data.user_name, message_data.content)
+        if success:
+            logger.debug(f"Discord webhook送信成功: message_id={message_data.message_id}")
+    except Exception as e:
+        logger.warning(f"Discord webhook送信エラー: {str(e)}")
+
 
 async def handle_ai_error(channel_id: str, error: Exception, error_time: float) -> None:
     """AI応答エラー時の処理"""
