@@ -90,9 +90,11 @@ class GeminiAPIClient:
             personality = self.personality_manager.get_random_personality(exclude_user_id)
             if personality:
                 if exclude_user_id:
-                    logger.debug(f"連続発言防止考慮でランダム人格選択: {personality.name}")
+                    logger.info(
+                        f"連続発言防止考慮でランダム人格選択: {personality.name} (user_id: {personality.user_id}), 除外対象: {exclude_user_id}"
+                    )
                 else:
-                    logger.debug(f"ランダム人格選択: {personality.name}")
+                    logger.debug(f"ランダム人格選択: {personality.name} (user_id: {personality.user_id})")
                 return personality
         except Exception as e:
             logger.error(f"人格選択エラー: {str(e)}")
