@@ -160,11 +160,19 @@ npm install
 npm run dev
 ```
 
-これでフロントエンドとバックエンドが同時に起動します！
+**🔄 自動再起動機能**: `npm run dev`は既存のプロセスを自動停止してから起動します！
 （バックエンドの依存関係は自動で`uv sync`が実行されます）
 
 - **フロントエンド**: `http://localhost:5173`
 - **バックエンド**: `http://localhost:8000`
+
+#### 開発コマンド一覧
+```bash
+npm run dev        # 既存プロセス停止 → 両方起動（推奨）
+npm run dev:start  # 両方起動（停止処理なし）
+npm run dev:stop   # 両方停止
+npm run restart    # npm run dev のエイリアス
+```
 
 ### 3. 個別起動（従来の方法）
 
