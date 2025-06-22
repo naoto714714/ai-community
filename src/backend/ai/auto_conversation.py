@@ -90,6 +90,19 @@ def create_auto_ai_message_data(channel_id: str, content: str, personality) -> d
     }
 
 
+def convert_message_create_to_broadcast_data(message_create: MessageCreate) -> MessageBroadcastData:
+    """MessageCreateオブジェクトをMessageBroadcastDataに変換する."""
+    return MessageBroadcastData(
+        message_id=message_create.id,
+        channel_id=message_create.channel_id,
+        user_id=message_create.user_id,
+        user_name=message_create.user_name,
+        user_type=message_create.user_type,
+        content=message_create.content,
+        timestamp=message_create.timestamp,
+    )
+
+
 async def broadcast_auto_ai_response(message_data: MessageBroadcastData) -> None:
     """自動会話AI応答をブロードキャスト."""
     broadcast_message = {
@@ -205,14 +218,6 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
 
         ai_message_create = MessageCreate.model_validate(ai_message_data)
 
-        # セッションから切り離される前に必要な情報を取得
-        message_id = ai_message_create.id
-        user_id = ai_message_create.user_id
-        user_name = ai_message_create.user_name
-        user_type = ai_message_create.user_type
-        content = ai_message_create.content
-        timestamp = ai_message_create.timestamp
-
         # データベースに保存
         db_start = time.time()
         save_message_with_session_management(
@@ -221,17 +226,9 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
             auto_commit=False,  # セッションは外部で管理
         )
         db_time = time.time() - db_start
-        logger.info(f"自動会話AI応答DB保存完了: db_time={db_time:.2f}s, message_id={message_id}")
+        logger.info(f"自動会話AI応答DB保存完了: db_time={db_time:.2f}s, message_id={ai_message_create.id}")
 
-        return MessageBroadcastData(
-            message_id=message_id,
-            channel_id=channel_id,
-            user_id=user_id,
-            user_name=user_name,
-            user_type=user_type,
-            content=content,
-            timestamp=timestamp,
-        )
+        return convert_message_create_to_broadcast_data(ai_message_create)
 
     except Exception as e:
         logger.error(f"自動会話AI応答生成エラー: {str(e)}")
