@@ -11,11 +11,13 @@ from pathlib import Path
 try:
     # パッケージとして実行される場合
     from .. import crud
+    from ..constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT
     from .personality_manager import AIPersonality, get_personality_manager
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.personality_manager import AIPersonality, get_personality_manager
+    from constants.ai_config import DEFAULT_CONVERSATION_HISTORY_LIMIT
 from google import genai  # type: ignore
 from google.genai import types  # type: ignore
 from sqlalchemy.orm import Session
@@ -114,7 +116,9 @@ class GeminiAPIClient:
     async def _fetch_conversation_history(self, channel_id: str, db_session: Session) -> str:
         """会話履歴を取得してフォーマットする"""
         try:
-            recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=30)
+            recent_messages = crud.get_recent_channel_messages(
+                db_session, channel_id, limit=DEFAULT_CONVERSATION_HISTORY_LIMIT
+            )
             logger.debug(f"デバッグ: 取得したメッセージ数={len(recent_messages)}")
             for i, msg in enumerate(recent_messages[-5:]):  # 最新5件をログ出力
                 logger.debug(f"デバッグ: メッセージ{i}: user_id={msg.user_id}, content='{msg.content[:30]}...'")

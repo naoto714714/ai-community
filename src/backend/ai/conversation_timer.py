@@ -6,6 +6,7 @@ from contextlib import asynccontextmanager
 
 try:
     # パッケージとして実行される場合
+    from ..constants.ai_config import DEFAULT_CHECK_INTERVAL_SECONDS
     from ..database import SessionLocal
     from .auto_conversation import handle_auto_conversation_check
     from .conversation_config import get_conversation_config
@@ -13,6 +14,7 @@ except ImportError:
     # 直接実行される場合
     from ai.auto_conversation import handle_auto_conversation_check
     from ai.conversation_config import get_conversation_config
+    from constants.ai_config import DEFAULT_CHECK_INTERVAL_SECONDS
     from database import SessionLocal
 
 logger = logging.getLogger(__name__)
@@ -67,8 +69,8 @@ class ConversationTimer:
 
     async def _timer_loop(self) -> None:
         """タイマーのメインループ."""
-        # チェック間隔（15秒間隔でチェックして正確な間隔を実現）
-        check_interval = 15
+        # チェック間隔（定数化された秒間隔でチェックして正確な間隔を実現）
+        check_interval = DEFAULT_CHECK_INTERVAL_SECONDS
 
         logger.info(
             f"自動会話タイマーループ開始: check_interval={check_interval}秒, conversation_interval={self.config.conversation_interval}秒, target_channel={self.config.target_channel_id}"
@@ -81,7 +83,7 @@ class ConversationTimer:
                 except Exception as e:
                     logger.error(f"自動会話チェック中にエラー: {str(e)}")
 
-                # 15秒間隔でチェック
+                # 定数化された間隔でチェック
                 await asyncio.sleep(check_interval)
 
         except asyncio.CancelledError:
