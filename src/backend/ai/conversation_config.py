@@ -18,7 +18,7 @@ class ConversationConfig:
     target_channel_id: str = "1"
 
     # 会話履歴の参照件数
-    history_limit: int = 30
+    history_limit: int = 10
 
     # 自動会話機能の有効/無効
     enabled: bool = True
