@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 try:
     # パッケージとして実行される場合（テスト等）
     from . import crud
+    from .ai.conversation_timer import start_conversation_timer, stop_conversation_timer
     from .database import SessionLocal, get_db
     from .models import Channel
     from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -17,6 +18,7 @@ except ImportError:
     try:
         # 直接実行される場合（backend ディレクトリから）
         import crud
+        from ai.conversation_timer import start_conversation_timer, stop_conversation_timer
         from database import SessionLocal, get_db
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -29,6 +31,7 @@ except ImportError:
         sys.path.append(str(Path(__file__).parent))
 
         import crud
+        from ai.conversation_timer import start_conversation_timer, stop_conversation_timer
         from database import SessionLocal, get_db
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -63,8 +66,16 @@ async def lifespan(app: FastAPI):
     # 起動時処理
     # 注意: テーブル作成はAlembicマイグレーションで実行済み
     init_channels()  # 初期チャンネル作成
+
+    # 自動会話タイマーを開始
+    logger.info("自動会話タイマーを開始中...")
+    await start_conversation_timer()
+
     yield
+
     # 終了時処理
+    logger.info("自動会話タイマーを停止中...")
+    await stop_conversation_timer()
 
 
 app = FastAPI(
