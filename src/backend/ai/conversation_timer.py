@@ -110,12 +110,15 @@ class ConversationTimer:
             executed = await handle_auto_conversation_check(self.config.target_channel_id, db)
 
             if executed:
+                # 自動会話が実行された場合は明示的にコミット（連続発言防止のため）
+                db.commit()
                 logger.info("自動会話が実行されました")
             else:
                 logger.debug("自動会話の実行条件が満たされていません")
 
         except Exception as e:
             logger.error(f"自動会話チェック・実行でエラー: {str(e)}")
+            db.rollback()
         finally:
             db.close()
 
