@@ -7,15 +7,11 @@ import re
 import threading
 from pathlib import Path
 
+# 動的インポートを避けるための静的インポート
+import crud
 import google.generativeai as genai  # type: ignore
 from google.generativeai.types import GenerateContentResponse  # type: ignore
 from sqlalchemy.orm import Session
-
-# 動的インポートを避けるための静的インポート
-try:
-    from .. import crud
-except ImportError:
-    import crud
 
 logger = logging.getLogger(__name__)
 

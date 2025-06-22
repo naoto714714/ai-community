@@ -1,27 +1,19 @@
 """AI応答処理とメッセージハンドリング"""
 
 import json
+import logging
 import time
 import uuid
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import crud
+from ai.gemini_client import GeminiAPIClient, get_gemini_client
+from schemas import MessageCreate
 from sqlalchemy.orm import Session
-
-from ..utils.session_manager import save_message_with_session_management
-from .gemini_client import GeminiAPIClient, get_gemini_client
-
-try:
-    from .. import crud
-    from ..schemas import MessageCreate
-    from ..websocket.manager import manager
-except ImportError:
-    import crud
-    from schemas import MessageCreate
-    from websocket.manager import manager
-
-import logging
+from utils.session_manager import save_message_with_session_management
+from websocket.manager import manager
 
 logger = logging.getLogger(__name__)
 

@@ -2,7 +2,7 @@
 
 from typing import TypedDict
 
-from ..schemas import UserType
+from schemas import UserType
 
 
 class WebSocketMessageData(TypedDict):

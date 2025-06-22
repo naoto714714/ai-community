@@ -6,16 +6,15 @@ import os
 import traceback
 from typing import Any, NotRequired, Required, TypedDict
 
+import crud
+from ai.message_handlers import handle_ai_response
 from fastapi import WebSocket
 from pydantic import ValidationError
+from schemas import MessageCreate
 from sqlalchemy.orm import Session
 from starlette.websockets import WebSocketState
-
-from .. import crud
-from ..ai.message_handlers import handle_ai_response
-from ..schemas import MessageCreate
-from ..utils.session_manager import save_message_with_session_management
-from .manager import manager
+from utils.session_manager import save_message_with_session_management
+from websocket.manager import manager
 
 
 class MessageTypes:
