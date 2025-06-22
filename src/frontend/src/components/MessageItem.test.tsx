@@ -5,6 +5,7 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
+import dayjs from 'dayjs';
 import { MessageItem } from './MessageItem';
 import type { Message } from '../types/chat';
 
@@ -64,8 +65,9 @@ describe('MessageItem', () => {
   it('タイムスタンプが正しい形式で表示される', () => {
     renderWithProvider(<MessageItem message={mockMessage} />);
 
-    // HH:mm形式でタイムスタンプが表示されることを確認
-    expect(screen.getByText('19:00')).toBeInTheDocument(); // UTCから+9時間（JST）
+    // dayjsを使って期待される形式を動的に計算（環境のタイムゾーンに依存しない）
+    const expectedTimeString = dayjs(utcTimestamp).format('HH:mm');
+    expect(screen.getByText(expectedTimeString)).toBeInTheDocument();
   });
 
   it('AIメッセージの場合はAIバッジが表示される', () => {
