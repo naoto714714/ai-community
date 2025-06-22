@@ -32,16 +32,34 @@ def load_conversation_config() -> ConversationConfig:
     interval_minutes = os.getenv("AI_CONVERSATION_INTERVAL_MINUTES")
     if interval_minutes:
         try:
-            config.conversation_interval = int(interval_minutes) * 60
-            logger.info(f"自動会話間隔を環境変数から設定: {interval_minutes}分 ({config.conversation_interval}秒)")
+            minutes_value = int(interval_minutes)
+            # 負の値や0を拒否
+            if minutes_value <= 0:
+                logger.error(
+                    f"無効な間隔設定（正の値が必要）: {interval_minutes}分, デフォルト値{config.conversation_interval // 60}分を使用"
+                )
+            # 範囲チェック（最小30秒、最大24時間）
+            elif minutes_value < 0.5 or minutes_value > 1440:
+                logger.error(
+                    f"間隔設定が範囲外（0.5-1440分）: {interval_minutes}分, デフォルト値{config.conversation_interval // 60}分を使用"
+                )
+            else:
+                config.conversation_interval = minutes_value * 60
+                logger.info(f"自動会話間隔を環境変数から設定: {interval_minutes}分 ({config.conversation_interval}秒)")
         except ValueError:
-            logger.error(f"無効な間隔設定: {interval_minutes}, デフォルト値を使用")
+            logger.error(
+                f"無効な間隔設定（数値変換エラー）: {interval_minutes}, デフォルト値{config.conversation_interval // 60}分を使用"
+            )
 
     # 環境変数から対象チャンネルIDを取得
     target_channel = os.getenv("AI_CONVERSATION_TARGET_CHANNEL")
     if target_channel:
-        config.target_channel_id = target_channel
-        logger.info(f"対象チャンネルIDを環境変数から設定: {target_channel}")
+        # チャンネルIDの形式検証
+        if not _validate_channel_id(target_channel):
+            logger.error(f"無効なチャンネルID形式: {target_channel}, デフォルト値{config.target_channel_id}を使用")
+        else:
+            config.target_channel_id = target_channel
+            logger.info(f"対象チャンネルIDを環境変数から設定: {target_channel}")
 
     # 環境変数から有効/無効を取得
     enabled = os.getenv("AI_CONVERSATION_ENABLED", "true").lower()
@@ -52,6 +70,24 @@ def load_conversation_config() -> ConversationConfig:
         f"自動会話設定読み込み完了: interval={config.conversation_interval}s, channel={config.target_channel_id}"
     )
     return config
+
+
+def _validate_channel_id(channel_id: str) -> bool:
+    """チャンネルIDの形式を検証."""
+    # 空文字列チェック
+    if not channel_id or not channel_id.strip():
+        return False
+
+    # 長さチェック（1-50文字）
+    if len(channel_id) < 1 or len(channel_id) > 50:
+        return False
+
+    # 数字のみまたは英数字とハイフン、アンダースコアのパターンをチェック
+    # チャンネルIDは通常数字または英数字の組み合わせ
+    if not channel_id.replace("-", "").replace("_", "").isalnum():
+        return False
+
+    return True
 
 
 # グローバル設定インスタンス
