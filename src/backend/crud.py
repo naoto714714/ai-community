@@ -31,24 +31,33 @@ def create_message(db: Session, message: MessageCreate) -> Message:
 
 
 def get_channel_messages(db: Session, channel_id: str, skip: int = 0, limit: int = 100) -> list[Message]:
-    """チャンネルのメッセージを取得（最新のメッセージから降順で取得し、時系列順に返す）"""
+    """チャンネルのメッセージを取得（標準的なページネーション対応）"""
     if skip < 0:
         raise ValueError("skip parameter must be non-negative")
     if limit <= 0:
         raise ValueError("limit parameter must be positive")
 
-    # 最新のメッセージから降順で取得
-    messages = (
+    # skip=0の場合（初回読み込み）は最新メッセージを優先表示
+    if skip == 0:
+        # 最新のlimit件を降順で取得して時系列順に並び替え
+        messages = (
+            db.query(Message)
+            .filter(Message.channel_id == channel_id)
+            .order_by(Message.created_at.desc())
+            .limit(limit)
+            .all()
+        )
+        return list(reversed(messages))
+
+    # ページネーション時は標準的な昇順ソート
+    return (
         db.query(Message)
         .filter(Message.channel_id == channel_id)
-        .order_by(Message.created_at.desc())
+        .order_by(Message.created_at.asc())
         .offset(skip)
         .limit(limit)
         .all()
     )
-
-    # 時系列順（古い順）に並び替えて返す
-    return list(reversed(messages))
 
 
 def get_channel_messages_count(db: Session, channel_id: str) -> int:
