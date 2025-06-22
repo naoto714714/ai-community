@@ -10,6 +10,7 @@ try:
     # パッケージとして実行される場合（テスト等）
     from . import crud
     from .ai.conversation_timer import start_conversation_timer, stop_conversation_timer
+    from .constants.logging import LOG_DATE_FORMAT, LOG_FORMAT
     from .database import SessionLocal, get_db
     from .models import Channel
     from .schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -19,6 +20,7 @@ except ImportError:
         # 直接実行される場合（backend ディレクトリから）
         import crud
         from ai.conversation_timer import start_conversation_timer, stop_conversation_timer
+        from constants.logging import LOG_DATE_FORMAT, LOG_FORMAT
         from database import SessionLocal, get_db
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -32,6 +34,7 @@ except ImportError:
 
         import crud
         from ai.conversation_timer import start_conversation_timer, stop_conversation_timer
+        from constants.logging import LOG_DATE_FORMAT, LOG_FORMAT
         from database import SessionLocal, get_db
         from models import Channel
         from schemas import ChannelResponse, MessageResponse, MessagesListResponse
@@ -86,9 +89,7 @@ app = FastAPI(
 )
 
 # ログ設定（時刻表示付き）
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
-)
+logging.basicConfig(level=logging.INFO, format=LOG_FORMAT, datefmt=LOG_DATE_FORMAT)
 logger = logging.getLogger(__name__)
 
 # CORS設定
