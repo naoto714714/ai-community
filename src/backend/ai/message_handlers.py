@@ -91,11 +91,15 @@ def _extract_message_attributes(ai_message_create: MessageCreate) -> tuple[str, 
     )
 
 
-async def _generate_ai_response(user_message: str, channel_id: str) -> tuple[MessageCreate, float]:
+async def _generate_ai_response(
+    user_message: str, channel_id: str, db_session: Session | None = None
+) -> tuple[MessageCreate, float]:
     """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
-    ai_response = await gemini_client.generate_response(user_message, max_retries=3)
+    ai_response = await gemini_client.generate_response(
+        user_message, channel_id=channel_id, db_session=db_session, max_retries=3
+    )
     generation_time = time.time() - generation_start
     logger.info(f"AI応答生成完了: generation_time={generation_time:.2f}s, response_length={len(ai_response)}")
 
@@ -108,7 +112,7 @@ async def generate_and_save_ai_response(
 ) -> MessageBroadcastData:
     """AI応答を生成してデータベースに保存"""
     # AI応答を生成
-    ai_message_create, _ = await _generate_ai_response(user_message, channel_id)
+    ai_message_create, _ = await _generate_ai_response(user_message, channel_id, db_session)
 
     # セッションから切り離される前に必要な情報を取得
     message_id, user_id, user_name, content, timestamp = _extract_message_attributes(ai_message_create)

@@ -9,6 +9,7 @@ from pathlib import Path
 
 import google.generativeai as genai  # type: ignore
 from google.generativeai.types import GenerateContentResponse  # type: ignore
+from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
 
@@ -67,19 +68,61 @@ class GeminiAPIClient:
 親しみやすく、フレンドリーな口調で話してください。
 """
 
-    async def generate_response(self, user_message: str, max_retries: int = 5) -> str:
+    def _format_conversation_history(self, messages: list) -> str:
+        """過去の会話履歴をフォーマットする"""
+        if not messages:
+            return ""
+
+        history_lines = ["===== 過去の会話履歴 ====="]
+        for msg in messages:
+            # AIメッセージかユーザーメッセージかを判定
+            if msg.user_id == "ai_haruto":
+                history_lines.append(f"ハルト: {msg.content}")
+            else:
+                history_lines.append(f"{msg.user_name}: {msg.content}")
+
+        history_lines.append("")  # 空行を追加
+        return "\n".join(history_lines)
+
+    async def generate_response(
+        self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
+    ) -> str:
         """
         ユーザーメッセージに対する応答を生成する.
 
         Args:
             user_message: ユーザーからのメッセージ
+            channel_id: チャンネルID（過去の会話履歴取得用）
+            db_session: データベースセッション
             max_retries: 最大リトライ回数
 
         Returns:
             AIの応答テキスト
         """
         logger.info(f"Gemini API応答生成開始: user_message='{user_message[:50]}...' max_retries={max_retries}")
-        prompt = f"{self._system_prompt}\n\nユーザー: {user_message}\nハルト:"
+
+        # 過去の会話履歴を取得
+        conversation_history = ""
+        if channel_id and db_session:
+            try:
+                # 動的インポートでcrudを取得
+                try:
+                    from .. import crud
+                except ImportError:
+                    import crud
+
+                recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=30)
+                conversation_history = self._format_conversation_history(recent_messages)
+                logger.info(f"過去の会話履歴を取得: {len(recent_messages)}件のメッセージ")
+            except Exception as e:
+                logger.warning(f"過去の会話履歴取得エラー: {str(e)}")
+                conversation_history = ""
+
+        # プロンプトを構成
+        if conversation_history:
+            prompt = f"{self._system_prompt}\n\n{conversation_history}===== 現在の質問 =====\nユーザー: {user_message}\nハルト:"
+        else:
+            prompt = f"{self._system_prompt}\n\nユーザー: {user_message}\nハルト:"
 
         for attempt in range(max_retries):
             try:
