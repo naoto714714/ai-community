@@ -217,12 +217,11 @@ class GeminiAPIClient:
         try:
             response = self.client.models.generate_content(
                 model="gemini-2.5-flash-preview-05-20",
-                contents=[user_message],
+                contents=user_message,
                 config=types.GenerateContentConfig(  # type: ignore
                     system_instruction=personality.prompt_content,
                     temperature=0.9,
                     max_output_tokens=2000,
-                    thinking_config=types.ThinkingConfig(thinking_budget=0),  # Disables thinking
                 ),
             )
             return response
