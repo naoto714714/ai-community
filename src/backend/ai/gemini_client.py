@@ -16,8 +16,8 @@ except ImportError:
     # 直接実行される場合
     import crud
     from ai.personality_manager import AIPersonality, get_personality_manager
-import google.generativeai as genai  # type: ignore
-from google.generativeai.types import GenerateContentResponse  # type: ignore
+from google import genai  # type: ignore
+from google.genai import types  # type: ignore
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -42,9 +42,8 @@ class GeminiAPIClient:
             raise ValueError("GEMINI_API_KEY environment variable is required")
 
         logger.info("GEMINI_API_KEY確認済み")
-        genai.configure(api_key=self.api_key)  # type: ignore
-        self.model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")  # type: ignore
-        logger.info("Gemini 2.5 Flash Preview 05-20モデル初期化完了")
+        self.client = genai.Client(api_key=self.api_key)  # type: ignore
+        logger.info("Gemini 2.5 Flash Preview 05-20クライアント初期化完了")
         self.personality_manager = get_personality_manager()
         self._fallback_prompt: str | None = None
         self._load_fallback_prompt()
@@ -133,12 +132,6 @@ class GeminiAPIClient:
             logger.error(f"エラー詳細: {traceback.format_exc()}")
             return ""
 
-    def _build_prompt(self, user_message: str, conversation_history: str, personality: AIPersonality) -> str:
-        """プロンプトを構築する"""
-        if conversation_history:
-            return f"{personality.prompt_content}\n\n{conversation_history}===== 現在の質問 =====\n[ユーザー]: {user_message}\n[AI:{personality.name}]:"
-        return f"{personality.prompt_content}\n\n[ユーザー]: {user_message}\n[AI:{personality.name}]:"
-
     async def generate_response(
         self, user_message: str, channel_id: str | None = None, db_session: Session | None = None, max_retries: int = 5
     ) -> tuple[str, AIPersonality]:
@@ -170,29 +163,24 @@ class GeminiAPIClient:
                 f"デバッグ: 会話履歴取得をスキップ - channel_id={channel_id}, db_session={db_session is not None}"
             )
 
-        # プロンプトを構築
-        prompt = self._build_prompt(user_message, conversation_history, personality)
+        # 新しいAPIではsystem_instructionでプロンプト設定
+        logger.debug(f"選択された人格のプロンプト長: {len(personality.prompt_content)}")
         if conversation_history:
-            logger.debug("デバッグ: 会話履歴付きプロンプトを使用")
+            logger.debug(f"会話履歴長: {len(conversation_history)}")
+            # 会話履歴がある場合は文脈も含めてメッセージを構築
+            enhanced_message = f"{conversation_history}\n\n現在の質問: {user_message}"
         else:
-            logger.debug("デバッグ: 会話履歴なしプロンプトを使用")
-
-        # プロンプトの一部をログに出力（デバッグ用、本番では出力されない）
-        logger.debug(f"デバッグ: プロンプト長={len(prompt)}")
-        if len(prompt) > 2000:
-            logger.debug(f"デバッグ: プロンプト先頭1000文字: {prompt[:1000]}...")
-        else:
-            logger.debug(f"デバッグ: プロンプト全体: {prompt}")
+            enhanced_message = user_message
 
         for attempt in range(max_retries):
             try:
                 logger.info(f"Gemini API呼び出し試行 {attempt + 1}/{max_retries}")
                 # 非同期でGemini APIを呼び出し
                 loop = asyncio.get_event_loop()
-                response: GenerateContentResponse = await loop.run_in_executor(None, self._sync_generate, prompt)
+                response = await loop.run_in_executor(None, self._sync_generate, enhanced_message, personality)
 
-                if response.text:
-                    response_text = response.text.strip()
+                if response and hasattr(response, "text") and response.text:  # type: ignore
+                    response_text = response.text.strip()  # type: ignore
                     logger.info(
                         f"Gemini API応答成功: response_length={len(response_text)}, personality={personality.name}"
                     )
@@ -223,19 +211,27 @@ class GeminiAPIClient:
 
         return self.FALLBACK_MESSAGE, personality
 
-    def _sync_generate(self, prompt: str) -> GenerateContentResponse:
+    def _sync_generate(self, user_message: str, personality) -> object | None:
         """
         同期的にコンテンツを生成する（run_in_executor用）.
 
-        Gemini 2.5 Flash Preview 05-20用の基本設定でコンテンツを生成します。
+        新しいGoogle Genai APIを使用してコンテンツを生成します。
         """
-        # Gemini 2.5 Flash用の基本設定
-        generation_config = {
-            "temperature": 0.7,
-            "max_output_tokens": 1000,
-        }
-
-        return self.model.generate_content(prompt, generation_config=generation_config)  # type: ignore
+        try:
+            response = self.client.models.generate_content(
+                model="gemini-2.5-flash-preview-05-20",
+                contents=[user_message],
+                config=types.GenerateContentConfig(  # type: ignore
+                    system_instruction=personality.prompt_content,
+                    temperature=0.9,
+                    max_output_tokens=2000,
+                    thinking_config=types.ThinkingConfig(thinking_budget=0),  # Disables thinking
+                ),
+            )
+            return response
+        except Exception as e:
+            logger.error(f"Gemini API呼び出しエラー: {str(e)}")
+            return None
 
     def should_respond_to_message(self, message: str) -> bool:
         """
