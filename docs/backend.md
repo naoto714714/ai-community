@@ -34,8 +34,9 @@ src/backend/
 ├── schemas.py           # Pydanticスキーマ
 ├── crud.py              # データベース操作
 ├── ai/                  # AI機能
-│   ├── gemini_client.py      # Gemini API クライアント
-│   └── message_handlers.py   # AI応答処理
+│   ├── gemini_client.py         # Gemini API クライアント
+│   ├── message_handlers.py      # AI応答処理
+│   └── personality_manager.py   # AI人格管理
 ├── websocket/           # WebSocket処理
 │   ├── handler.py       # WebSocketハンドラー
 │   ├── manager.py       # 接続管理
@@ -70,8 +71,8 @@ created_at: datetime # 作成時刻
 ```python
 id: str              # 主キー
 channel_id: str      # チャンネルID
-user_id: str         # ユーザーID（AI応答時は "ai_haruto"）
-user_name: str       # ユーザー名（AI応答時は "ハルト"）
+user_id: str         # ユーザーID（AI応答時は人格に応じたID）
+user_name: str       # ユーザー名（AI応答時は人格に応じた名前）
 content: str         # メッセージ内容
 timestamp: datetime  # 送信時刻
 is_own_message: bool # 自分のメッセージか
@@ -115,21 +116,21 @@ created_at: datetime # 作成時刻
 - 同じチャンネル内の過去30件のメッセージを自動取得
 - 全ユーザーの発言とAI応答を含む完全な会話履歴
 - プロンプト内で「過去の会話履歴」と「現在の質問」を明確に区別
-- 適切なフォーマットでメッセージ発言者を識別（ハルト vs ユーザー名）
+- 適切なフォーマットでメッセージ発言者を識別（AI人格 vs ユーザー名）
 
 **プロンプト構成例**:
 ```
-[システムプロンプト]
+[選択されたAI人格のシステムプロンプト]
 
 ===== 過去の会話履歴 =====
 田中: おはよう！
-ハルト: おはよう！今日もいい天気やね😊
+AI:レン: おはよう！今日は何か面白いことありそうだな😊
 田中: 今日は雨だよ...
-ハルト: あー、そうやったんか💦 でも雨の日も悪くないで！
+AI:ルナ: 雨の日も素敵よ♪ 音とか匂いとか、特別な気分になれるもん！
 
 ===== 現在の質問 =====
 ユーザー: @AI 昨日話した件、どうだった？
-ハルト:
+AI:
 ```
 
 ## 🔗 API仕様
@@ -279,8 +280,8 @@ interface MessageBroadcastResponse {
   data: {
     id: string;
     channel_id: string;
-    user_id: "ai_haruto";    // AI応答は固定
-    user_name: "ハルト";     // AI応答は固定
+    user_id: string;         // AI応答時は人格に応じたID (ai_ren, ai_mina等)
+    user_name: string;       // AI応答時は人格に応じた名前 (レン, ミナ等)
     content: string;
     timestamp: string;
     is_own_message: false;   // AI応答は常にfalse
@@ -335,7 +336,7 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 - ✅ リアルタイムメッセージ配信
 - ✅ メッセージ永続化
 - ✅ **Google Gemini AI統合**
-- ✅ **AI チャットボット「ハルト」**
+- ✅ **複数AI人格チャットボット**
 - ✅ **@AI メンション機能**
 - ✅ **過去30件メッセージ履歴による文脈理解機能**
 - ✅ 堅牢な接続管理システム
