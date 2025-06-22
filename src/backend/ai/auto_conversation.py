@@ -4,18 +4,15 @@ import json
 import logging
 import time
 import uuid
-from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta, timezone
+from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
-
-# タイムゾーン定数
-JST = timezone(timedelta(hours=9))
 
 try:
     # パッケージとして実行される場合
     from .. import crud
-    from ..schemas import MessageCreate
+    from ..constants.timezone import JST
+    from ..schemas import MessageBroadcastData, MessageCreate
     from ..utils.session_manager import save_message_with_session_management
     from ..websocket.manager import manager
     from .conversation_config import get_conversation_config
@@ -25,24 +22,12 @@ except ImportError:
     import crud
     from ai.conversation_config import get_conversation_config
     from ai.gemini_client import get_gemini_client
-    from schemas import MessageCreate
+    from constants.timezone import JST
+    from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
     from websocket.manager import manager
 
 logger = logging.getLogger(__name__)
-
-
-@dataclass
-class MessageBroadcastData:
-    """ブロードキャスト用メッセージデータ（循環インポート回避のため再定義）"""
-
-    message_id: str
-    channel_id: str
-    user_id: str
-    user_name: str
-    user_type: str
-    content: str
-    timestamp: datetime
 
 
 # 自動会話専用のプロンプト追加
