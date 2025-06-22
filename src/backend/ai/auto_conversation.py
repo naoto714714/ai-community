@@ -132,7 +132,7 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
             logger.debug("メッセージ履歴が存在しない")
             return False
 
-        latest_message = recent_messages[0]
+        latest_message = recent_messages[-1]  # 最新メッセージを取得
 
         # AI連続発言防止機能を有効化
         # 同じAI人格による連続発言を防止し、会話の多様性を保つ
@@ -178,7 +178,7 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
         # 連続発言防止：最新メッセージがAIの場合は、そのuser_idを除外対象とする
         exclude_user_id = None
         if recent_messages:
-            latest_msg = recent_messages[0]
+            latest_msg = recent_messages[-1]  # 最新メッセージを取得
             logger.debug(
                 f"最新メッセージ詳細: user_name={latest_msg.user_name}, user_id={latest_msg.user_id}, user_type={latest_msg.user_type}"
             )

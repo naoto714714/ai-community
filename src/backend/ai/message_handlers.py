@@ -95,7 +95,7 @@ async def _generate_ai_response(
         try:
             recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=1)
             if recent_messages:
-                latest_msg = recent_messages[0]
+                latest_msg = recent_messages[-1]  # 最新メッセージを取得
                 logger.debug(
                     f"@AI応答 - 最新メッセージ詳細: user_name={latest_msg.user_name}, user_id={latest_msg.user_id}, user_type={latest_msg.user_type}"
                 )
