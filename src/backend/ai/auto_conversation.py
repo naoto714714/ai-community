@@ -134,10 +134,10 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
 
         latest_message = recent_messages[0]
 
-        # AIたちが自由に会話できるよう、連続発言防止は一旦無効化
-        # 将来的に必要があれば、同じAI人格による連続発言のみ防止可能
+        # AI連続発言防止機能を有効化
+        # 同じAI人格による連続発言を防止し、会話の多様性を保つ
         if latest_message.user_type == "ai":
-            logger.debug(f"直前のメッセージがAI（{latest_message.user_name}）による発言です - 自動会話継続")
+            logger.debug(f"直前のメッセージがAI（{latest_message.user_name}）による発言 - 連続発言防止処理")
 
         # 最後のメッセージからの経過時間をチェック
         now = datetime.now(UTC)
@@ -175,6 +175,12 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
         # 過去の会話履歴を取得
         recent_messages = crud.get_recent_channel_messages(db_session, channel_id, config.history_limit)
 
+        # 連続発言防止：最新メッセージがAIの場合は、そのuser_idを除外対象とする
+        exclude_user_id = None
+        if recent_messages and recent_messages[0].user_type == "ai":
+            exclude_user_id = recent_messages[0].user_id
+            logger.info(f"連続発言防止: 前回AI発言者を除外 user_id={exclude_user_id}")
+
         # 会話履歴をフォーマット（既存のロジックを再利用）
         conversation_history = gemini_client._format_conversation_history(recent_messages)
 
@@ -187,10 +193,14 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
 
 上記の会話履歴を踏まえて、今の流れに合った話題や感想を自然に述べてください。"""
 
-        # AI応答を生成（既存のロジックを再利用）
+        # AI応答を生成（連続発言防止考慮）
         start_time = time.time()
         response_text, personality = await gemini_client.generate_response(
-            auto_conversation_message, channel_id=channel_id, db_session=db_session, max_retries=3
+            auto_conversation_message,
+            channel_id=channel_id,
+            db_session=db_session,
+            max_retries=3,
+            exclude_user_id=exclude_user_id,
         )
         generation_time = time.time() - start_time
 

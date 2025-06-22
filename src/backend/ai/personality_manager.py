@@ -120,15 +120,42 @@ class PersonalityManager:
             except Exception as e:
                 logger.error(f"人格ファイル読み込みエラー: {file_path.name} - {str(e)}")
 
-    def get_random_personality(self) -> AIPersonality | None:
-        """ランダムに人格を選択."""
+    def get_random_personality(self, exclude_user_id: str | None = None) -> AIPersonality | None:
+        """
+        ランダムに人格を選択.
+
+        Args:
+            exclude_user_id: 除外するAI人格のuser_id（連続発言防止用）
+
+        Returns:
+            選択された人格、または None
+        """
         if not self.personalities:
             logger.warning("利用可能な人格がありません")
             return None
 
-        selected_name = random.choice(list(self.personalities.keys()))
-        personality = self.personalities[selected_name]
-        logger.debug(f"ランダム人格選択: {personality.name}")
+        # 除外対象がある場合はフィルタリング
+        available_personalities = self.personalities
+        if exclude_user_id:
+            available_personalities = {
+                name: personality
+                for name, personality in self.personalities.items()
+                if personality.user_id != exclude_user_id
+            }
+
+            # 除外後に選択肢がない場合は全人格から選択（フォールバック）
+            if not available_personalities:
+                logger.warning(f"除外後に利用可能な人格がないため、全人格から選択: exclude_user_id={exclude_user_id}")
+                available_personalities = self.personalities
+
+        selected_name = random.choice(list(available_personalities.keys()))
+        personality = available_personalities[selected_name]
+
+        if exclude_user_id:
+            logger.debug(f"連続発言防止考慮でランダム人格選択: {personality.name} (除外: {exclude_user_id})")
+        else:
+            logger.debug(f"ランダム人格選択: {personality.name}")
+
         return personality
 
     def get_personality_by_name(self, name: str) -> AIPersonality | None:

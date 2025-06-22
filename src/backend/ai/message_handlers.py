@@ -88,8 +88,20 @@ async def _generate_ai_response(
     """AI応答を生成し、タイミング情報を返す"""
     generation_start = time.time()
     gemini_client = get_gemini_client()
+
+    # 連続発言防止：最新メッセージがAIの場合は、そのuser_idを除外対象とする
+    exclude_user_id = None
+    if db_session:
+        try:
+            recent_messages = crud.get_recent_channel_messages(db_session, channel_id, limit=1)
+            if recent_messages and recent_messages[0].user_type == "ai":
+                exclude_user_id = recent_messages[0].user_id
+                logger.debug(f"@AI応答での連続発言防止: 前回AI発言者を除外 user_id={exclude_user_id}")
+        except Exception as e:
+            logger.warning(f"連続発言防止チェック時のエラー: {str(e)}")
+
     ai_response, personality = await gemini_client.generate_response(
-        user_message, channel_id=channel_id, db_session=db_session, max_retries=3
+        user_message, channel_id=channel_id, db_session=db_session, max_retries=3, exclude_user_id=exclude_user_id
     )
     generation_time = time.time() - generation_start
     logger.info(
