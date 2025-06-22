@@ -35,12 +35,35 @@
      - ログ設定: `constants/logging.py`
      - タイムゾーン: `constants/timezone.py`
 
+5. AI機能開発
+   - **プロンプト管理**: `prompts/people/`ディレクトリでAI人格を管理
+   - **人格設定**: 各AI人格は独立したMarkdownファイルで定義
+   - **連続発言防止**: 同じAI人格による連続発言を防ぐロジックの実装
+   - **設定可能な設定**: 環境変数による動的設定対応
+     - `AI_MAX_OUTPUT_TOKENS`: AI応答の最大トークン数（デフォルト: 2048）
+     - `AI_CONVERSATION_ENABLED`: 自律会話機能の有効/無効
+     - `AI_CONVERSATION_INTERVAL_MINUTES`: 自動会話の間隔
+   - **エラーハンドリング**: 
+     - Gemini API障害時のフォールバック処理
+     - 人格選択失敗時のデフォルト人格設定
+     - AI応答生成タイムアウト処理
+   - **ログ記録**: 
+     - AI応答生成時間の記録
+     - 人格選択ロジックのデバッグログ
+     - API呼び出し状況の監視
+
 4. テスト要件
    - フレームワーク: `uv run --frozen pytest`
    - 非同期テスト: asyncioではなくanyioを使用
    - カバレッジ: エッジケースとエラーをテスト
    - 新機能にはテストが必要
    - バグ修正にはリグレッションテストが必要
+   - **AI機能テスト**: 
+     - Gemini APIはモック使用（外部依存を避ける）
+     - 人格選択ロジックのユニットテスト
+     - 自律会話タイマー機能のテスト
+     - 連続発言防止機能のテスト
+     - WebSocket経由でのAI応答ブロードキャストテスト
 
 ## プルリクエスト
 
@@ -102,6 +125,12 @@
    - Pytest:
      - テストがanyio pytestマークを見つけられない場合、pytestの実行コマンドの先頭に PYTEST_DISABLE_PLUGIN_AUTOLOAD="" を追加してみる
        例: `PYTEST_DISABLE_PLUGIN_AUTOLOAD="" uv run --frozen pytest`
+   - AI機能:
+     - **メッセージ途切れ問題**: `AI_MAX_OUTPUT_TOKENS`を適切に設定（推奨: 2048）
+     - **連続発言エラー**: `exclude_user_id`パラメータの正しい伝播を確認
+     - **人格選択失敗**: フォールバック人格の設定と例外処理の実装
+     - **自律会話停止**: タイマー設定と環境変数の確認
+     - **Gemini API エラー**: リトライ機能とタイムアウト設定の調整
 
 3. ベストプラクティス
    - コミット前にgit statusをチェック

@@ -12,6 +12,7 @@ Google Gemini AI統合チャットアプリケーションの品質を確保し�
 - **保守性 > 網羅性**: メンテナンスしやすいテストを重視
 - **段階的導入**: 必要最小限から始めて徐々に拡張
 - **AI機能対応**: Google Gemini統合による複数AI人格チャットボットの応答品質とWebSocket通信の安定性を確保
+- **AI自律会話対応**: 1分間隔での自動会話機能とAI連続発言防止機能のテスト
 
 ### テストレベル
 
@@ -48,7 +49,7 @@ ai-community/
 └── pyproject.toml              # Pythonテスト設定
 ```
 
-**総テスト数目標**: 約25個（バックエンド17個 + フロントエンド8個）
+**総テスト数目標**: 約27個（バックエンド19個 + フロントエンド8個）
 
 ## バックエンドテスト（Python + pytest）
 
@@ -154,7 +155,7 @@ async def test_invalid_channel(test_client):
     assert "detail" in error_data
 ```
 
-### 3. test_websocket.py（3テスト）
+### 3. test_websocket.py（5テスト）
 ```python
 async def test_websocket_connection(test_client):
     """WebSocket接続テスト"""
@@ -203,6 +204,48 @@ async def test_ai_response_trigger(test_client):
         # AI応答をモックして確認
         response = websocket.receive_json()
         assert response["type"] in ["message:saved", "message:broadcast"]
+
+async def test_ai_auto_conversation_trigger(test_client, mocker):
+    """AI自律会話機能テスト（モック使用）"""
+    # AI自動会話機能のテスト
+    mock_timer = mocker.patch('ai.conversation_timer.should_start_auto_conversation')
+    mock_timer.return_value = True
+    
+    # 自動会話がトリガーされるかテスト
+    mock_generate = mocker.patch('ai.auto_conversation.generate_auto_conversation_response')
+    mock_generate.return_value = ("テスト自動発言", mock_personality)
+    
+    # 1分経過後の自動発言を確認
+    with test_client.websocket_connect("/ws") as websocket:
+        # 自動会話がトリガーされることを確認
+        response = websocket.receive_json() 
+        assert response["type"] == "message:broadcast"
+        assert response["data"]["user_name"] in ["レン", "ミナ", "テツ", "ルナ", "ソラ"]
+
+async def test_ai_consecutive_speech_prevention(test_client, mocker):
+    """AI連続発言防止機能テスト"""
+    # 連続発言防止のテスト
+    mock_personality_manager = mocker.patch('ai.personality_manager.PersonalityManager.get_random_personality')
+    
+    # 前回のAI発言者を除外して人格選択が行われるかテスト
+    with test_client.websocket_connect("/ws") as websocket:
+        # 最初のAI応答（レン）
+        first_ai_message = {
+            "type": "message:send",
+            "data": {
+                "id": "ai_msg_1",
+                "channel_id": "1",
+                "user_id": "ai_001",
+                "user_name": "レン",
+                "content": "最初のAI発言",
+                "timestamp": "2024-01-01T12:00:00Z",
+                "is_own_message": False
+            }
+        }
+        websocket.send_json(first_ai_message)
+        
+        # 次のAI応答でレンが除外されることを確認
+        mock_personality_manager.assert_called_with(exclude_user_id="ai_001")
 ```
 
 ## フロントエンドテスト（TypeScript + Vitest + Testing Library）
@@ -320,9 +363,11 @@ describe('ChatApp Integration', () => {
 - [x] フロントエンドコンポーネントテスト（5個）
 
 ### ✅ Phase 2: 統合・AI機能テスト（完了済み）
-- [x] WebSocket通信テスト（3個）
+- [x] WebSocket通信テスト（5個）
 - [x] フロントエンド統合テスト（3個）
 - [x] AI応答機能テスト（モック使用）
+- [x] **🤖 AI自律会話機能テスト**（タイマー・自動発言）
+- [x] **AI連続発言防止機能テスト**（人格選択除外ロジック）
 
 ### ✅ Phase 3: Supabase統合テスト（完了済み）
 - [x] Supabase接続確認テスト（2個）
@@ -372,7 +417,7 @@ npm run test:ui
 
 ## 品質指標・カバレッジ目標
 
-- **現在達成**: 25テスト実装済み（既存18個 + Supabase統合7個）
+- **現在達成**: 27テスト実装済み（既存20個 + Supabase統合7個）
 - **カバレッジ目標**: 主要機能70%以上
 - **AI機能テスト**: モック使用で基本動作確認済み
 - **Supabase統合**: 接続・CRUD・フォールバック機能をテスト
@@ -381,11 +426,12 @@ npm run test:ui
 ## まとめ
 
 **理念**: 「実用性重視の品質確保」
-- 25個の戦略的テストで主要機能の品質を確保
-- AI機能・Supabase統合も含めた包括的なテストカバレッジ
+- 27個の戦略的テストで主要機能の品質を確保
+- AI機能（自律会話・連続発言防止含む）・Supabase統合も含めた包括的なテストカバレッジ
 - メンテナンス性を重視した継続可能なテスト設計
 - 開発効率と品質のバランスを追求
 - **Supabase PostgreSQL対応**: 本番環境と同等のテスト環境
+- **AI最新機能対応**: 自律会話・連続発言防止機能の品質確保
 
 ## Supabase統合テスト詳細
 
