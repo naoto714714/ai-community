@@ -229,13 +229,16 @@ class GeminiAPIClient:
         Raises:
             Exception: API呼び出しに失敗した場合（認証エラー、ネットワークエラーなど）
         """
+        # 環境変数からmax_output_tokensをカスタマイズ可能にする
+        max_tokens = int(os.getenv("AI_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS))
+
         response = self.client.models.generate_content(
             model="gemini-2.5-flash-preview-05-20",
             contents=user_message,
             config=types.GenerateContentConfig(  # type: ignore
                 system_instruction=personality.prompt_content,
                 temperature=0.9,
-                max_output_tokens=DEFAULT_MAX_OUTPUT_TOKENS,
+                max_output_tokens=max_tokens,
             ),
         )
         return response
