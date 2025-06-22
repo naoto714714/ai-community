@@ -12,7 +12,7 @@ class ConversationConfig:
     """自動会話機能の設定."""
 
     # 自動会話の間隔（秒）
-    conversation_interval: int = 300  # デフォルト5分
+    conversation_interval: int = 60  # デフォルト1分
 
     # 対象チャンネルID（雑談チャンネル）
     target_channel_id: str = "1"

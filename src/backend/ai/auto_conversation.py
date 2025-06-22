@@ -138,7 +138,13 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
 
         # 最後のメッセージからの経過時間をチェック
         now = datetime.now(UTC)
-        time_diff = now - latest_message.created_at
+        # データベースのcreated_atがoffset-naiveの場合、UTCとして扱う
+        if latest_message.created_at.tzinfo is None:
+            latest_message_time = latest_message.created_at.replace(tzinfo=UTC)
+        else:
+            latest_message_time = latest_message.created_at
+
+        time_diff = now - latest_message_time
 
         if time_diff.total_seconds() >= config.conversation_interval:
             logger.info(
