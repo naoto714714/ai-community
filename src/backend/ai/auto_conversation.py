@@ -5,9 +5,12 @@ import logging
 import time
 import uuid
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta, timezone
 
 from sqlalchemy.orm import Session
+
+# タイムゾーン定数
+JST = timezone(timedelta(hours=9))
 
 try:
     # パッケージとして実行される場合
@@ -73,11 +76,6 @@ def generate_auto_conversation_message_id(channel_id: str) -> str:
 
 def create_auto_ai_message_data(channel_id: str, content: str, personality) -> dict:
     """自動会話用AI応答メッセージデータを作成."""
-    # タイムゾーン定数（JST）
-    from datetime import timedelta, timezone
-
-    JST = timezone(timedelta(hours=9))
-
     return {
         "id": generate_auto_conversation_message_id(channel_id),
         "channel_id": channel_id,
@@ -171,12 +169,12 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
                 f"✅ 自動会話開始条件満了: 経過時間={time_diff.total_seconds():.1f}秒 (設定={config.conversation_interval}秒) - 前発言者: {latest_message.user_name}({latest_message.user_type})"
             )
             return True
-        else:
-            remaining_time = config.conversation_interval - time_diff.total_seconds()
-            logger.info(
-                f"⏳ 自動会話まで残り時間: {remaining_time:.1f}秒 - 前発言者: {latest_message.user_name}({latest_message.user_type})"
-            )
-            return False
+
+        remaining_time = config.conversation_interval - time_diff.total_seconds()
+        logger.info(
+            f"⏳ 自動会話まで残り時間: {remaining_time:.1f}秒 - 前発言者: {latest_message.user_name}({latest_message.user_type})"
+        )
+        return False
 
     except Exception as e:
         logger.error(f"自動会話判定でエラー: {str(e)}")
@@ -256,9 +254,9 @@ async def handle_auto_conversation_check(channel_id: str, db_session: Session) -
             await broadcast_auto_ai_response(message_data)
             logger.info(f"自動会話完了: message_id={message_data.message_id}")
             return True
-        else:
-            logger.warning("自動会話の応答生成に失敗")
-            return False
+
+        logger.warning("自動会話の応答生成に失敗")
+        return False
 
     except Exception as e:
         logger.error(f"自動会話処理エラー: {str(e)}")
