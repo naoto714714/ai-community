@@ -85,8 +85,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ログ設定
-logging.basicConfig(level=logging.INFO)
+# ログ設定（時刻表示付き）
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+)
 logger = logging.getLogger(__name__)
 
 # CORS設定

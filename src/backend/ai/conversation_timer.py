@@ -67,11 +67,11 @@ class ConversationTimer:
 
     async def _timer_loop(self) -> None:
         """タイマーのメインループ."""
-        # チェック間隔（1分間隔でチェック）
-        check_interval = 60
+        # チェック間隔（15秒間隔でチェックして正確な間隔を実現）
+        check_interval = 15
 
         logger.info(
-            f"自動会話タイマーループ開始: check_interval={check_interval}秒, target_channel={self.config.target_channel_id}"
+            f"自動会話タイマーループ開始: check_interval={check_interval}秒, conversation_interval={self.config.conversation_interval}秒, target_channel={self.config.target_channel_id}"
         )
 
         try:
@@ -81,7 +81,7 @@ class ConversationTimer:
                 except Exception as e:
                     logger.error(f"自動会話チェック中にエラー: {str(e)}")
 
-                # 1分間隔でチェック
+                # 15秒間隔でチェック
                 await asyncio.sleep(check_interval)
 
         except asyncio.CancelledError:

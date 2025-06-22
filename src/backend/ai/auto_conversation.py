@@ -148,12 +148,12 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
 
         if time_diff.total_seconds() >= config.conversation_interval:
             logger.info(
-                f"自動会話開始条件満了: 経過時間={time_diff.total_seconds():.1f}秒 (設定={config.conversation_interval}秒)"
+                f"✅ 自動会話開始条件満了: 経過時間={time_diff.total_seconds():.1f}秒 (設定={config.conversation_interval}秒)"
             )
             return True
         else:
             remaining_time = config.conversation_interval - time_diff.total_seconds()
-            logger.debug(f"自動会話まで残り時間: {remaining_time:.1f}秒")
+            logger.info(f"⏳ 自動会話まで残り時間: {remaining_time:.1f}秒 (最終メッセージ: {latest_message_time})")
             return False
 
     except Exception as e:
