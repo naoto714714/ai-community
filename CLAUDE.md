@@ -222,7 +222,7 @@ Google Gemini AIを使用する場合は、環境変数を設定してくださ�
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
 # 🤖 AI自動会話機能の設定
-export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
+export AI_CONVERSATION_INTERVAL_SECONDS=60   # 自動会話の間隔（秒単位、デフォルト: 60秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
 export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
 

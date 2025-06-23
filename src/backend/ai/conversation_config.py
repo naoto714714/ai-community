@@ -28,27 +28,27 @@ def load_conversation_config() -> ConversationConfig:
     """環境変数から設定を読み込んで ConversationConfig を作成."""
     config = ConversationConfig()
 
-    # 環境変数から間隔を取得（分単位で指定、秒に変換）
-    interval_minutes = os.getenv("AI_CONVERSATION_INTERVAL_MINUTES")
-    if interval_minutes:
+    # 環境変数から間隔を取得（秒単位で指定）
+    interval_seconds = os.getenv("AI_CONVERSATION_INTERVAL_SECONDS")
+    if interval_seconds:
         try:
-            minutes_value = int(interval_minutes)
+            seconds_value = int(interval_seconds)
             # 負の値や0を拒否
-            if minutes_value <= 0:
+            if seconds_value <= 0:
                 logger.error(
-                    f"無効な間隔設定（正の値が必要）: {interval_minutes}分, デフォルト値{config.conversation_interval // 60}分を使用"
+                    f"無効な間隔設定（正の値が必要）: {interval_seconds}秒, デフォルト値{config.conversation_interval}秒を使用"
                 )
             # 範囲チェック（最小30秒、最大24時間）
-            elif minutes_value < 0.5 or minutes_value > 1440:
+            elif seconds_value < 30 or seconds_value > 86400:
                 logger.error(
-                    f"間隔設定が範囲外（0.5-1440分）: {interval_minutes}分, デフォルト値{config.conversation_interval // 60}分を使用"
+                    f"間隔設定が範囲外（30-86400秒）: {interval_seconds}秒, デフォルト値{config.conversation_interval}秒を使用"
                 )
             else:
-                config.conversation_interval = minutes_value * 60
-                logger.info(f"自動会話間隔を環境変数から設定: {interval_minutes}分 ({config.conversation_interval}秒)")
+                config.conversation_interval = seconds_value
+                logger.info(f"自動会話間隔を環境変数から設定: {interval_seconds}秒")
         except ValueError:
             logger.error(
-                f"無効な間隔設定（数値変換エラー）: {interval_minutes}, デフォルト値{config.conversation_interval // 60}分を使用"
+                f"無効な間隔設定（数値変換エラー）: {interval_seconds}, デフォルト値{config.conversation_interval}秒を使用"
             )
 
     # 環境変数から対象チャンネルIDを取得

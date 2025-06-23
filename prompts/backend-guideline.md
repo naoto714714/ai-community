@@ -41,7 +41,7 @@
    - **設定可能な設定**: 環境変数による動的設定対応
      - `AI_MAX_OUTPUT_TOKENS`: AI応答の最大トークン数（デフォルト: 2048）
      - `AI_CONVERSATION_ENABLED`: 自律会話機能の有効/無効
-     - `AI_CONVERSATION_INTERVAL_MINUTES`: 自動会話の間隔
+     - `AI_CONVERSATION_INTERVAL_SECONDS`: 自動会話の間隔（秒単位）
    - **エラーハンドリング**: 
      - Gemini API障害時のフォールバック処理
      - 人格選択失敗時のデフォルト人格設定

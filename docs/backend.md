@@ -12,7 +12,7 @@ uv sync
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
 # AI自動会話機能の設定
-export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
+export AI_CONVERSATION_INTERVAL_SECONDS=60   # 自動会話の間隔（秒単位、デフォルト: 60秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
 export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
 
@@ -163,7 +163,7 @@ AI:
 
 **特徴**:
 - **対象チャンネル**: 「雑談」チャンネル（ID=1）のみで動作
-- **発言間隔**: デフォルト1分（`AI_CONVERSATION_INTERVAL_MINUTES`で設定可能）
+- **発言間隔**: デフォルト60秒（`AI_CONVERSATION_INTERVAL_SECONDS`で設定可能）
 - **発言条件**: 最後のメッセージ（ユーザー・AI問わず）から指定時間経過後にAIが自動発言
 - **人格選択**: 既存の5つのAI人格からランダム選択（連続発言防止機能付き）
 - **文脈理解**: 過去10件のメッセージ履歴を参照して自然な会話を継続
@@ -180,7 +180,7 @@ AI:
 **設定環境変数**:
 ```bash
 export AI_CONVERSATION_ENABLED=true          # 機能の有効/無効
-export AI_CONVERSATION_INTERVAL_MINUTES=1    # 発言間隔（分）
+export AI_CONVERSATION_INTERVAL_SECONDS=60   # 発言間隔（秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID
 ```
 
