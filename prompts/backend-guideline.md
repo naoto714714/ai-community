@@ -15,6 +15,8 @@
    - **本番・開発環境**: Supabase PostgreSQL使用
    - **開発時**: 環境変数でDB接続情報設定
    - **セッション管理**: SQLAlchemy + PostgreSQL対応
+   - **メッセージスキーマ**: user_type列による人間/AI識別機能（"human" または "ai"）
+   - **マイグレーション**: Alembicによるスキーマ変更管理
    - **セキュリティ**: 
      - 環境変数による機密情報管理（パスワード等はログ出力禁止）
      - SSL接続の強制（sslmode=require）
@@ -38,10 +40,11 @@
    - **プロンプト管理**: `prompts/people/`ディレクトリでAI人格を管理
    - **人格設定**: 各AI人格は独立したMarkdownファイルで定義
    - **連続発言防止**: 同じAI人格による連続発言を防ぐロジックの実装
+   - **メッセージ分類**: AI応答時は必ずuser_type="ai"を設定し、人間/AI識別を明確化
    - **設定可能な設定**: 環境変数による動的設定対応
      - `AI_MAX_OUTPUT_TOKENS`: AI応答の最大トークン数（デフォルト: 2048）
      - `AI_CONVERSATION_ENABLED`: 自律会話機能の有効/無効
-     - `AI_CONVERSATION_INTERVAL_MINUTES`: 自動会話の間隔
+     - `AI_CONVERSATION_INTERVAL_SECONDS`: 自動会話の間隔（秒単位）
    - **エラーハンドリング**: 
      - Gemini API障害時のフォールバック処理
      - 人格選択失敗時のデフォルト人格設定

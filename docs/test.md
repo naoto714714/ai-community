@@ -12,7 +12,8 @@ Google Gemini AI統合チャットアプリケーションの品質を確保し�
 - **保守性 > 網羅性**: メンテナンスしやすいテストを重視
 - **段階的導入**: 必要最小限から始めて徐々に拡張
 - **AI機能対応**: Google Gemini統合による複数AI人格チャットボットの応答品質とWebSocket通信の安定性を確保
-- **AI自律会話対応**: 1分間隔での自動会話機能とAI連続発言防止機能のテスト
+- **AI自律会話対応**: 設定可能間隔（デフォルト60秒）での自動会話機能とAI連続発言防止機能のテスト
+  - 境界値テスト（1秒・86400秒・範囲外値のバリデーション確認）
 
 ### テストレベル
 
@@ -80,6 +81,7 @@ def test_message_creation(test_db, seed_channels):
         channel_id="1",
         user_id="user_123",
         user_name="テストユーザー",
+        user_type="human",
         content="テストメッセージ",
         timestamp=datetime.now(),
         is_own_message=True
@@ -101,6 +103,7 @@ def test_message_channel_relationship(test_db, seed_channels):
         channel_id="1",
         user_id="user_456",
         user_name="関係テストユーザー",
+        user_type="human",
         content="関係テストメッセージ",
         timestamp=datetime.now(),
         is_own_message=False
@@ -175,6 +178,7 @@ async def test_websocket_message_send(test_client):
                 "channel_id": "1",
                 "user_id": "test_user",
                 "user_name": "テストユーザー",
+                "user_type": "human",
                 "content": "テストメッセージ",
                 "timestamp": "2024-01-01T12:00:00Z",
                 "is_own_message": True
@@ -195,6 +199,7 @@ async def test_ai_response_trigger(test_client):
                 "channel_id": "1", 
                 "user_id": "test_user",
                 "user_name": "テストユーザー",
+                "user_type": "human",
                 "content": "@AI テストしています",
                 "timestamp": "2024-01-01T12:00:00Z",
                 "is_own_message": True
@@ -215,7 +220,7 @@ async def test_ai_auto_conversation_trigger(test_client, mocker):
     mock_generate = mocker.patch('ai.auto_conversation.generate_auto_conversation_response')
     mock_generate.return_value = ("テスト自動発言", mock_personality)
     
-    # 1分経過後の自動発言を確認
+    # 設定時間経過後の自動発言を確認
     with test_client.websocket_connect("/ws") as websocket:
         # 自動会話がトリガーされることを確認
         response = websocket.receive_json() 
@@ -237,6 +242,7 @@ async def test_ai_consecutive_speech_prevention(test_client, mocker):
                 "channel_id": "1",
                 "user_id": "ai_001",
                 "user_name": "レン",
+                "user_type": "ai",
                 "content": "最初のAI発言",
                 "timestamp": "2024-01-01T12:00:00Z",
                 "is_own_message": False
@@ -383,6 +389,7 @@ describe('ChatApp Integration', () => {
 ### 🚧 Phase 4: 拡張テスト（任意・将来予定）
 - [ ] エラーハンドリング詳細テスト
 - [ ] AI応答パフォーマンステスト
+- [ ] **AI設定値検証テスト**（AI_CONVERSATION_INTERVAL_SECONDS境界値テスト: 1秒・86400秒・範囲外値のバリデーション）
 - [ ] E2Eテスト（Playwright使用予定）
 - [ ] リアルタイム通信負荷テスト
 

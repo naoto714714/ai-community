@@ -12,7 +12,7 @@ uv sync
 export GEMINI_API_KEY="あなたのGemini APIキー"
 
 # AI自動会話機能の設定
-export AI_CONVERSATION_INTERVAL_MINUTES=1    # 自動会話の間隔（分単位、デフォルト: 1分）
+export AI_CONVERSATION_INTERVAL_SECONDS=60   # 自動会話の間隔（秒単位、デフォルト: 60秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
 export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
 
@@ -94,6 +94,7 @@ id: str              # 主キー
 channel_id: str      # チャンネルID
 user_id: str         # ユーザーID（AI応答時は人格に応じたID）
 user_name: str       # ユーザー名（AI応答時は人格に応じた名前）
+user_type: str       # ユーザータイプ（"human" または "ai"）
 content: str         # メッセージ内容
 timestamp: datetime  # 送信時刻
 is_own_message: bool # 自分のメッセージか
@@ -163,7 +164,7 @@ AI:
 
 **特徴**:
 - **対象チャンネル**: 「雑談」チャンネル（ID=1）のみで動作
-- **発言間隔**: デフォルト1分（`AI_CONVERSATION_INTERVAL_MINUTES`で設定可能）
+- **発言間隔**: デフォルト60秒（`AI_CONVERSATION_INTERVAL_SECONDS`で設定可能）
 - **発言条件**: 最後のメッセージ（ユーザー・AI問わず）から指定時間経過後にAIが自動発言
 - **人格選択**: 既存の5つのAI人格からランダム選択（連続発言防止機能付き）
 - **文脈理解**: 過去10件のメッセージ履歴を参照して自然な会話を継続
@@ -180,7 +181,7 @@ AI:
 **設定環境変数**:
 ```bash
 export AI_CONVERSATION_ENABLED=true          # 機能の有効/無効
-export AI_CONVERSATION_INTERVAL_MINUTES=1    # 発言間隔（分）
+export AI_CONVERSATION_INTERVAL_SECONDS=60   # 発言間隔（秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID
 ```
 
@@ -263,6 +264,7 @@ interface MessageResponse {
   channelId: string;   // チャンネルID
   userId: string;      // 送信者ID
   userName: string;    // 送信者名
+  userType: string;    // ユーザータイプ ("human" または "ai")
   content: string;     // メッセージ本文
   timestamp: string;   // 送信時刻 (ISO 8601)
   isOwnMessage: boolean; // 送信者自身のメッセージか
@@ -289,6 +291,7 @@ interface MessageSendRequest {
     channel_id: string;  // 送信先チャンネルID
     user_id: string;     // 送信者ID
     user_name: string;   // 送信者名
+    user_type: string;   // ユーザータイプ ("human" または "ai")
     content: string;     // メッセージ本文
     timestamp: string;   // 送信時刻 (ISO 8601)
     is_own_message: boolean; // 送信者自身のメッセージか
@@ -333,6 +336,7 @@ interface MessageBroadcastResponse {
     channel_id: string;
     user_id: string;         // AI応答時は人格に応じたID (ai_001, ai_002等)
     user_name: string;       // AI応答時は人格に応じた名前 (レン, ミナ等)
+    user_type: string;       // ユーザータイプ ("human" または "ai")
     content: string;
     timestamp: string;
     is_own_message: false;   // AI応答は常にfalse
