@@ -38,10 +38,10 @@ def load_conversation_config() -> ConversationConfig:
                 logger.error(
                     f"無効な間隔設定（正の値が必要）: {interval_seconds}秒, デフォルト値{config.conversation_interval}秒を使用"
                 )
-            # 範囲チェック（最小30秒、最大24時間）
-            elif seconds_value < 30 or seconds_value > 86400:
+            # 範囲チェック（最小1秒、最大24時間）
+            elif seconds_value < 1 or seconds_value > 86400:
                 logger.error(
-                    f"間隔設定が範囲外（30-86400秒）: {interval_seconds}秒, デフォルト値{config.conversation_interval}秒を使用"
+                    f"間隔設定が範囲外（1-86400秒）: {interval_seconds}秒, デフォルト値{config.conversation_interval}秒を使用"
                 )
             else:
                 config.conversation_interval = seconds_value
