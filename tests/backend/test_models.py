@@ -1,9 +1,15 @@
 """モデルテスト（最小限・実用版）"""
 
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+    from src.backend.models import Channel
 
 
-def test_channel_creation(test_db):
+def test_channel_creation(test_db: "Session") -> None:
     """チャンネルモデルの作成テスト"""
     from src.backend.models import Channel
 
@@ -16,7 +22,7 @@ def test_channel_creation(test_db):
     assert isinstance(channel.created_at, datetime)
 
 
-def test_message_creation(test_db, seed_channels):
+def test_message_creation(test_db: "Session", seed_channels: list["Channel"]) -> None:
     """メッセージモデルの作成テスト"""
     from src.backend.models import Message
 
@@ -43,7 +49,7 @@ def test_message_creation(test_db, seed_channels):
     assert isinstance(message.timestamp, datetime)
 
 
-def test_channel_messages_relationship(test_db, seed_channels):
+def test_channel_messages_relationship(test_db: "Session", seed_channels: list["Channel"]) -> None:
     """チャンネルとメッセージのリレーションテスト"""
     from src.backend.models import Message
 

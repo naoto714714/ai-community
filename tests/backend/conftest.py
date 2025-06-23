@@ -1,12 +1,19 @@
 """バックエンドテスト専用のfixture定義"""
 
+from collections.abc import Callable
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 import pytest
 
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+    from src.backend.models import Message
+
 
 @pytest.fixture
-def sample_message_data():
+def sample_message_data() -> dict[str, str | bool]:
     """テスト用のサンプルメッセージデータ"""
     return {
         "id": "test_msg_123",
@@ -20,10 +27,10 @@ def sample_message_data():
 
 
 @pytest.fixture
-def create_test_messages(test_db):
+def create_test_messages(test_db: "Session") -> Callable[[str, int], list["Message"]]:
     """テストメッセージを作成するヘルパー関数"""
 
-    def _create_messages(channel_id: str, count: int = 5):
+    def _create_messages(channel_id: str, count: int = 5) -> list["Message"]:
         from src.backend.models import Message
 
         messages = []
