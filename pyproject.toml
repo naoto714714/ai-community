@@ -48,6 +48,11 @@ select = [
 ]
 ignore = [
     "E501", # line too long, handled by ruff format
+    "RUF001", # String contains ambiguous characters (Japanese text)
+    "RUF002", # Docstring contains ambiguous characters (Japanese text)
+    "RUF003", # Comment contains ambiguous characters (Japanese text)
+    "D400", # First line should end with a period (Japanese docstrings)
+    "D415", # First line should end with a period, question mark, or exclamation point (Japanese docstrings)
 ]
 unfixable = [
     "F841", # unused variable
