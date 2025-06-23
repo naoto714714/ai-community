@@ -94,6 +94,7 @@ id: str              # 主キー
 channel_id: str      # チャンネルID
 user_id: str         # ユーザーID（AI応答時は人格に応じたID）
 user_name: str       # ユーザー名（AI応答時は人格に応じた名前）
+user_type: str       # ユーザータイプ（"human" または "ai"）
 content: str         # メッセージ内容
 timestamp: datetime  # 送信時刻
 is_own_message: bool # 自分のメッセージか
@@ -263,6 +264,7 @@ interface MessageResponse {
   channelId: string;   // チャンネルID
   userId: string;      // 送信者ID
   userName: string;    // 送信者名
+  userType: string;    // ユーザータイプ ("human" または "ai")
   content: string;     // メッセージ本文
   timestamp: string;   // 送信時刻 (ISO 8601)
   isOwnMessage: boolean; // 送信者自身のメッセージか
@@ -289,6 +291,7 @@ interface MessageSendRequest {
     channel_id: string;  // 送信先チャンネルID
     user_id: string;     // 送信者ID
     user_name: string;   // 送信者名
+    user_type: string;   // ユーザータイプ ("human" または "ai")
     content: string;     // メッセージ本文
     timestamp: string;   // 送信時刻 (ISO 8601)
     is_own_message: boolean; // 送信者自身のメッセージか
@@ -333,6 +336,7 @@ interface MessageBroadcastResponse {
     channel_id: string;
     user_id: string;         // AI応答時は人格に応じたID (ai_001, ai_002等)
     user_name: string;       // AI応答時は人格に応じた名前 (レン, ミナ等)
+    user_type: string;       // ユーザータイプ ("human" または "ai")
     content: string;
     timestamp: string;
     is_own_message: false;   // AI応答は常にfalse
