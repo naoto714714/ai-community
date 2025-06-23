@@ -1,11 +1,17 @@
+"""データベース接続設定モジュール.
+
+Supabase PostgreSQLおよびテスト用SQLiteのデータベース接続を管理します。
+"""
+
 import logging
 import os
+from collections.abc import Generator
 from pathlib import Path
 from urllib.parse import quote_plus
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 # ログ設定
 logger = logging.getLogger(__name__)
@@ -78,7 +84,7 @@ class Base(DeclarativeBase):
     pass
 
 
-def get_db():
+def get_db() -> Generator[Session]:
     """データベースセッションを取得"""
     db = SessionLocal()
     try:

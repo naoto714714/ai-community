@@ -1,3 +1,8 @@
+"""データベースCRUD操作モジュール.
+
+ChannelとMessageモデルに対するCRUD（作成・読み取り・更新・削除）操作を提供します。
+"""
+
 from sqlalchemy.orm import Session
 
 try:
