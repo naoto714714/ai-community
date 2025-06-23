@@ -17,10 +17,12 @@ try:
     from ..utils.session_manager import save_message_with_session_management
     from ..websocket.manager import manager
     from .gemini_client import GeminiAPIClient, get_gemini_client
+    from .personality_manager import AIPersonality
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.gemini_client import GeminiAPIClient, get_gemini_client
+    from ai.personality_manager import AIPersonality
     from constants.timezone import JST
     from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
@@ -39,7 +41,7 @@ def generate_ai_error_message_id(channel_id: str) -> str:
     return f"ai_error_{channel_id}_{uuid.uuid4().hex[:8]}"
 
 
-def create_ai_message_data(channel_id: str, content: str, personality) -> dict[str, Any]:
+def create_ai_message_data(channel_id: str, content: str, personality: AIPersonality) -> dict[str, Any]:
     """AI応答メッセージデータを作成"""
     return {
         "id": generate_ai_message_id(channel_id),
@@ -204,7 +206,7 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
     await manager.broadcast(json.dumps(error_broadcast_message))
 
 
-async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None):
+async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None) -> None:
     """AI応答の処理"""
     start_time = time.time()
 

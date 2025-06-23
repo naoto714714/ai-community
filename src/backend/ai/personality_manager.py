@@ -22,7 +22,7 @@ class AIPersonality:
 class PersonalityManager:
     """AI人格管理クラス."""
 
-    def __init__(self, personalities_dir: Path | None = None):
+    def __init__(self, personalities_dir: Path | None = None) -> None:
         """初期化.
 
         Args:
@@ -84,7 +84,7 @@ class PersonalityManager:
                 user_id = self._generate_user_id_from_filename(file_path.name)
 
                 # ファイル内容を読み込み
-                with open(file_path, encoding="utf-8") as f:
+                with file_path.open(encoding="utf-8") as f:
                     prompt_content = f.read()
 
                 # 空ファイルチェック

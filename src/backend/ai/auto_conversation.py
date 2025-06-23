@@ -17,11 +17,13 @@ try:
     from ..websocket.manager import manager
     from .conversation_config import get_conversation_config
     from .gemini_client import get_gemini_client
+    from .personality_manager import AIPersonality
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.conversation_config import get_conversation_config
     from ai.gemini_client import get_gemini_client
+    from ai.personality_manager import AIPersonality
     from constants.timezone import JST
     from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
@@ -59,7 +61,7 @@ def generate_auto_conversation_message_id(channel_id: str) -> str:
     return f"auto_ai_{channel_id}_{uuid.uuid4().hex[:8]}"
 
 
-def create_auto_ai_message_data(channel_id: str, content: str, personality) -> dict:
+def create_auto_ai_message_data(channel_id: str, content: str, personality: AIPersonality) -> dict:
     """自動会話用AI応答メッセージデータを作成."""
     return {
         "id": generate_auto_conversation_message_id(channel_id),

@@ -28,6 +28,8 @@ except ImportError:
 
 
 class MessageTypes:
+    """サポートされるWebSocketメッセージタイプの定数クラス."""
+
     SEND = "message:send"
     # 将来的に追加される予定
     # EDIT = "message:edit"
@@ -82,6 +84,8 @@ def validate_message_data(message_data: dict[str, Any]) -> tuple[bool, str | Non
 
 
 class WebSocketMessage(TypedDict):
+    """クライアントから受信するWebSocketメッセージの型定義."""
+
     type: Required[str]
     data: NotRequired[dict[str, Any]]
 
@@ -113,7 +117,7 @@ async def handle_websocket_message(
     websocket: WebSocket,
     data: WebSocketMessage,
     db_session: Session | None = None,
-):
+) -> None:
     """WebSocketメッセージの処理"""
     message_type = data.get("type")
     message_data = data.get("data")

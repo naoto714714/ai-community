@@ -5,12 +5,15 @@ from typing import Any
 
 from sqlalchemy.orm import Session
 
+# 型のエイリアス - Messageモデルまたは保存結果
+MessageResult = Any
+
 
 def save_message_with_session_management(
     message_create_func: Callable[[Session], Any],
     db_session: Session | None = None,
     auto_commit: bool = True,
-) -> Any:
+) -> MessageResult:
     """セッション管理を共通化したメッセージ保存ヘルパー関数
 
     Args:

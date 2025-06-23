@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 try:
@@ -23,7 +24,7 @@ logger = logging.getLogger(__name__)
 class ConversationTimer:
     """自動会話のタイマー管理クラス."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """初期化."""
         self._task: asyncio.Task | None = None
         self._running = False
@@ -136,7 +137,7 @@ def get_conversation_timer() -> ConversationTimer:
 
 
 @asynccontextmanager
-async def conversation_timer_lifespan():
+async def conversation_timer_lifespan() -> AsyncGenerator[ConversationTimer]:
     """自動会話タイマーのライフサイクル管理."""
     timer = get_conversation_timer()
     try:

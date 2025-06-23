@@ -84,10 +84,7 @@ def _validate_channel_id(channel_id: str) -> bool:
 
     # 数字のみまたは英数字とハイフン、アンダースコアのパターンをチェック
     # チャンネルIDは通常数字または英数字の組み合わせ
-    if not channel_id.replace("-", "").replace("_", "").isalnum():
-        return False
-
-    return True
+    return channel_id.replace("-", "").replace("_", "").isalnum()
 
 
 # グローバル設定インスタンス
