@@ -35,10 +35,8 @@ ai-community/
 │   │   ├── test_api.py         # REST API テスト
 │   │   ├── test_websocket.py   # WebSocket + AI機能テスト
 │   │   └── test_supabase_integration.py # Supabase統合テスト
-│   └── frontend/               # フロントエンドテスト（3ファイル）
-│       ├── setup.ts            # Vitest設定
-│       ├── components.test.tsx  # コンポーネントテスト
-│       └── integration.test.tsx # 統合テスト（AI応答含む）
+│   └── frontend/               # フロントエンドテスト（1ファイル）
+│       └── components.test.tsx  # 包括的コンポーネントテスト
 ├── src/
 │   ├── backend/                # バックエンドソースコード
 │   │   ├── main.py            # FastAPIアプリケーション
@@ -50,7 +48,7 @@ ai-community/
 └── pyproject.toml              # Pythonテスト設定
 ```
 
-**総テスト数目標**: 約27個（バックエンド19個 + フロントエンド8個）
+**総テスト数目標**: 約36個（バックエンド19個 + フロントエンド17個）
 
 ## バックエンドテスト（Python + pytest）
 
@@ -65,7 +63,7 @@ def test_channel_creation(test_db):
     channel = Channel(id="test_1", name="テストチャンネル", description="テスト用")
     test_db.add(channel)
     test_db.commit()
-    
+
     # 作成されたチャンネルの確認
     saved_channel = test_db.query(Channel).filter(Channel.id == "test_1").first()
     assert saved_channel is not None
@@ -74,7 +72,7 @@ def test_channel_creation(test_db):
 
 def test_message_creation(test_db, seed_channels):
     """メッセージモデルの作成テスト"""
-    
+
     # メッセージ作成
     message = Message(
         id="msg_test_1",
@@ -88,7 +86,7 @@ def test_message_creation(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     # 作成されたメッセージの確認
     saved_message = test_db.query(Message).filter(Message.id == "msg_test_1").first()
     assert saved_message is not None
@@ -110,11 +108,11 @@ def test_message_channel_relationship(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     # チャンネルからメッセージを取得
     channel = test_db.query(Channel).filter(Channel.id == "1").first()
     messages = test_db.query(Message).filter(Message.channel_id == channel.id).all()
-    
+
     assert len(messages) >= 1
     assert any(msg.id == "msg_rel_1" for msg in messages)
 ```
@@ -196,7 +194,7 @@ async def test_ai_response_trigger(test_client):
             "type": "message:send",
             "data": {
                 "id": "ai_test_msg_1",
-                "channel_id": "1", 
+                "channel_id": "1",
                 "user_id": "test_user",
                 "user_name": "テストユーザー",
                 "user_type": "human",
@@ -215,15 +213,15 @@ async def test_ai_auto_conversation_trigger(test_client, mocker):
     # AI自動会話機能のテスト
     mock_timer = mocker.patch('ai.conversation_timer.should_start_auto_conversation')
     mock_timer.return_value = True
-    
+
     # 自動会話がトリガーされるかテスト
     mock_generate = mocker.patch('ai.auto_conversation.generate_auto_conversation_response')
     mock_generate.return_value = ("テスト自動発言", mock_personality)
-    
+
     # 設定時間経過後の自動発言を確認
     with test_client.websocket_connect("/ws") as websocket:
         # 自動会話がトリガーされることを確認
-        response = websocket.receive_json() 
+        response = websocket.receive_json()
         assert response["type"] == "message:broadcast"
         assert response["data"]["user_name"] in ["レン", "ミナ", "テツ", "ルナ", "ソラ"]
 
@@ -231,7 +229,7 @@ async def test_ai_consecutive_speech_prevention(test_client, mocker):
     """AI連続発言防止機能テスト"""
     # 連続発言防止のテスト
     mock_personality_manager = mocker.patch('ai.personality_manager.PersonalityManager.get_random_personality')
-    
+
     # 前回のAI発言者を除外して人格選択が行われるかテスト
     with test_client.websocket_connect("/ws") as websocket:
         # 最初のAI応答（レン）
@@ -249,98 +247,107 @@ async def test_ai_consecutive_speech_prevention(test_client, mocker):
             }
         }
         websocket.send_json(first_ai_message)
-        
+
         # 次のAI応答でレンが除外されることを確認
         mock_personality_manager.assert_called_with(exclude_user_id="ai_001")
 ```
 
 ## フロントエンドテスト（TypeScript + Vitest + Testing Library）
 
-### 1. components.test.tsx（5テスト）
+### components.test.tsx（17テスト）
+
+#### MessageItemテスト（2テスト）
 ```typescript
-// 主要コンポーネントのユニットテスト
 describe('MessageItem', () => {
-  it('通常メッセージが正しく表示される', () => {
-    const message = { content: "テストメッセージ", userName: "ユーザー" };
-    render(<MessageItem message={message} />);
-    expect(screen.getByText("テストメッセージ")).toBeInTheDocument();
+  it('メッセージが正しく表示される', () => {
+    const mockMessage = {
+      id: '1', channelId: '1', userId: 'user1', userName: 'Test User',
+      userType: 'user', content: 'Hello, World!', timestamp: new Date(),
+      isOwnMessage: false
+    };
+    render(<MessageItem message={mockMessage} />);
+    expect(screen.getByText('Hello, World!')).toBeInTheDocument();
+    expect(screen.getByText('Test User')).toBeInTheDocument();
   });
-  
-  it('自分のメッセージは適切なスタイルで表示される', () => {
-    const ownMessage = { content: "自分のメッセージ", isOwnMessage: true };
+
+  it('自分のメッセージは右寄せで表示される', () => {
+    const ownMessage = { /* 省略 */, isOwnMessage: true };
     render(<MessageItem message={ownMessage} />);
-    expect(screen.getByTestId('own-message')).toHaveClass('own-message-style');
-  });
-  
-  it('AI応答メッセージが正しく表示される', () => {
-    const aiMessage = { content: "こんにちは！", userName: "レン" };
-    render(<MessageItem message={aiMessage} />);
-    expect(screen.getByText("レン")).toBeInTheDocument();
-    expect(screen.getByTestId('ai-message')).toBeInTheDocument();
-  });
-});
-
-describe('MessageInput', () => {
-  it('テキスト入力が正常に動作する', async () => {
-    render(<MessageInput onSendMessage={vi.fn()} />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'テストメッセージ');
-    expect(input).toHaveValue('テストメッセージ');
-  });
-  
-  it('Shift+Enterでメッセージが送信される', async () => {
-    const onSendMessage = vi.fn();
-    render(<MessageInput onSendMessage={onSendMessage} />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'メッセージ送信テスト');
-    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
-    expect(onSendMessage).toHaveBeenCalledWith('メッセージ送信テスト');
+    const messageContainer = screen.getByTestId('message-container');
+    expect(messageContainer).toHaveStyle({ justifyContent: 'flex-end' });
   });
 });
 ```
 
-### 2. integration.test.tsx（3テスト）
+#### MessageInputテスト（15テスト）
+**特徴**: **クロスプラットフォーム対応**の包括的テスト
+
 ```typescript
-describe('ChatApp Integration', () => {
-  it('チャンネル切り替えでメッセージが更新される', async () => {
-    render(<ChatApp />);
-    
-    // 最初のチャンネルを選択
-    await userEvent.click(screen.getByText('雑談'));
-    expect(screen.getByTestId('channel-1-messages')).toBeInTheDocument();
-    
-    // 別のチャンネルに切り替え
-    await userEvent.click(screen.getByText('ゲーム'));
-    expect(screen.getByTestId('channel-2-messages')).toBeInTheDocument();
+describe('MessageInput', () => {
+  // プラットフォーム別のプレースホルダー表示テスト
+  it('テキスト入力が正常に動作する（Mac）', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'MacIntel' });
+    render(<MessageInput onSendMessage={mockFn} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)');
+    expect(input).toBeInTheDocument();
   });
-  
-  it('WebSocket経由でメッセージが送受信される', async () => {
-    // WebSocketモック設定
-    const mockWebSocket = vi.fn();
-    global.WebSocket = mockWebSocket;
-    
-    render(<ChatApp />);
-    const input = screen.getByRole('textbox');
-    await userEvent.type(input, 'WebSocketテスト');
-    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
-    
-    expect(mockWebSocket).toHaveBeenCalled();
+
+  it('テキスト入力が正常に動作する（Windows）', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'Win32' });
+    render(<MessageInput onSendMessage={mockFn} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)');
+    expect(input).toBeInTheDocument();
   });
-  
-  it('@AI メンション付きメッセージの送信とAI応答の受信', async () => {
-    render(<ChatApp />);
-    const input = screen.getByRole('textbox');
-    
-    await userEvent.type(input, '@AI こんにちは');
-    await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
-    
-    // AI応答の表示を確認（いずれかのAI人格名が表示される）
-    await waitFor(() => {
-      expect(screen.getByText(/レン|ミナ|テツ|ルナ|ソラ/)).toBeInTheDocument();
-    });
+
+  // キーボードショートカットテスト（プラットフォーム別）
+  it('Command+Enterキーでメッセージが送信される（Mac）', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'MacIntel' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'Command+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', metaKey: true });
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Command+Enterテスト');
   });
+
+  it('Ctrl+Enterキーでメッセージが送信される（Windows）', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'Win32' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'Ctrl+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Ctrl+Enterテスト');
+  });
+
+  // 誤動作防止テスト
+  it('MacでCtrl+Enterを押しても送信されない', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'MacIntel' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'MacでCtrl+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+    expect(mockOnSendMessage).not.toHaveBeenCalled();
+  });
+
+  it('WindowsでCommand+Enterを押しても送信されない', () => {
+    Object.defineProperty(navigator, 'platform', { value: 'Win32' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'WindowsでCommand+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', metaKey: true });
+    expect(mockOnSendMessage).not.toHaveBeenCalled();
+  });
+
+  // その他11個のテスト...
 });
 ```
+
+**テストの特色**:
+- **プラットフォーム検出**: Mac/Windows自動判別
+- **キーボードショートカット**: プラットフォーム別の送信方法検証
+- **誤動作防止**: 間違ったキーコンビネーション防止
+- **IME対応**: 日本語入力との互換性確保
+
+> **⚠️ 将来的な移行計画**: 現在は`navigator.platform`を使用していますが、これは将来的に非推奨となる可能性があります。Chromium系ブラウザでは`navigator.userAgentData.platform`への移行が推奨されているため、今後のテスト更新時には新しいAPIへの対応を検討してください。
 
 ## テスト技術スタック
 
@@ -366,14 +373,14 @@ describe('ChatApp Integration', () => {
 ### ✅ Phase 1: コアテスト（完了済み）
 - [x] バックエンドモデルテスト（3個）
 - [x] バックエンドAPIテスト（4個）
-- [x] フロントエンドコンポーネントテスト（5個）
+- [x] **🆕 フロントエンド包括テスト（17個）**（クロスプラットフォーム対応）
 
 ### ✅ Phase 2: 統合・AI機能テスト（完了済み）
 - [x] WebSocket通信テスト（5個）
-- [x] フロントエンド統合テスト（3個）
 - [x] AI応答機能テスト（モック使用）
 - [x] **🤖 AI自律会話機能テスト**（タイマー・自動発言）
 - [x] **AI連続発言防止機能テスト**（人格選択除外ロジック）
+- [x] **🛡️ 型安全性テスト**（厳密な型チェック強化）
 
 ### ✅ Phase 3: Supabase統合テスト（完了済み）
 - [x] Supabase接続確認テスト（2個）
@@ -424,17 +431,22 @@ npm run test:ui
 
 ## 品質指標・カバレッジ目標
 
-- **現在達成**: 27テスト実装済み（既存20個 + Supabase統合7個）
+- **現在達成**: 36テスト実装済み（バックエンド19個 + フロントエンド17個）
 - **カバレッジ目標**: 主要機能70%以上
 - **AI機能テスト**: モック使用で基本動作確認済み
 - **Supabase統合**: 接続・CRUD・フォールバック機能をテスト
-- **継続的統合**: pre-commitフックでテスト自動実行
+- **クロスプラットフォーム**: Mac/Windows対応のフロントエンドテスト
+- **型安全性**: 厳密な型チェック強化でランタイムエラー防止
+- **継続的統合**: **🔧 Pre-commitフック**でテスト・フォーマット・リント自動実行
 
 ## まとめ
 
 **理念**: 「実用性重視の品質確保」
-- 27個の戦略的テストで主要機能の品質を確保
+- **36個の戦略的テスト**で主要機能の品質を確保
 - AI機能（自律会話・連続発言防止含む）・Supabase統合も含めた包括的なテストカバレッジ
+- **クロスプラットフォーム対応**: Mac/Windows環境での動作保証
+- **型安全性強化**: 厳密な型チェックでランタイムエラー防止
+- **Pre-commit自動化**: コミット前の自動品質チェック
 - メンテナンス性を重視した継続可能なテスト設計
 - 開発効率と品質のバランスを追求
 - **Supabase PostgreSQL対応**: 本番環境と同等のテスト環境

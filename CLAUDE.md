@@ -54,7 +54,7 @@
 - **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
 - **Icons**: Tabler Icons
 - **Date**: dayjs
-- **Development**: ESLint + Prettier + pre-commit + Ruff + Pyright + Vitest
+- **Development**: ESLint + Prettier + **Pre-commit Hooks** + Ruff + Pyright + Vitest + **MCP Playwright**
 
 ## プロジェクト構成
 
@@ -101,7 +101,8 @@ ai-community/
 │   │   │   ├── manager.py   # 接続管理
 │   │   │   └── types.py     # WebSocket型定義
 │   │   ├── utils/           # ユーティリティ
-│   │   │   └── session_manager.py # セッション管理
+│   │   │   ├── session_manager.py # セッション管理
+│   │   │   └── discord_webhook.py # Discord Webhook送信
 │   │   └── alembic/         # データベースマイグレーション
 │   │       ├── env.py       # マイグレーション環境設定
 │   │       ├── script.py.mako # マイグレーションスクリプトテンプレート
@@ -301,4 +302,5 @@ uv run --frozen pyright          # 型チェック
 - [ ] **パフォーマンス改善**: AI自動会話機能の非同期処理最適化
 
 ### 🐛 最近の修正
+- [x] **Pre-commit最適化・コード品質向上**（2025-06-23）: 包括的なフック設定、Discord Webhook機能、ドキュメント全面強化、型安全性向上
 - [x] **AIメッセージ途切れ問題修正**（2025-06-22）: 最大出力トークン数を1000→2048に増加

@@ -1,15 +1,21 @@
 """API基本テスト（最小限・実用版）"""
 
 from datetime import UTC, datetime
+from typing import TYPE_CHECKING
 
 import pytest
 from httpx import AsyncClient
 
 from src.backend.models import Message
 
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+    from src.backend.models import Channel
+
 
 @pytest.mark.asyncio
-async def test_get_channels(async_client: AsyncClient, seed_channels):
+async def test_get_channels(async_client: AsyncClient, seed_channels: list["Channel"]) -> None:
     """チャンネル一覧取得APIのテスト"""
     response = await async_client.get("/api/channels")
 
@@ -29,7 +35,7 @@ async def test_get_channels(async_client: AsyncClient, seed_channels):
 
 
 @pytest.mark.asyncio
-async def test_get_messages(async_client: AsyncClient, seed_channels, test_db):
+async def test_get_messages(async_client: AsyncClient, seed_channels: list["Channel"], test_db: "Session") -> None:
     """メッセージ履歴取得APIのテスト"""
     # テストメッセージを作成
     channel = seed_channels[0]
@@ -78,7 +84,7 @@ async def test_get_messages(async_client: AsyncClient, seed_channels, test_db):
 
 
 @pytest.mark.asyncio
-async def test_invalid_channel(async_client: AsyncClient):
+async def test_invalid_channel(async_client: AsyncClient) -> None:
     """存在しないチャンネルのエラーハンドリングテスト"""
     response = await async_client.get("/api/channels/999/messages")
 

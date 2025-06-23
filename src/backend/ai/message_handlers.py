@@ -17,10 +17,12 @@ try:
     from ..utils.session_manager import save_message_with_session_management
     from ..websocket.manager import manager
     from .gemini_client import GeminiAPIClient, get_gemini_client
+    from .personality_manager import AIPersonality
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.gemini_client import GeminiAPIClient, get_gemini_client
+    from ai.personality_manager import AIPersonality
     from constants.timezone import JST
     from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
@@ -39,7 +41,7 @@ def generate_ai_error_message_id(channel_id: str) -> str:
     return f"ai_error_{channel_id}_{uuid.uuid4().hex[:8]}"
 
 
-def create_ai_message_data(channel_id: str, content: str, personality) -> dict[str, Any]:
+def create_ai_message_data(channel_id: str, content: str, personality: AIPersonality) -> dict[str, Any]:
     """AI応答メッセージデータを作成"""
     return {
         "id": generate_ai_message_id(channel_id),
@@ -110,7 +112,7 @@ async def _generate_ai_response(
                         f"@AI応答 - 前回発言者はユーザー: {latest_msg.user_name} (user_type={latest_msg.user_type})"
                     )
         except Exception as e:
-            logger.warning(f"連続発言防止チェック時のエラー: {str(e)}")
+            logger.warning(f"連続発言防止チェック時のエラー: {e!s}")
 
     ai_response, personality = await gemini_client.generate_response(
         user_message, channel_id=channel_id, db_session=db_session, max_retries=3, exclude_user_id=exclude_user_id
@@ -176,12 +178,12 @@ async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
         if success:
             logger.debug(f"Discord webhook送信成功: message_id={message_data.message_id}")
     except Exception as e:
-        logger.warning(f"Discord webhook送信エラー: {str(e)}")
+        logger.warning(f"Discord webhook送信エラー: {e!s}")
 
 
 async def handle_ai_error(channel_id: str, error: Exception, error_time: float) -> None:
     """AI応答エラー時の処理"""
-    logger.error(f"AI応答エラー: {str(error)}, error_time={error_time:.2f}s")
+    logger.error(f"AI応答エラー: {error!s}, error_time={error_time:.2f}s")
 
     # エラー時のフォールバック応答
     fallback_message_data = {
@@ -204,7 +206,7 @@ async def handle_ai_error(channel_id: str, error: Exception, error_time: float) 
     await manager.broadcast(json.dumps(error_broadcast_message))
 
 
-async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None):
+async def handle_ai_response(message_data: dict[str, Any] | None, db_session: Session | None = None) -> None:
     """AI応答の処理"""
     start_time = time.time()
 

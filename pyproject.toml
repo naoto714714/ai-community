@@ -34,17 +34,42 @@ line-length = 120
 
 [tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
+    "ANN", # type annotation
+    "B",   # flake8-bugbear
+    "D",   # pydocstyle
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "PTH", # use `pathlib.Path` instead of `os.path`
+    "RUF", # ruff specific rules
+    "SIM", # flake8-simplify
+    "UP",  # pyupgrade
+    "W",   # pycodestyle warnings
 ]
 ignore = [
     "E501", # line too long, handled by ruff format
+    "RUF001", # String contains ambiguous characters (Japanese text)
+    "RUF002", # Docstring contains ambiguous characters (Japanese text)
+    "RUF003", # Comment contains ambiguous characters (Japanese text)
+    "D400", # First line should end with a period (Japanese docstrings)
+    "D415", # First line should end with a period, question mark, or exclamation point (Japanese docstrings)
+    "SIM105", # try-except-pass blocks that can be replaced with the contextlib.suppress context manager.
+    "SIM108", # Use ternary operator instead of `if`-`else`-block
+    "SIM116", # Use a dictionary instead of consecutive `if` statements
 ]
+unfixable = [
+    "F841", # unused variable
+]
+
+[tool.ruff.lint.per-file-ignores]
+# ファイルごとに無視するルール
+"__init__.py" = ["F401", "D100", "D104"]
+"tests/backend/test_websocket.py" = ["ANN401"]
+
+[tool.ruff.lint.pydocstyle]
+# pydocstyleルールの設定
+# docstringのスタイルを指定
+convention = "google"
 
 [tool.ruff.format]
 quote-style = "double"

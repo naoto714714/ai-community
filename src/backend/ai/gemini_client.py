@@ -76,14 +76,14 @@ class GeminiAPIClient:
         logger.info("フォールバックプロンプトを設定")
 
     def _select_random_personality(self, exclude_user_id: str | None = None) -> AIPersonality:
-        """
-        ランダムに人格を選択し、フォールバックを管理.
+        """ランダムに人格を選択し、フォールバックを管理.
 
         Args:
             exclude_user_id: 除外するAI人格のuser_id（連続発言防止用）
 
         Returns:
             選択された人格
+
         """
         try:
             # ランダムに人格を選択（除外対象考慮）
@@ -97,7 +97,7 @@ class GeminiAPIClient:
                     logger.debug(f"ランダム人格選択: {personality.name} (user_id: {personality.user_id})")
                 return personality
         except Exception as e:
-            logger.error(f"人格選択エラー: {str(e)}")
+            logger.error(f"人格選択エラー: {e!s}")
 
         # フォールバック人格を返す
         logger.warning("フォールバック人格を使用")
@@ -140,7 +140,7 @@ class GeminiAPIClient:
             logger.debug(f"デバッグ: conversation_history の長さ={len(conversation_history)}")
             return conversation_history
         except Exception as e:
-            logger.error(f"過去の会話履歴取得エラー: {str(e)}")
+            logger.error(f"過去の会話履歴取得エラー: {e!s}")
             import traceback
 
             logger.error(f"エラー詳細: {traceback.format_exc()}")
@@ -154,8 +154,7 @@ class GeminiAPIClient:
         max_retries: int = 5,
         exclude_user_id: str | None = None,
     ) -> tuple[str, AIPersonality]:
-        """
-        ユーザーメッセージに対する応答を生成する.
+        """ユーザーメッセージに対する応答を生成する.
 
         Args:
             user_message: ユーザーからのメッセージ
@@ -166,6 +165,7 @@ class GeminiAPIClient:
 
         Returns:
             tuple[AIの応答テキスト, 選択された人格]
+
         """
         logger.info(f"Gemini API応答生成開始: user_message='{user_message[:50]}...' max_retries={max_retries}")
 
@@ -213,7 +213,7 @@ class GeminiAPIClient:
             except Exception as e:
                 # より具体的な例外処理
                 error_type = type(e).__name__
-                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {str(e)}")
+                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {e!s}")
 
                 # 特定のエラータイプに対する処理が必要な場合
                 # if isinstance(e, SpecificAPIError):
@@ -233,8 +233,7 @@ class GeminiAPIClient:
         return self.FALLBACK_MESSAGE, personality
 
     def _sync_generate(self, user_message: str, personality: AIPersonality) -> object:
-        """
-        同期的にコンテンツを生成する（run_in_executor用）.
+        """同期的にコンテンツを生成する（run_in_executor用）.
 
         新しいGoogle Genai APIを使用してコンテンツを生成します。
 
@@ -247,6 +246,7 @@ class GeminiAPIClient:
 
         Raises:
             Exception: API呼び出しに失敗した場合（認証エラー、ネットワークエラーなど）
+
         """
         # 環境変数からmax_output_tokensをカスタマイズ可能にする（安全な変換処理）
         try:
@@ -270,14 +270,14 @@ class GeminiAPIClient:
         return response
 
     def should_respond_to_message(self, message: str) -> bool:
-        """
-        メッセージに応答すべきかどうかを判定する.
+        """メッセージに応答すべきかどうかを判定する.
 
         Args:
             message: チェックするメッセージ
 
         Returns:
             応答すべき場合True
+
         """
         # 日本語環境に対応した@AI検出（全角スペースも考慮）
         # (?:^|[\s　]) - 文頭または半角・全角空白文字の後

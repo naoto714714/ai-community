@@ -71,7 +71,7 @@ describe('MessageInput', () => {
       value: 'MacIntel',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
@@ -85,7 +85,7 @@ describe('MessageInput', () => {
       value: 'Win32',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)')
@@ -99,7 +99,7 @@ describe('MessageInput', () => {
       value: 'MacIntel',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
@@ -115,7 +115,7 @@ describe('MessageInput', () => {
       value: 'Win32',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)')
@@ -131,7 +131,7 @@ describe('MessageInput', () => {
       value: 'MacIntel',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
@@ -146,7 +146,7 @@ describe('MessageInput', () => {
       value: 'MacIntel',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
@@ -161,7 +161,7 @@ describe('MessageInput', () => {
       value: 'MacIntel',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)')
@@ -176,7 +176,7 @@ describe('MessageInput', () => {
       value: 'Win32',
       writable: true
     })
-    
+
     renderWithProvider(<MessageInput onSendMessage={mockOnSendMessage} />)
 
     const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)')

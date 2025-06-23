@@ -71,6 +71,7 @@ class DiscordWebhookSender:
 
         Returns:
             送信成功: True, 失敗: False
+
         """
         if not self.webhook_url:
             logger.debug("Discord Webhook URLが未設定のため送信をスキップ")
@@ -110,7 +111,7 @@ class DiscordWebhookSender:
                 return False
 
         except Exception as e:
-            logger.error(f"Discord Webhook送信エラー: {str(e)}")
+            logger.error(f"Discord Webhook送信エラー: {e!s}")
             return False
 
 

@@ -8,10 +8,12 @@
 
 import os
 import uuid
+from collections.abc import Generator
 
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.exc import OperationalError
+from sqlalchemy.orm import Session
 
 from src.backend.database import SQLALCHEMY_DATABASE_URL
 
@@ -19,7 +21,7 @@ from src.backend.database import SQLALCHEMY_DATABASE_URL
 class TestSupabaseConnection:
     """Supabase接続確認テスト"""
 
-    def test_supabase_connection_with_valid_env(self):
+    def test_supabase_connection_with_valid_env(self) -> None:
         """有効な環境変数でSupabase接続成功テスト"""
         # 実際の環境変数が設定されている場合のみ実行
         required_vars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"]
@@ -41,7 +43,7 @@ class TestSupabaseConnection:
         except OperationalError:
             pytest.fail("Supabase PostgreSQLへの接続に失敗しました")
 
-    def test_supabase_url_format_validation(self):
+    def test_supabase_url_format_validation(self) -> None:
         """Supabase接続URL形式の検証テスト"""
         from urllib.parse import quote_plus
 
@@ -88,7 +90,7 @@ class TestSupabaseCRUD:
     """実PostgreSQLでのCRUD操作テスト"""
 
     @pytest.fixture
-    def supabase_db_session(self):
+    def supabase_db_session(self) -> Generator[Session]:
         """Supabase用データベースセッション（環境変数設定時のみ）"""
         # 実際の環境変数が設定されている場合のみ実行
         required_vars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"]
@@ -116,7 +118,7 @@ class TestSupabaseCRUD:
             # 接続失敗時はテストをスキップ
             pytest.skip("Supabase PostgreSQLへの接続に失敗しました")
 
-    def test_postgresql_channel_operations(self, supabase_db_session):
+    def test_postgresql_channel_operations(self, supabase_db_session: Session) -> None:
         """PostgreSQLでのチャンネル操作テスト"""
         from src.backend.models import Channel
 
@@ -140,6 +142,7 @@ class TestSupabaseCRUD:
             supabase_db_session.commit()
 
             updated_channel = supabase_db_session.query(Channel).filter(Channel.id == unique_id).first()
+            assert updated_channel is not None
             assert updated_channel.name == "更新されたチャンネル"
 
             # DELETE: チャンネル削除
@@ -156,7 +159,7 @@ class TestSupabaseCRUD:
                 supabase_db_session.delete(cleanup_channel)
                 supabase_db_session.commit()
 
-    def test_postgresql_message_with_unicode(self, supabase_db_session):
+    def test_postgresql_message_with_unicode(self, supabase_db_session: Session) -> None:
         """PostgreSQLでの日本語メッセージ処理テスト"""
         from datetime import UTC, datetime
 
@@ -201,7 +204,7 @@ class TestSupabaseCRUD:
 class TestDatabaseFallback:
     """環境変数フォールバック機能テスト"""
 
-    def test_database_url_construction_logic(self):
+    def test_database_url_construction_logic(self) -> None:
         """データベースURL構築ロジックの検証テスト"""
         # database.pyの内部ロジックを直接テスト
         from urllib.parse import quote_plus
@@ -244,7 +247,7 @@ class TestDatabaseFallback:
             assert fallback_url.startswith("sqlite:///")
             assert "chat.db" in fallback_url
 
-    def test_sqlite_functionality_standalone(self):
+    def test_sqlite_functionality_standalone(self) -> None:
         """SQLite機能の独立テスト"""
         # 既存テストでSQLite機能は十分に検証されているため、
         # このテストは基本的なライブラリ動作確認のみ実施
@@ -267,7 +270,7 @@ class TestDatabaseFallback:
 
         conn.close()
 
-    def test_environment_variable_validation(self):
+    def test_environment_variable_validation(self) -> None:
         """環境変数バリデーションロジックのテスト"""
         # 必要な環境変数リスト
         required_vars = ["DB_HOST", "DB_PORT", "DB_NAME", "DB_USER", "DB_PASSWORD"]

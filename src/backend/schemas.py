@@ -1,3 +1,8 @@
+"""リクエスト・レスポンススキーマ定義.
+
+FastAPIのAPIエンドポイントで使用されるPydanticスキーマとデータクラスを定義します。
+"""
+
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from enum import Enum
@@ -29,6 +34,7 @@ def serialize_datetime_to_utc_iso(dt: datetime) -> str:
 
     Returns:
         UTCタイムゾーンでのISO形式文字列
+
     """
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)
@@ -38,6 +44,11 @@ def serialize_datetime_to_utc_iso(dt: datetime) -> str:
 
 
 class MessageBase(BaseModel):
+    """メッセージの基本スキーマ.
+
+    チャットメッセージの共通フィールドを定義し、他のメッセージスキーマのベースクラスとして使用されます。
+    """
+
     model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     id: str
@@ -56,10 +67,20 @@ class MessageBase(BaseModel):
 
 
 class MessageCreate(MessageBase):
+    """メッセージ作成用スキーマ.
+
+    新しいメッセージを作成する際に使用されるスキーマです。
+    """
+
     pass
 
 
 class MessageResponse(MessageBase):
+    """メッセージレスポンス用スキーマ.
+
+    APIレスポンスでメッセージ情報を返す際に使用されるスキーマです。
+    """
+
     model_config = ConfigDict(
         from_attributes=True, alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
     )
@@ -73,6 +94,11 @@ class MessageResponse(MessageBase):
 
 
 class ChannelBase(BaseModel):
+    """チャンネルの基本スキーマ.
+
+    チャットチャンネルの共通フィールドを定義し、他のチャンネルスキーマのベースクラスとして使用されます。
+    """
+
     model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     id: str
@@ -81,6 +107,11 @@ class ChannelBase(BaseModel):
 
 
 class ChannelResponse(ChannelBase):
+    """チャンネルレスポンス用スキーマ.
+
+    APIレスポンスでチャンネル情報を返す際に使用されるスキーマです。
+    """
+
     model_config = ConfigDict(
         from_attributes=True, alias_generator=to_camel, validate_by_name=True, validate_by_alias=True
     )
@@ -94,6 +125,11 @@ class ChannelResponse(ChannelBase):
 
 
 class MessagesListResponse(BaseModel):
+    """メッセージ一覧レスポンス用スキーマ.
+
+    メッセージ一覧APIのレスポンスで使用されるスキーマです。
+    """
+
     model_config = ConfigDict(alias_generator=to_camel, validate_by_name=True, validate_by_alias=True)
 
     messages: list[MessageResponse]

@@ -8,23 +8,25 @@ logger = logging.getLogger(__name__)
 
 
 class ConnectionManager:
-    def __init__(self):
+    """複数のWebSocket接続を管理するクラス."""
+
+    def __init__(self) -> None:
         """初期化"""
         self.active_connections: list[WebSocket] = []
 
-    async def connect(self, websocket: WebSocket):
+    async def connect(self, websocket: WebSocket) -> None:
         """新しいWebSocket接続を追加"""
         await websocket.accept()
         self.active_connections.append(websocket)
         logger.info(f"新しいWebSocket接続が登録されました。総数: {len(self.active_connections)}")
 
-    def disconnect(self, websocket: WebSocket):
+    def disconnect(self, websocket: WebSocket) -> None:
         """指定WebSocket接続を削除"""
         if websocket in self.active_connections:
             self.active_connections.remove(websocket)
         logger.info(f"WebSocket接続が切断されました。総数: {len(self.active_connections)}")
 
-    async def send_personal_message(self, message: str, websocket: WebSocket):
+    async def send_personal_message(self, message: str, websocket: WebSocket) -> None:
         """特定のクライアントにメッセージを送信"""
         try:
             await websocket.send_text(message)
@@ -32,9 +34,8 @@ class ConnectionManager:
             # 接続が切断されている場合は削除
             self.disconnect(websocket)
 
-    async def broadcast(self, message: str, exclude_websocket: WebSocket | None = None):
-        """
-        全ての接続中のクライアントにメッセージをブロードキャスト
+    async def broadcast(self, message: str, exclude_websocket: WebSocket | None = None) -> None:
+        """全ての接続中のクライアントにメッセージをブロードキャスト
 
         接続状態の管理:
         1. 接続リストのコピーを作成して、イテレート中の変更を防ぐ

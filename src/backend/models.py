@@ -1,3 +1,8 @@
+"""データベースモデル定義.
+
+ChannelとMessageのSQLAlchemyモデルを定義し、チャットアプリケーションのデータ構造を表現します。
+"""
+
 from datetime import UTC, datetime
 
 from sqlalchemy import String, Text

@@ -219,6 +219,13 @@ npm run test:coverage
 
 # テストUI
 npm run test:ui
+
+# 🆕 Pre-commit関連
+# Pre-commitフックのインストール（フロントエンド用）
+pre-commit install
+
+# 手動でPre-commitチェック実行
+pre-commit run --all-files
 ```
 
 > **Note:** 開発サーバー起動（`npm run dev`）については、上記の[クイックスタート](#-クイックスタート)をご参照ください。
@@ -242,8 +249,10 @@ npm run test:ui
 - ✅ ダークモード対応
 - ✅ フルレスポンシブ対応（モバイル・タブレット・PC）
 - ✅ ESLint + Prettier 設定
-- ✅ Vitest + Testing Library テスト環境
-- ✅ TypeScript 厳密設定
+- ✅ **🧪 包括的テスト環境**（Vitest + Testing Library）
+- ✅ **🔧 クロスプラットフォームテスト**（Mac/Windows キーボードショートカット対応）
+- ✅ **🛡️ 型安全性強化**（厳密なTypeScript設定）
+- ✅ **⚙️ Pre-commit自動化**（ESLint、Prettier自動実行）
 - ✅ **Supabase PostgreSQL バックエンド対応**
 
 ## 🚧 今後の拡張予定

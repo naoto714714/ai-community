@@ -59,7 +59,8 @@ src/backend/
 │   ├── manager.py       # 接続管理
 │   └── types.py         # WebSocket型定義
 ├── utils/               # ユーティリティ
-│   └── session_manager.py # セッション管理
+│   ├── session_manager.py # セッション管理
+│   └── discord_webhook.py # Discord Webhook送信
 ├── alembic/             # データベースマイグレーション
 │   ├── env.py           # マイグレーション環境設定
 │   ├── script.py.mako   # マイグレーションスクリプトテンプレート
@@ -108,7 +109,7 @@ created_at: datetime # 作成時刻
 - **AI モデル**: Google Gemini 2.5 Flash Preview 05-20
 - **トリガー**: メッセージに `@AI` を含める
 - **人格選択**: メッセージごとにランダム選択
-- **利用可能人格**: レン、ミナ、テツ、ルナ、ソラ  
+- **利用可能人格**: レン、ミナ、テツ、ルナ、ソラ
 - **応答速度**: 平均2-3秒
 - **プロンプト**: `prompts/people/` ディレクトリで管理
 - **会話品質強化**: 具体的で実用的な会話を実現（抽象的・ありきたりな内容を回避）
@@ -183,7 +184,43 @@ AI:
 export AI_CONVERSATION_ENABLED=true          # 機能の有効/無効
 export AI_CONVERSATION_INTERVAL_SECONDS=60   # 発言間隔（秒）
 export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID
+
+# 🌐 Discord Webhook連携（オプション）
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
 ```
+
+> **注意**: Discord Webhook URLが未設定の場合は、AI発言の転送は無効化され、通常のチャット機能のみが動作します。エラーログは出力されず、内部でスキップ処理されます。
+
+## 🌐 Discord Webhook連携
+
+### 概要
+AIの発言をDiscordチャンネルに自動転送する機能です。AI自律会話や@AI応答が発生した際に、自動的にDiscordに投稿されます。
+
+### 特徴
+- **自動転送**: AI応答がDiscordに自動投稿
+- **レート制限対応**: 30件/分の制限に準拠
+- **メッセージ長制限**: 2000文字制限に対応（自動切り詰め）
+- **Markdownエスケープ**: Discord特殊文字の自動エスケープ処理
+- **エラー処理**: 送信失敗時のログ記録
+
+### 設定方法
+```bash
+# Discord Webhook URL設定（オプション）
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
+```
+
+### 送信フォーマット
+```text
+AI人格名
+メッセージ本文
+--------------------
+```
+
+### API制限・安全対策
+- **レート制限**: 30件/分を監視・制御
+- **メッセージ長**: 2000文字を超える場合は自動切り詰め
+- **接続タイムアウト**: 10秒
+- **エラーログ**: 送信失敗時の詳細ログ記録
 
 ## 🔗 API仕様
 
@@ -379,6 +416,17 @@ uv run --frozen pytest
 
 # 開発サーバー起動
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# 🆕 Pre-commit関連
+```bash
+# Pre-commitフックのインストール
+pre-commit install
+
+# 手動でPre-commitチェック実行
+pre-commit run --all-files
+
+# Pre-commitフックの更新
+pre-commit autoupdate
 ```
 
 ## 📋 実装済み機能
@@ -402,8 +450,20 @@ uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 - ✅ CORS設定
 - ✅ エラーハンドリング
 - ✅ **Supabase PostgreSQL移行完了**
+- ✅ **🌐 Discord Webhook連携機能**（AI発言の自動転送）
+- ✅ **📝 包括的なドキュメント化**（全クラス・関数のdocstring追加）
+- ✅ **🔧 Pre-commit自動化**（Ruff、Prettier、Pyright、ESLint統合）
+- ✅ **🛡️ 型安全性強化**（厳密な型アノテーション全面適用）
+- ✅ **⚙️ MCP Playwright設定**（ブラウザ自動化テスト準備）
 
 ## 🐛 最近の修正・改善
+
+### 2025-06-23: Pre-commit最適化・コード品質向上
+- **🔧 Pre-commit設定最適化**: 包括的なフック設定（Ruff、Prettier、ESLint、Pyright）
+- **🛡️ 型安全性向上**: 厳密な型アノテーション・TYPE_CHECKING活用、WebSocketハンドラーリファクタリング
+- **📝 ドキュメント全面強化**: 全クラス・関数にGoogle形式docstring追加
+- **🌐 Discord Webhook機能追加**: AI発言の自動転送（レート制限・メッセージ長制限対応）
+- **⚙️ 開発体験改善**: VSCode設定・MCP Playwright設定追加
 
 ### 2025-06-22: AIメッセージ品質向上
 - **AIメッセージ途切れ問題修正**: 最大出力トークン数を1000→2048に増加

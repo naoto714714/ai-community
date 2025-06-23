@@ -1,3 +1,8 @@
+"""Alembic データベースマイグレーション環境設定.
+
+SQLAlchemyモデルのデータベースマイグレーションを管理するAlembic環境設定ファイルです。
+"""
+
 import sys
 from logging.config import fileConfig
 from pathlib import Path

@@ -17,11 +17,13 @@ try:
     from ..websocket.manager import manager
     from .conversation_config import get_conversation_config
     from .gemini_client import get_gemini_client
+    from .personality_manager import AIPersonality
 except ImportError:
     # 直接実行される場合
     import crud
     from ai.conversation_config import get_conversation_config
     from ai.gemini_client import get_gemini_client
+    from ai.personality_manager import AIPersonality
     from constants.timezone import JST
     from schemas import MessageBroadcastData, MessageCreate
     from utils.session_manager import save_message_with_session_management
@@ -59,7 +61,7 @@ def generate_auto_conversation_message_id(channel_id: str) -> str:
     return f"auto_ai_{channel_id}_{uuid.uuid4().hex[:8]}"
 
 
-def create_auto_ai_message_data(channel_id: str, content: str, personality) -> dict:
+def create_auto_ai_message_data(channel_id: str, content: str, personality: AIPersonality) -> dict:
     """自動会話用AI応答メッセージデータを作成."""
     return {
         "id": generate_auto_conversation_message_id(channel_id),
@@ -122,7 +124,7 @@ async def broadcast_auto_ai_response(message_data: MessageBroadcastData) -> None
         if success:
             logger.debug(f"Discord webhook送信成功: message_id={message_data.message_id}")
     except Exception as e:
-        logger.warning(f"Discord webhook送信エラー: {str(e)}")
+        logger.warning(f"Discord webhook送信エラー: {e!s}")
 
 
 def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool:
@@ -177,7 +179,7 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
         return False
 
     except Exception as e:
-        logger.error(f"自動会話判定でエラー: {str(e)}")
+        logger.error(f"自動会話判定でエラー: {e!s}")
         return False
 
 
@@ -253,7 +255,7 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
         return convert_message_create_to_broadcast_data(ai_message_create)
 
     except Exception as e:
-        logger.error(f"自動会話AI応答生成エラー: {str(e)}")
+        logger.error(f"自動会話AI応答生成エラー: {e!s}")
         return None
 
 
@@ -262,6 +264,7 @@ async def handle_auto_conversation_check(channel_id: str, db_session: Session) -
 
     Returns:
         自動会話が実行された場合True
+
     """
     try:
         # 自動会話を開始すべきかチェック
@@ -283,5 +286,5 @@ async def handle_auto_conversation_check(channel_id: str, db_session: Session) -
         return False
 
     except Exception as e:
-        logger.error(f"自動会話処理エラー: {str(e)}")
+        logger.error(f"自動会話処理エラー: {e!s}")
         return False

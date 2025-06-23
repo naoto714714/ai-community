@@ -1,5 +1,11 @@
+"""メインFastAPIアプリケーション.
+
+AI CommunityのFastAPIバックエンドアプリケーションのAPIエンドポイントとWebSocketを提供します。
+"""
+
 import json
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -59,7 +65,7 @@ INITIAL_CHANNELS = [
 ]
 
 
-def init_channels():
+def init_channels() -> None:
     """初期チャンネルをデータベースに作成"""
     db = SessionLocal()
     try:
@@ -74,7 +80,8 @@ def init_channels():
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
+async def lifespan(app: FastAPI) -> AsyncGenerator[None]:
+    """FastAPIアプリケーションのライフサイクル管理."""
     # 起動時処理
     # 注意: テーブル作成はAlembicマイグレーションで実行済み
     init_channels()  # 初期チャンネル作成
@@ -110,14 +117,16 @@ app.add_middleware(
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
+    """ルートエンドポイント."""
     return {"message": "AI Community Backend API"}
 
 
 @app.get("/api/channels", response_model=list[ChannelResponse])
-async def get_channels(db: Session = Depends(get_db)):  # noqa: B008
+async def get_channels(db: Session = Depends(get_db)) -> list[ChannelResponse]:  # noqa: B008
     """チャンネル一覧取得"""
-    return crud.get_channels(db)
+    channels = crud.get_channels(db)
+    return [ChannelResponse.model_validate(channel) for channel in channels]
 
 
 # デフォルト値の定数定義
@@ -130,7 +139,7 @@ async def get_channel_messages(
     limit: int = DEFAULT_MESSAGE_LIMIT,
     offset: int = 0,
     db: Session = Depends(get_db),  # noqa: B008
-):
+) -> MessagesListResponse:
     """指定チャンネルのメッセージ履歴取得"""
     # チャンネルの存在確認
     channel = db.query(Channel).filter(Channel.id == channel_id).first()
@@ -149,7 +158,8 @@ async def get_channel_messages(
 
 
 @app.websocket("/ws")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    """WebSocketエンドポイント."""
     await manager.connect(websocket)
     try:
         while True:
@@ -168,7 +178,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 error_response = {"type": "error", "data": {"success": False, "error": "無効なJSON形式"}}
                 await websocket.send_text(json.dumps(error_response))
             except Exception as e:
-                logger.error(f"WebSocketメッセージ処理エラー: {str(e)}")
+                logger.error(f"WebSocketメッセージ処理エラー: {e!s}")
                 # 一般的なエラー応答を送信
                 error_response = {"type": "error", "data": {"success": False, "error": "内部サーバーエラー"}}
                 await websocket.send_text(json.dumps(error_response))

@@ -1,12 +1,21 @@
+"""テスト用pytest設定ファイル.
+
+テストデータベース、クライアント、初期データなどのテストフィクスチャを定義します。
+"""
+
 import asyncio
-from collections.abc import AsyncGenerator
+from collections.abc import AsyncGenerator, Generator
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from src.backend.models import Channel
 
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from src.backend.database import Base, get_db
@@ -19,7 +28,7 @@ SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
 
 
 @pytest.fixture(scope="session")
-def event_loop():
+def event_loop() -> Generator[asyncio.AbstractEventLoop]:
     """セッション全体で使用するイベントループ"""
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
@@ -27,7 +36,7 @@ def event_loop():
 
 
 @pytest.fixture(scope="function")
-def test_db():
+def test_db() -> Generator[Session]:
     """テスト用のインメモリデータベース"""
     engine = create_engine(
         SQLALCHEMY_DATABASE_URL,
@@ -38,7 +47,7 @@ def test_db():
 
     Base.metadata.create_all(bind=engine)
 
-    def override_get_db():
+    def override_get_db() -> Generator[Session]:
         db = TestingSessionLocal()
         try:
             yield db
@@ -57,13 +66,13 @@ def test_db():
 
 
 @pytest.fixture
-def client(test_db) -> TestClient:
+def client(test_db: Session) -> TestClient:
     """同期テスト用クライアント"""
     return TestClient(app)
 
 
 @pytest_asyncio.fixture
-async def async_client(test_db) -> AsyncGenerator[AsyncClient]:
+async def async_client(test_db: Session) -> AsyncGenerator[AsyncClient]:
     """非同期テスト用クライアント"""
     from httpx import ASGITransport
 
@@ -72,7 +81,7 @@ async def async_client(test_db) -> AsyncGenerator[AsyncClient]:
 
 
 @pytest.fixture
-def seed_channels(test_db):
+def seed_channels(test_db: Session) -> list["Channel"]:
     """初期チャンネルデータの投入"""
     from src.backend.models import Channel
 

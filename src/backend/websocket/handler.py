@@ -28,6 +28,8 @@ except ImportError:
 
 
 class MessageTypes:
+    """サポートされるWebSocketメッセージタイプの定数クラス."""
+
     SEND = "message:send"
     # 将来的に追加される予定
     # EDIT = "message:edit"
@@ -82,6 +84,8 @@ def validate_message_data(message_data: dict[str, Any]) -> tuple[bool, str | Non
 
 
 class WebSocketMessage(TypedDict):
+    """クライアントから受信するWebSocketメッセージの型定義."""
+
     type: Required[str]
     data: NotRequired[dict[str, Any]]
 
@@ -105,151 +109,161 @@ async def safe_send_message(websocket: WebSocket, message: str) -> bool:
         await manager.send_personal_message(message, websocket)
         return True
     except Exception as e:
-        logger.error(f"WebSocketメッセージ送信エラー: {str(e)}")
+        logger.error(f"WebSocketメッセージ送信エラー: {e!s}")
         return False
+
+
+async def _send_error_response(websocket: WebSocket, message_id: str | None, error_message: str) -> None:
+    """エラーレスポンスをクライアントに送信する共通処理."""
+    error_response = {
+        "type": "message:error",
+        "data": {
+            "id": message_id,
+            "success": False,
+            "error": error_message,
+        },
+    }
+    await safe_send_message(websocket, json.dumps(error_response))
+
+
+async def _validate_and_parse_message(message_data: dict[str, Any]) -> tuple[MessageCreate | None, str | None]:
+    """メッセージデータのバリデーションとパース処理."""
+    # 詳細なメッセージデータバリデーション
+    is_valid, validation_error = validate_message_data(message_data)
+    if not is_valid:
+        return None, f"メッセージデータが無効です: {validation_error}"
+
+    try:
+        # Pydanticバリデーション
+        message_create = MessageCreate.model_validate(message_data)
+        return message_create, None
+    except ValidationError as ve:
+        logger.warning(f"Pydanticバリデーションエラー: {ve!s}")
+        if not is_production():
+            logger.debug(f"バリデーション詳細: {ve.errors()}")
+        return None, "メッセージフォーマットが正しくありません"
+
+
+async def _save_and_notify_success(
+    websocket: WebSocket,
+    message_create: MessageCreate,
+    db_session: Session | None,
+) -> None:
+    """メッセージ保存と成功通知処理."""
+    save_message_with_session_management(
+        lambda session: crud.create_message(session, message_create),
+        db_session,
+        auto_commit=(db_session is None),
+    )
+
+    # 保存成功をクライアントに通知
+    response = {"type": "message:saved", "data": {"id": message_create.id, "success": True}}
+    await safe_send_message(websocket, json.dumps(response))
+    logger.info(f"メッセージが保存されました: {message_create.id}")
+
+
+async def _broadcast_message_to_others(websocket: WebSocket, message_create: MessageCreate) -> None:
+    """送信者以外の全クライアントにメッセージをブロードキャスト."""
+    broadcast_data = {
+        "id": message_create.id,
+        "channel_id": message_create.channel_id,
+        "user_id": message_create.user_id,
+        "user_name": message_create.user_name,
+        "content": message_create.content,
+        "timestamp": message_create.timestamp.isoformat(),
+        "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
+    }
+
+    user_broadcast_message = {
+        "type": "message:broadcast",
+        "data": broadcast_data,
+    }
+    await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
+    logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {message_create.id}")
+
+
+async def _handle_ai_response_safely(
+    websocket: WebSocket,
+    message_data: dict[str, Any],
+    db_session: Session | None,
+) -> None:
+    """AI応答処理（エラーハンドリング付き）."""
+    try:
+        await handle_ai_response(message_data, db_session)
+    except Exception as ai_error:
+        logger.warning(f"AI応答処理エラー: {ai_error!s}")
+        logger.debug(f"AI応答エラーの詳細: {traceback.format_exc()}")
+        # ユーザーにAI応答エラーを通知
+        ai_error_response = {
+            "type": "ai:error",
+            "data": {"message": "AI応答の生成に失敗しました。しばらく時間をおいてから再度お試しください。"},
+        }
+        await safe_send_message(websocket, json.dumps(ai_error_response))
+        # AI応答エラーはユーザーメッセージ保存に影響しないため継続
+
+
+async def _handle_message_send(
+    websocket: WebSocket,
+    message_data: dict[str, Any] | None,
+    db_session: Session | None,
+) -> None:
+    """メッセージ送信処理の実装."""
+    # メッセージデータの存在を検証
+    if not message_data or not isinstance(message_data, dict):
+        await _send_error_response(websocket, None, "無効なメッセージデータです")
+        return
+
+    # バリデーションとパース
+    message_create, error_message = await _validate_and_parse_message(message_data)
+    if error_message or message_create is None:
+        await _send_error_response(websocket, message_data.get("id"), error_message or "メッセージの解析に失敗しました")
+        return
+
+    try:
+        # メッセージ保存と成功通知
+        await _save_and_notify_success(websocket, message_create, db_session)
+
+        # 他のクライアントにブロードキャスト
+        await _broadcast_message_to_others(websocket, message_create)
+
+        # AI応答処理
+        await _handle_ai_response_safely(websocket, message_data, db_session)
+
+    except Exception as e:
+        # 本番環境では詳細なエラー情報をログに出力しない
+        if is_production():
+            logger.error("メッセージ保存処理でエラーが発生しました")
+        else:
+            logger.error(f"メッセージ保存エラー: {e!s}")
+            logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
+
+        # エラーをクライアントに通知（情報漏洩対策済み）
+        message_id = message_data.get("id") if message_data else None
+        await _send_error_response(websocket, message_id, "メッセージの保存に失敗しました")
+
+
+async def _handle_unsupported_message_type(websocket: WebSocket, message_type: str) -> None:
+    """未サポートメッセージタイプの処理."""
+    logger.warning(f"未サポートのメッセージタイプ: {message_type}. サポートタイプ: {SUPPORTED_MESSAGE_TYPES}")
+    await _send_error_response(websocket, None, f"サポートされていないメッセージタイプです: {message_type}")
 
 
 async def handle_websocket_message(
     websocket: WebSocket,
     data: WebSocketMessage,
     db_session: Session | None = None,
-):
-    """WebSocketメッセージの処理"""
+) -> None:
+    """WebSocketメッセージの処理.
+
+    Args:
+        websocket: WebSocket接続オブジェクト
+        data: クライアントから受信したメッセージデータ
+        db_session: データベースセッション（オプション）
+    """
     message_type = data.get("type")
     message_data = data.get("data")
 
     if message_type == MessageTypes.SEND:
-        # メッセージデータの存在を検証
-        if not message_data or not isinstance(message_data, dict):
-            error_response = {
-                "type": "message:error",
-                "data": {
-                    "id": None,
-                    "success": False,
-                    "error": "無効なメッセージデータです",
-                },
-            }
-            await safe_send_message(websocket, json.dumps(error_response))
-            return
-
-        # 詳細なメッセージデータバリデーション
-        is_valid, validation_error = validate_message_data(message_data)
-        if not is_valid:
-            error_response = {
-                "type": "message:error",
-                "data": {
-                    "id": message_data.get("id"),
-                    "success": False,
-                    "error": f"メッセージデータが無効です: {validation_error}",
-                },
-            }
-            await safe_send_message(websocket, json.dumps(error_response))
-            return
-
-        try:
-            # Pydanticバリデーション
-            message_create = MessageCreate.model_validate(message_data)
-
-            # セッションから切り離される前に必要な情報を取得
-            message_id = message_create.id
-            channel_id = message_create.channel_id
-            user_id = message_create.user_id
-            user_name = message_create.user_name
-            content = message_create.content
-            timestamp = message_create.timestamp
-
-            save_message_with_session_management(
-                lambda session: crud.create_message(session, message_create),
-                db_session,
-                auto_commit=(db_session is None),
-            )
-
-            # 保存成功をクライアントに通知
-            response = {"type": "message:saved", "data": {"id": message_id, "success": True}}
-            await safe_send_message(websocket, json.dumps(response))
-
-            logger.info(f"メッセージが保存されました: {message_id}")
-
-            # 送信者以外の全クライアントにブロードキャスト（送信者は楽観的更新済み）
-            broadcast_data = {
-                "id": message_id,
-                "channel_id": channel_id,
-                "user_id": user_id,
-                "user_name": user_name,
-                "content": content,
-                "timestamp": timestamp.isoformat(),
-                "is_own_message": False,  # 他のクライアントにとっては他人のメッセージ
-            }
-
-            user_broadcast_message = {
-                "type": "message:broadcast",
-                "data": broadcast_data,
-            }
-            await manager.broadcast(json.dumps(user_broadcast_message), exclude_websocket=websocket)
-            logger.info(f"ユーザーメッセージをブロードキャスト（送信者除く）: {message_id}")
-
-            # AI応答の処理（エラーハンドリング付き）
-            try:
-                await handle_ai_response(message_data, db_session)
-            except Exception as ai_error:
-                logger.warning(f"AI応答処理エラー: {str(ai_error)}")
-                logger.debug(f"AI応答エラーの詳細: {traceback.format_exc()}")
-                # ユーザーにAI応答エラーを通知
-                ai_error_response = {
-                    "type": "ai:error",
-                    "data": {"message": "AI応答の生成に失敗しました。しばらく時間をおいてから再度お試しください。"},
-                }
-                await safe_send_message(websocket, json.dumps(ai_error_response))
-                # AI応答エラーはユーザーメッセージ保存に影響しないため継続
-
-        except ValidationError as ve:
-            logger.warning(f"Pydanticバリデーションエラー: {str(ve)}")
-            # 本番環境では詳細なバリデーションエラーをログに出力しない
-            if not is_production():
-                logger.debug(f"バリデーション詳細: {ve.errors()}")
-
-            error_response = {
-                "type": "message:error",
-                "data": {
-                    "id": message_data.get("id") if message_data else None,
-                    "success": False,
-                    "error": "メッセージフォーマットが正しくありません",
-                },
-            }
-            await safe_send_message(websocket, json.dumps(error_response))
-
-        except Exception as e:
-            # 本番環境では詳細なエラー情報をログに出力しない
-            if is_production():
-                logger.error("メッセージ保存処理でエラーが発生しました")
-            else:
-                logger.error(f"メッセージ保存エラー: {str(e)}")
-                logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
-
-            # エラーをクライアントに通知（情報漏洩対策済み）
-            message_id = None
-            if message_data and isinstance(message_data, dict):
-                message_id = message_data.get("id")
-
-            error_response = {
-                "type": "message:error",
-                "data": {
-                    "id": message_id,
-                    "success": False,
-                    "error": "メッセージの保存に失敗しました",  # 詳細なエラー情報を隠蔽
-                },
-            }
-            await safe_send_message(websocket, json.dumps(error_response))
-
+        await _handle_message_send(websocket, message_data, db_session)
     else:
-        logger.warning(f"未サポートのメッセージタイプ: {message_type}. サポートタイプ: {SUPPORTED_MESSAGE_TYPES}")
-        # 未対応メッセージタイプをクライアントに通知
-        error_response = {
-            "type": "message:error",
-            "data": {
-                "id": None,
-                "success": False,
-                "error": f"サポートされていないメッセージタイプです: {message_type}",
-            },
-        }
-        await safe_send_message(websocket, json.dumps(error_response))
+        await _handle_unsupported_message_type(websocket, message_type)
