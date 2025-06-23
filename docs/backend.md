@@ -189,6 +189,8 @@ export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID
 export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
 ```
 
+> **注意**: Discord Webhook URLが未設定の場合は、AI発言の転送は無効化され、通常のチャット機能のみが動作します。エラーログは出力されず、内部でスキップ処理されます。
+
 ## 🌐 Discord Webhook連携
 
 ### 概要
@@ -416,6 +418,7 @@ uv run --frozen pytest
 uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # 🆕 Pre-commit関連
+```bash
 # Pre-commitフックのインストール
 pre-commit install
 
@@ -457,11 +460,10 @@ pre-commit autoupdate
 
 ### 2025-06-23: Pre-commit最適化・コード品質向上
 - **🔧 Pre-commit設定最適化**: 包括的なフック設定（Ruff、Prettier、ESLint、Pyright）
-- **🌐 Discord Webhook機能追加**: AI発言のDiscord自動転送機能
+- **🛡️ 型安全性向上**: 厳密な型アノテーション・TYPE_CHECKING活用、WebSocketハンドラーリファクタリング
 - **📝 ドキュメント全面強化**: 全クラス・関数にGoogle形式docstring追加
-- **🛡️ 型安全性向上**: 厳密な型アノテーション・TYPE_CHECKING活用
+- **🌐 Discord Webhook機能追加**: AI発言の自動転送（レート制限・メッセージ長制限対応）
 - **⚙️ 開発体験改善**: VSCode設定・MCP Playwright設定追加
-- **🧹 コードスタイル統一**: 日本語エラー無視設定・自動フォーマット
 
 ### 2025-06-22: AIメッセージ品質向上
 - **AIメッセージ途切れ問題修正**: 最大出力トークン数を1000→2048に増加

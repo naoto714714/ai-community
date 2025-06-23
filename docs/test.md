@@ -301,20 +301,40 @@ describe('MessageInput', () => {
 
   // キーボードショートカットテスト（プラットフォーム別）
   it('Command+Enterキーでメッセージが送信される（Mac）', () => {
-    // Mac環境でのCommand+Enter送信テスト
+    Object.defineProperty(navigator, 'platform', { value: 'MacIntel' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'Command+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', metaKey: true });
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Command+Enterテスト');
   });
 
   it('Ctrl+Enterキーでメッセージが送信される（Windows）', () => {
-    // Windows環境でのCtrl+Enter送信テスト
+    Object.defineProperty(navigator, 'platform', { value: 'Win32' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'Ctrl+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+    expect(mockOnSendMessage).toHaveBeenCalledWith('Ctrl+Enterテスト');
   });
 
   // 誤動作防止テスト
   it('MacでCtrl+Enterを押しても送信されない', () => {
-    // Macで間違ったキーコンビネーションでは送信されないことを確認
+    Object.defineProperty(navigator, 'platform', { value: 'MacIntel' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (⌘+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'MacでCtrl+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', ctrlKey: true });
+    expect(mockOnSendMessage).not.toHaveBeenCalled();
   });
 
   it('WindowsでCommand+Enterを押しても送信されない', () => {
-    // Windowsで間違ったキーコンビネーションでは送信されないことを確認
+    Object.defineProperty(navigator, 'platform', { value: 'Win32' });
+    render(<MessageInput onSendMessage={mockOnSendMessage} />);
+    const input = screen.getByPlaceholderText('メッセージを入力... (Ctrl+Enterで送信)');
+    fireEvent.change(input, { target: { value: 'WindowsでCommand+Enterテスト' } });
+    fireEvent.keyDown(input, { key: 'Enter', metaKey: true });
+    expect(mockOnSendMessage).not.toHaveBeenCalled();
   });
 
   // その他11個のテスト...
@@ -326,6 +346,8 @@ describe('MessageInput', () => {
 - **キーボードショートカット**: プラットフォーム別の送信方法検証
 - **誤動作防止**: 間違ったキーコンビネーション防止
 - **IME対応**: 日本語入力との互換性確保
+
+> **⚠️ 将来的な移行計画**: 現在は`navigator.platform`を使用していますが、これは将来的に非推奨となる可能性があります。Chromium系ブラウザでは`navigator.userAgentData.platform`への移行が推奨されているため、今後のテスト更新時には新しいAPIへの対応を検討してください。
 
 ## テスト技術スタック
 
