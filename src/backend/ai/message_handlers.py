@@ -110,7 +110,7 @@ async def _generate_ai_response(
                         f"@AI応答 - 前回発言者はユーザー: {latest_msg.user_name} (user_type={latest_msg.user_type})"
                     )
         except Exception as e:
-            logger.warning(f"連続発言防止チェック時のエラー: {str(e)}")
+            logger.warning(f"連続発言防止チェック時のエラー: {e!s}")
 
     ai_response, personality = await gemini_client.generate_response(
         user_message, channel_id=channel_id, db_session=db_session, max_retries=3, exclude_user_id=exclude_user_id
@@ -176,12 +176,12 @@ async def broadcast_ai_response(message_data: MessageBroadcastData) -> None:
         if success:
             logger.debug(f"Discord webhook送信成功: message_id={message_data.message_id}")
     except Exception as e:
-        logger.warning(f"Discord webhook送信エラー: {str(e)}")
+        logger.warning(f"Discord webhook送信エラー: {e!s}")
 
 
 async def handle_ai_error(channel_id: str, error: Exception, error_time: float) -> None:
     """AI応答エラー時の処理"""
-    logger.error(f"AI応答エラー: {str(error)}, error_time={error_time:.2f}s")
+    logger.error(f"AI応答エラー: {error!s}, error_time={error_time:.2f}s")
 
     # エラー時のフォールバック応答
     fallback_message_data = {

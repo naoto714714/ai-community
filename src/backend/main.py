@@ -168,7 +168,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 error_response = {"type": "error", "data": {"success": False, "error": "無効なJSON形式"}}
                 await websocket.send_text(json.dumps(error_response))
             except Exception as e:
-                logger.error(f"WebSocketメッセージ処理エラー: {str(e)}")
+                logger.error(f"WebSocketメッセージ処理エラー: {e!s}")
                 # 一般的なエラー応答を送信
                 error_response = {"type": "error", "data": {"success": False, "error": "内部サーバーエラー"}}
                 await websocket.send_text(json.dumps(error_response))

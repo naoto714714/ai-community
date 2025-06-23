@@ -122,7 +122,7 @@ async def broadcast_auto_ai_response(message_data: MessageBroadcastData) -> None
         if success:
             logger.debug(f"Discord webhook送信成功: message_id={message_data.message_id}")
     except Exception as e:
-        logger.warning(f"Discord webhook送信エラー: {str(e)}")
+        logger.warning(f"Discord webhook送信エラー: {e!s}")
 
 
 def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool:
@@ -177,7 +177,7 @@ def should_start_auto_conversation(channel_id: str, db_session: Session) -> bool
         return False
 
     except Exception as e:
-        logger.error(f"自動会話判定でエラー: {str(e)}")
+        logger.error(f"自動会話判定でエラー: {e!s}")
         return False
 
 
@@ -253,7 +253,7 @@ async def generate_auto_conversation_response(channel_id: str, db_session: Sessi
         return convert_message_create_to_broadcast_data(ai_message_create)
 
     except Exception as e:
-        logger.error(f"自動会話AI応答生成エラー: {str(e)}")
+        logger.error(f"自動会話AI応答生成エラー: {e!s}")
         return None
 
 
@@ -262,6 +262,7 @@ async def handle_auto_conversation_check(channel_id: str, db_session: Session) -
 
     Returns:
         自動会話が実行された場合True
+
     """
     try:
         # 自動会話を開始すべきかチェック
@@ -283,5 +284,5 @@ async def handle_auto_conversation_check(channel_id: str, db_session: Session) -
         return False
 
     except Exception as e:
-        logger.error(f"自動会話処理エラー: {str(e)}")
+        logger.error(f"自動会話処理エラー: {e!s}")
         return False

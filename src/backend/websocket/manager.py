@@ -33,8 +33,7 @@ class ConnectionManager:
             self.disconnect(websocket)
 
     async def broadcast(self, message: str, exclude_websocket: WebSocket | None = None):
-        """
-        全ての接続中のクライアントにメッセージをブロードキャスト
+        """全ての接続中のクライアントにメッセージをブロードキャスト
 
         接続状態の管理:
         1. 接続リストのコピーを作成して、イテレート中の変更を防ぐ

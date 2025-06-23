@@ -23,11 +23,11 @@ class PersonalityManager:
     """AI人格管理クラス."""
 
     def __init__(self, personalities_dir: Path | None = None):
-        """
-        初期化.
+        """初期化.
 
         Args:
             personalities_dir: 人格ファイルが格納されているディレクトリのパス
+
         """
         self.personalities_dir = personalities_dir or self._find_personalities_dir()
         self.personalities: dict[str, AIPersonality] = {}
@@ -45,8 +45,7 @@ class PersonalityManager:
         raise FileNotFoundError("prompts/people ディレクトリが見つかりません")
 
     def _extract_name_from_filename(self, filename: str) -> str:
-        """
-        ファイル名から名前を抽出.
+        """ファイル名から名前を抽出.
 
         例: "001_レン.md" -> "レン"
         """
@@ -57,8 +56,7 @@ class PersonalityManager:
         return name_part
 
     def _generate_user_id_from_filename(self, filename: str) -> str:
-        """
-        ファイル名からuser_idを生成.
+        """ファイル名からuser_idを生成.
 
         例: "001_レン.md" -> "ai_001"
         """
@@ -109,26 +107,26 @@ class PersonalityManager:
                 logger.info(f"人格読み込み成功: {name} (file: {file_path.name}, user_id: {user_id})")
 
             except UnicodeDecodeError as e:
-                logger.error(f"人格ファイルの文字エンコーディングエラー: {file_path.name} - {str(e)}")
+                logger.error(f"人格ファイルの文字エンコーディングエラー: {file_path.name} - {e!s}")
             except FileNotFoundError as e:
-                logger.error(f"人格ファイルが見つかりません: {file_path.name} - {str(e)}")
+                logger.error(f"人格ファイルが見つかりません: {file_path.name} - {e!s}")
             except PermissionError as e:
-                logger.error(f"人格ファイルの読み込み権限がありません: {file_path.name} - {str(e)}")
+                logger.error(f"人格ファイルの読み込み権限がありません: {file_path.name} - {e!s}")
             except OSError as e:
-                logger.error(f"人格ファイルの読み込み中にOSエラー: {file_path.name} - {str(e)}")
+                logger.error(f"人格ファイルの読み込み中にOSエラー: {file_path.name} - {e!s}")
 
             except Exception as e:
-                logger.error(f"人格ファイル読み込みエラー: {file_path.name} - {str(e)}")
+                logger.error(f"人格ファイル読み込みエラー: {file_path.name} - {e!s}")
 
     def get_random_personality(self, exclude_user_id: str | None = None) -> AIPersonality | None:
-        """
-        ランダムに人格を選択.
+        """ランダムに人格を選択.
 
         Args:
             exclude_user_id: 除外するAI人格のuser_id（連続発言防止用）
 
         Returns:
             選択された人格、または None
+
         """
         if not self.personalities:
             logger.warning("利用可能な人格がありません")

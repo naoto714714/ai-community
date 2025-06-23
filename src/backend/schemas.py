@@ -29,6 +29,7 @@ def serialize_datetime_to_utc_iso(dt: datetime) -> str:
 
     Returns:
         UTCタイムゾーンでのISO形式文字列
+
     """
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=UTC)

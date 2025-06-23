@@ -105,7 +105,7 @@ async def safe_send_message(websocket: WebSocket, message: str) -> bool:
         await manager.send_personal_message(message, websocket)
         return True
     except Exception as e:
-        logger.error(f"WebSocketメッセージ送信エラー: {str(e)}")
+        logger.error(f"WebSocketメッセージ送信エラー: {e!s}")
         return False
 
 
@@ -192,7 +192,7 @@ async def handle_websocket_message(
             try:
                 await handle_ai_response(message_data, db_session)
             except Exception as ai_error:
-                logger.warning(f"AI応答処理エラー: {str(ai_error)}")
+                logger.warning(f"AI応答処理エラー: {ai_error!s}")
                 logger.debug(f"AI応答エラーの詳細: {traceback.format_exc()}")
                 # ユーザーにAI応答エラーを通知
                 ai_error_response = {
@@ -203,7 +203,7 @@ async def handle_websocket_message(
                 # AI応答エラーはユーザーメッセージ保存に影響しないため継続
 
         except ValidationError as ve:
-            logger.warning(f"Pydanticバリデーションエラー: {str(ve)}")
+            logger.warning(f"Pydanticバリデーションエラー: {ve!s}")
             # 本番環境では詳細なバリデーションエラーをログに出力しない
             if not is_production():
                 logger.debug(f"バリデーション詳細: {ve.errors()}")
@@ -223,7 +223,7 @@ async def handle_websocket_message(
             if is_production():
                 logger.error("メッセージ保存処理でエラーが発生しました")
             else:
-                logger.error(f"メッセージ保存エラー: {str(e)}")
+                logger.error(f"メッセージ保存エラー: {e!s}")
                 logger.error(f"詳細なエラー情報: {traceback.format_exc()}")
 
             # エラーをクライアントに通知（情報漏洩対策済み）

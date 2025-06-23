@@ -63,7 +63,7 @@ class ConversationTimer:
             except asyncio.CancelledError:
                 logger.info("自動会話タイマーが正常に停止されました")
             except Exception as e:
-                logger.error(f"自動会話タイマー停止時にエラー: {str(e)}")
+                logger.error(f"自動会話タイマー停止時にエラー: {e!s}")
             finally:
                 self._task = None
 
@@ -81,7 +81,7 @@ class ConversationTimer:
                 try:
                     await self._check_and_execute_auto_conversation()
                 except Exception as e:
-                    logger.error(f"自動会話チェック中にエラー: {str(e)}")
+                    logger.error(f"自動会話チェック中にエラー: {e!s}")
 
                 # 定数化された間隔でチェック
                 await asyncio.sleep(check_interval)
@@ -90,7 +90,7 @@ class ConversationTimer:
             logger.info("自動会話タイマーループがキャンセルされました")
             raise
         except Exception as e:
-            logger.error(f"自動会話タイマーループで予期しないエラー: {str(e)}")
+            logger.error(f"自動会話タイマーループで予期しないエラー: {e!s}")
 
     async def _check_and_execute_auto_conversation(self) -> None:
         """自動会話のチェック・実行.
@@ -117,7 +117,7 @@ class ConversationTimer:
                 logger.debug("自動会話の実行条件が満たされていません")
 
         except Exception as e:
-            logger.error(f"自動会話チェック・実行でエラー: {str(e)}")
+            logger.error(f"自動会話チェック・実行でエラー: {e!s}")
             db.rollback()
         finally:
             db.close()

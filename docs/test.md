@@ -65,7 +65,7 @@ def test_channel_creation(test_db):
     channel = Channel(id="test_1", name="テストチャンネル", description="テスト用")
     test_db.add(channel)
     test_db.commit()
-    
+
     # 作成されたチャンネルの確認
     saved_channel = test_db.query(Channel).filter(Channel.id == "test_1").first()
     assert saved_channel is not None
@@ -74,7 +74,7 @@ def test_channel_creation(test_db):
 
 def test_message_creation(test_db, seed_channels):
     """メッセージモデルの作成テスト"""
-    
+
     # メッセージ作成
     message = Message(
         id="msg_test_1",
@@ -88,7 +88,7 @@ def test_message_creation(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     # 作成されたメッセージの確認
     saved_message = test_db.query(Message).filter(Message.id == "msg_test_1").first()
     assert saved_message is not None
@@ -110,11 +110,11 @@ def test_message_channel_relationship(test_db, seed_channels):
     )
     test_db.add(message)
     test_db.commit()
-    
+
     # チャンネルからメッセージを取得
     channel = test_db.query(Channel).filter(Channel.id == "1").first()
     messages = test_db.query(Message).filter(Message.channel_id == channel.id).all()
-    
+
     assert len(messages) >= 1
     assert any(msg.id == "msg_rel_1" for msg in messages)
 ```
@@ -196,7 +196,7 @@ async def test_ai_response_trigger(test_client):
             "type": "message:send",
             "data": {
                 "id": "ai_test_msg_1",
-                "channel_id": "1", 
+                "channel_id": "1",
                 "user_id": "test_user",
                 "user_name": "テストユーザー",
                 "user_type": "human",
@@ -215,15 +215,15 @@ async def test_ai_auto_conversation_trigger(test_client, mocker):
     # AI自動会話機能のテスト
     mock_timer = mocker.patch('ai.conversation_timer.should_start_auto_conversation')
     mock_timer.return_value = True
-    
+
     # 自動会話がトリガーされるかテスト
     mock_generate = mocker.patch('ai.auto_conversation.generate_auto_conversation_response')
     mock_generate.return_value = ("テスト自動発言", mock_personality)
-    
+
     # 設定時間経過後の自動発言を確認
     with test_client.websocket_connect("/ws") as websocket:
         # 自動会話がトリガーされることを確認
-        response = websocket.receive_json() 
+        response = websocket.receive_json()
         assert response["type"] == "message:broadcast"
         assert response["data"]["user_name"] in ["レン", "ミナ", "テツ", "ルナ", "ソラ"]
 
@@ -231,7 +231,7 @@ async def test_ai_consecutive_speech_prevention(test_client, mocker):
     """AI連続発言防止機能テスト"""
     # 連続発言防止のテスト
     mock_personality_manager = mocker.patch('ai.personality_manager.PersonalityManager.get_random_personality')
-    
+
     # 前回のAI発言者を除外して人格選択が行われるかテスト
     with test_client.websocket_connect("/ws") as websocket:
         # 最初のAI応答（レン）
@@ -249,7 +249,7 @@ async def test_ai_consecutive_speech_prevention(test_client, mocker):
             }
         }
         websocket.send_json(first_ai_message)
-        
+
         # 次のAI応答でレンが除外されることを確認
         mock_personality_manager.assert_called_with(exclude_user_id="ai_001")
 ```
@@ -265,13 +265,13 @@ describe('MessageItem', () => {
     render(<MessageItem message={message} />);
     expect(screen.getByText("テストメッセージ")).toBeInTheDocument();
   });
-  
+
   it('自分のメッセージは適切なスタイルで表示される', () => {
     const ownMessage = { content: "自分のメッセージ", isOwnMessage: true };
     render(<MessageItem message={ownMessage} />);
     expect(screen.getByTestId('own-message')).toHaveClass('own-message-style');
   });
-  
+
   it('AI応答メッセージが正しく表示される', () => {
     const aiMessage = { content: "こんにちは！", userName: "レン" };
     render(<MessageItem message={aiMessage} />);
@@ -287,7 +287,7 @@ describe('MessageInput', () => {
     await userEvent.type(input, 'テストメッセージ');
     expect(input).toHaveValue('テストメッセージ');
   });
-  
+
   it('Shift+Enterでメッセージが送信される', async () => {
     const onSendMessage = vi.fn();
     render(<MessageInput onSendMessage={onSendMessage} />);
@@ -304,36 +304,36 @@ describe('MessageInput', () => {
 describe('ChatApp Integration', () => {
   it('チャンネル切り替えでメッセージが更新される', async () => {
     render(<ChatApp />);
-    
+
     // 最初のチャンネルを選択
     await userEvent.click(screen.getByText('雑談'));
     expect(screen.getByTestId('channel-1-messages')).toBeInTheDocument();
-    
+
     // 別のチャンネルに切り替え
     await userEvent.click(screen.getByText('ゲーム'));
     expect(screen.getByTestId('channel-2-messages')).toBeInTheDocument();
   });
-  
+
   it('WebSocket経由でメッセージが送受信される', async () => {
     // WebSocketモック設定
     const mockWebSocket = vi.fn();
     global.WebSocket = mockWebSocket;
-    
+
     render(<ChatApp />);
     const input = screen.getByRole('textbox');
     await userEvent.type(input, 'WebSocketテスト');
     await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
-    
+
     expect(mockWebSocket).toHaveBeenCalled();
   });
-  
+
   it('@AI メンション付きメッセージの送信とAI応答の受信', async () => {
     render(<ChatApp />);
     const input = screen.getByRole('textbox');
-    
+
     await userEvent.type(input, '@AI こんにちは');
     await userEvent.keyboard('{Shift>}{Enter}{/Shift}');
-    
+
     // AI応答の表示を確認（いずれかのAI人格名が表示される）
     await waitFor(() => {
       expect(screen.getByText(/レン|ミナ|テツ|ルナ|ソラ/)).toBeInTheDocument();
