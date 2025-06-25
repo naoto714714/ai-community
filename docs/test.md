@@ -223,7 +223,7 @@ async def test_ai_auto_conversation_trigger(test_client, mocker):
         # 自動会話がトリガーされることを確認
         response = websocket.receive_json()
         assert response["type"] == "message:broadcast"
-        assert response["data"]["user_name"] in ["レン", "ミナ", "テツ", "ルナ", "ソラ"]
+        assert response["data"]["user_name"] in ["レン", "ミナ", "テツ", "ルナ", "ソラ"]  # 5つのAI人格から選択
 
 async def test_ai_consecutive_speech_prevention(test_client, mocker):
     """AI連続発言防止機能テスト"""
