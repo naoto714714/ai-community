@@ -115,13 +115,8 @@ class GeminiAPIClient:
 
         history_lines = ["===== 過去の会話履歴 ====="]
         for msg in messages:
-            # user_typeを使ってAIかユーザーかを判定
-            if hasattr(msg, "user_type") and msg.user_type == "ai":
-                # AIの場合は、どのAIかを明確にする
-                history_lines.append(f"[AI:{msg.user_name}]: {msg.content}")
-            else:
-                # ユーザーの場合
-                history_lines.append(f"[ユーザー:{msg.user_name}]: {msg.content}")
+            # AIとユーザーの区別なく、名前のみで表示
+            history_lines.append(f"{msg.user_name}: {msg.content}")
 
         history_lines.append("")  # 空行を追加
         return "\n".join(history_lines)

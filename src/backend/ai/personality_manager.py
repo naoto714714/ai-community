@@ -68,13 +68,42 @@ class PersonalityManager:
         # フォールバック: ファイル名全体を使用
         return f"ai_{name_part}"
 
+    def _load_common_prompt(self) -> str:
+        """共通プロンプトを読み込み."""
+        common_prompt_path = self.personalities_dir / "common_prompt.md"
+        if not common_prompt_path.exists():
+            logger.warning(f"共通プロンプトファイルが見つかりません: {common_prompt_path}")
+            return ""
+
+        try:
+            with common_prompt_path.open(encoding="utf-8") as f:
+                common_prompt = f.read().strip()
+            logger.info("共通プロンプトの読み込み成功")
+            return common_prompt
+        except Exception as e:
+            logger.error(f"共通プロンプトの読み込みエラー: {e!s}")
+            return ""
+
+    def _build_full_prompt(self, common_prompt: str, personality_content: str) -> str:
+        """共通プロンプトと人格プロンプトを結合."""
+        if not common_prompt:
+            return personality_content
+
+        # フォーマット: 基本ルール + 人格プロンプト
+        return f"{common_prompt}\n\n### 人格\n{personality_content}"
+
     def _load_personalities(self) -> None:
         """人格ファイルを読み込み."""
         if not self.personalities_dir.exists():
             logger.error(f"人格ディレクトリが存在しません: {self.personalities_dir}")
             return
 
+        # 共通プロンプトを読み込み
+        common_prompt = self._load_common_prompt()
+
         md_files = list(self.personalities_dir.glob("*.md"))
+        # 共通プロンプトファイルを除外
+        md_files = [f for f in md_files if f.name != "common_prompt.md"]
         logger.info(f"人格ファイル検出: {len(md_files)}件")
 
         for file_path in md_files:
@@ -85,22 +114,25 @@ class PersonalityManager:
 
                 # ファイル内容を読み込み
                 with file_path.open(encoding="utf-8") as f:
-                    prompt_content = f.read()
+                    personality_content = f.read()
 
                 # 空ファイルチェック
-                if not prompt_content.strip():
+                if not personality_content.strip():
                     logger.warning(f"空の人格ファイル: {file_path.name}")
                     continue
 
                 # 内容の最小長チェック（意味のあるプロンプトかどうか）
-                if len(prompt_content.strip()) < 10:
+                if len(personality_content.strip()) < 10:
                     logger.warning(
-                        f"人格ファイルの内容が短すぎます: {file_path.name} (長さ: {len(prompt_content.strip())})"
+                        f"人格ファイルの内容が短すぎます: {file_path.name} (長さ: {len(personality_content.strip())})"
                     )
                     continue
 
+                # 共通プロンプトと人格プロンプトを結合
+                full_prompt = self._build_full_prompt(common_prompt, personality_content)
+
                 personality = AIPersonality(
-                    file_name=file_path.name, name=name, prompt_content=prompt_content, user_id=user_id
+                    file_name=file_path.name, name=name, prompt_content=full_prompt, user_id=user_id
                 )
 
                 self.personalities[name] = personality
