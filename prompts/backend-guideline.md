@@ -11,64 +11,19 @@
    - アップグレード: `uv add --dev package --upgrade-package package`
    - 禁止事項: `uv pip install`、`@latest`構文
 
-2. データベース
-   - **本番・開発環境**: Supabase PostgreSQL使用
-   - **開発時**: 環境変数でDB接続情報設定
-   - **セッション管理**: SQLAlchemy + PostgreSQL対応
-   - **メッセージスキーマ**: user_type列による人間/AI識別機能（"human" または "ai"）
-   - **マイグレーション**: Alembicによるスキーマ変更管理
-   - **セキュリティ**:
-     - 環境変数による機密情報管理（パスワード等はログ出力禁止）
-     - SSL接続の強制（sslmode=require）
-     - 接続エラー時の適切なフォールバック処理
-   - **エラーハンドリング**:
-     - データベース接続失敗時のログ記録
-     - URLエンコーディング例外の処理
-
-3. コード品質
+2. コード品質
    - すべてのコードに型ヒントが必要
    - パブリックAPIにはdocstringが必須
    - 関数は焦点を絞って小さくする
    - 既存のパターンに正確に従う
    - 行の長さ: 最大120文字
-   - **定数管理**: マジックナンバーや固定文字列は`src/backend/constants/`モジュールで管理
-     - AI設定: `constants/ai_config.py`
-     - ログ設定: `constants/logging.py`
-     - タイムゾーン: `constants/timezone.py`
 
-5. AI機能開発
-   - **プロンプト管理**: `prompts/people/`ディレクトリでAI人格を管理
-   - **人格設定**: 各AI人格は独立したMarkdownファイルで定義
-   - **共通プロンプト機能**: `prompts/people/common_prompt.md`で全AI人格共通の基本ルールを管理
-     - 日本語使用、自然な会話、適度な長さ、リアクション、文脈理解などの基本事項
-     - personality_manager.pyで自動的に人格プロンプトと結合
-   - **連続発言防止**: 同じAI人格による連続発言を防ぐロジックの実装
-   - **メッセージ分類**: AI応答時は必ずuser_type="ai"を設定し、人間/AI識別を明確化
-   - **設定可能な設定**: 環境変数による動的設定対応
-     - `AI_MAX_OUTPUT_TOKENS`: AI応答の最大トークン数（デフォルト: 2048）
-     - `AI_CONVERSATION_ENABLED`: 自律会話機能の有効/無効
-     - `AI_CONVERSATION_INTERVAL_SECONDS`: 自動会話の間隔（秒単位）
-   - **エラーハンドリング**:
-     - Gemini API障害時のフォールバック処理
-     - 人格選択失敗時のデフォルト人格設定
-     - AI応答生成タイムアウト処理
-   - **ログ記録**:
-     - AI応答生成時間の記録
-     - 人格選択ロジックのデバッグログ
-     - API呼び出し状況の監視
-
-4. テスト要件
+3. テスト要件
    - フレームワーク: `uv run --frozen pytest`
    - 非同期テスト: asyncioではなくanyioを使用
    - カバレッジ: エッジケースとエラーをテスト
    - 新機能にはテストが必要
    - バグ修正にはリグレッションテストが必要
-   - **AI機能テスト**:
-     - Gemini APIはモック使用（外部依存を避ける）
-     - 人格選択ロジックのユニットテスト
-     - 自律会話タイマー機能のテスト
-     - 連続発言防止機能のテスト
-     - WebSocket経由でのAI応答ブロードキャストテスト
 
 ## プルリクエスト
 
@@ -130,12 +85,6 @@
    - Pytest:
      - テストがanyio pytestマークを見つけられない場合、pytestの実行コマンドの先頭に PYTEST_DISABLE_PLUGIN_AUTOLOAD="" を追加してみる
        例: `PYTEST_DISABLE_PLUGIN_AUTOLOAD="" uv run --frozen pytest`
-   - AI機能:
-     - **メッセージ途切れ問題**: `AI_MAX_OUTPUT_TOKENS`を適切に設定（推奨: 2048）
-     - **連続発言エラー**: `exclude_user_id`パラメータの正しい伝播を確認
-     - **人格選択失敗**: フォールバック人格の設定と例外処理の実装
-     - **自律会話停止**: タイマー設定と環境変数の確認
-     - **Gemini API エラー**: リトライ機能とタイムアウト設定の調整
 
 3. ベストプラクティス
    - コミット前にgit statusをチェック
