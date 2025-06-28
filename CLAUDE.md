@@ -9,12 +9,22 @@
 - ツールの結果を受け取った後、その品質を慎重に検討し、次に進む前に最適な次のステップを決定してください。この新しい情報に基づいて計画し、反復するために思考を使用し、最善の次のアクションを取ってください。
 - 最大の効率を得るために、複数の独立した操作を実行する必要がある場合は、順次ではなく、関連するすべてのツールを同時に呼び出してください。
 - 反復のために一時的な新しいファイル、スクリプト、またはヘルパーファイルを作成した場合は、タスクの最後に作成したファイルのみをファイルを削除してクリーンアップしてください。
+- リファクタリングはMartin Fowlerが推奨する進め方に従ってください。
 
 ## git関連のルール
 - mainブランチでは作業せず、別のブランチで作業しなさい
 - 必ず細かい単位で `git commit` しながらタスクを進めなさい
   - 特に、機能追加(feature)とリファクタリング(refactor)など、異なる方向の作業を1つのcommitで行ってはいけない
   - 形式: `prefix: 日本語で説明`
+
+## Gemini Search
+`gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
+When web search is needed, you MUST use `gemini --prompt` via Task Tool.
+Run web search via Task Tool with `gemini --prompt 'WebSearch: <query>'`
+
+```bash
+gemini --prompt "WebSearch: <query>"
+```
 
 ## 非推奨コマンド
 - `cat`: 代わりにあなた自身がファイルを読み込んでください
