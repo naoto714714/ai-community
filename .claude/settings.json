@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx ccusage@latest"
+          },
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Pop.aiff"
+          }
+        ]
+      }
+    ]
+  }
+}
