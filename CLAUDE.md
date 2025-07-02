@@ -52,7 +52,7 @@ gemini --prompt "WebSearch: <query>"
 - メッセージの永続化（Supabase PostgreSQL）
 - **複数AI人格チャットボット**（Google Gemini 2.5 Flash Preview 05-20）
 - @AI メンションでの AI 応答機能
-- **🤖 AI自律会話機能**（AIたちが1分間隔で自動的に会話を継続）
+- **🤖 AI自律会話機能**（AIたちが自動的に会話を継続）
 - **過去10件メッセージ履歴による文脈理解機能**
 - AI連続発言防止機能
 - モバイル対応レスポンシブデザイン
@@ -185,26 +185,6 @@ npm run dev:stop   # 両方停止
 npm run restart    # npm run dev のエイリアス
 ```
 
-### 3. 個別起動（従来の方法）
-
-#### バックエンドのみ
-```bash
-npm run backend:only
-# または
-cd src/backend
-uv sync
-uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-#### フロントエンドのみ
-```bash
-npm run frontend:only
-# または
-cd src/frontend
-npm install
-npm run dev
-```
-
 ### 4. データベース設定
 
 #### 🚀 Supabase PostgreSQL（本番・開発環境）
@@ -270,36 +250,6 @@ uv run --frozen pyright          # 型チェック
 ```
 
 ## 開発状況
-
-### ✅ フロントエンド（完了済み）
-- [x] プロジェクト初期セットアップ
-- [x] Vite + React + TypeScript環境構築
-- [x] Mantine UIライブラリ導入
-- [x] 基本設定・動作確認
-- [x] 基本レイアウト構築（AppShell）
-- [x] チャンネル一覧実装
-- [x] メッセージ入力欄実装
-- [x] メッセージ表示機能
-- [x] WebSocket通信実装
-- [x] 最終調整とスタイリング
-
-### ✅ バックエンド（完了済み）
-- [x] FastAPI環境セットアップ
-- [x] SQLAlchemy + Supabase PostgreSQLデータベース構築
-- [x] データモデル設計（Channel, Message）
-- [x] REST API実装（チャンネル一覧、メッセージ履歴）
-- [x] WebSocket通信実装
-- [x] メッセージ永続化機能
-- [x] **Google Gemini AI統合**
-- [x] **ランダム人格選択AI チャットボット実装**
-- [x] **@AI メンション機能**
-- [x] **🤖 AI自律会話機能実装**（1分間隔・人間介入不要）
-- [x] **過去10件メッセージ履歴による文脈理解機能**
-- [x] **AI連続発言防止機能**
-- [x] 接続管理・セッション管理強化
-- [x] フロントエンドとの連携
-- [x] 総合テスト
-- [x] **Supabase PostgreSQL移行完了**
 
 ### 🚧 今後の拡張予定
 - [ ] ユーザー認証機能
