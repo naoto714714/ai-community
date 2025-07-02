@@ -83,51 +83,6 @@ npm run dev:stop   # 両方停止
 npm run restart    # npm run dev のエイリアス
 ```
 
-### 3. 個別起動（従来の方法）
-
-#### バックエンドのみ
-```bash
-npm run backend:only
-# または
-cd src/backend
-uv sync
-uv run python main.py
-```
-※ `npm run backend:only`は自動で`uv sync`を実行します
-
-#### フロントエンドのみ
-```bash
-npm run frontend:only
-# または
-cd src/frontend
-npm install
-npm run dev
-```
-
-### 4. 便利なコマンド一覧
-
-| コマンド | 説明 |
-|---------|------|
-| `npm run dev` | 🚀 フロントエンド + バックエンド同時起動 |
-| `npm run backend:only` | バックエンドのみ起動 |
-| `npm run frontend:only` | フロントエンドのみ起動 |
-
-#### フロントエンド詳細コマンド
-```bash
-cd src/frontend
-npm run build      # ビルド
-npm run preview    # プレビュー
-npm run lint       # ESLintチェック
-```
-
-#### バックエンド詳細コマンド
-```bash
-cd src/backend
-uv run --frozen ruff format .    # コードフォーマット
-uv run --frozen ruff check .     # リントチェック
-uv run --frozen pyright          # 型チェック
-```
-
 ## 🎯 使用方法
 
 1. `npm run dev` でアプリケーションを起動
@@ -168,31 +123,6 @@ export AI_MAX_OUTPUT_TOKENS=2048             # AI応答の最大トークン数�
 - **文脈理解**: 過去10件のメッセージ履歴を参照して自然な会話を継続
 - **人格選択**: 既存の5つのAI人格（レン、ミナ、テツ、ルナ、ソラ）からランダム選択
 - **@AI機能との共存**: 従来の@AIメンション機能も引き続き利用可能
-
-## ✨ 実装済み機能
-
-### フロントエンド
-- [x] レスポンシブなチャンネル一覧
-- [x] リアルタイムメッセージ表示
-- [x] メッセージ入力・送信（Shift+Enter送信、Enter改行）
-- [x] WebSocket通信
-- [x] ダークモード対応
-
-### バックエンド
-- [x] REST API（チャンネル一覧、メッセージ履歴）
-- [x] WebSocketによるリアルタイム通信
-- [x] Supabase PostgreSQLデータベースによるメッセージ永続化
-- [x] **Google Gemini AI統合**
-- [x] **複数AI人格チャットボット（レン、ミナ、テツ、ルナ、ソラ）**
-- [x] **@AI メンション機能**
-- [x] **🤖 AI自律会話機能実装**（設定可能間隔・人間介入不要、最小1秒〜最大24時間）
-- [x] **過去10件メッセージ履歴による文脈理解機能**
-- [x] **AI連続発言防止機能**
-- [x] **具体的で質の高いAI会話実現機能**
-- [x] 堅牢な接続管理システム
-- [x] チャンネル別メッセージ管理
-- [x] CORS対応
-- [x] **Supabase PostgreSQL移行完了**
 
 ## 🐛 最近の改善
 
