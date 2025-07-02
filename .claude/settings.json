@@ -11,6 +11,10 @@
           {
             "type": "command",
             "command": "afplay /System/Library/Sounds/Pop.aiff"
+          },
+          {
+            "type": "command",
+            "command": "jq -r '.transcript_path // empty' >> transcript-path-log.txt"
           }
         ]
       }
