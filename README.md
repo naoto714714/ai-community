@@ -22,35 +22,6 @@
 - モバイル対応レスポンシブデザイン
 - ダークモード対応
 
-## 🛠 技術スタック
-
-### フロントエンド
-- **React**: 19.x
-- **TypeScript**: 5.x
-- **Mantine**: 8.x（UIコンポーネントライブラリ）
-- **Mantine Hooks**: カスタムフック集
-- **Tabler Icons**: アイコンライブラリ
-- **Vite**: ビルドツール
-- **dayjs**: 日付処理
-
-### バックエンド
-- **FastAPI**: Webフレームワーク
-- **SQLAlchemy**: ORM
-- **Supabase PostgreSQL**: データベース
-- **WebSocket**: リアルタイム通信
-- **Pydantic**: データバリデーション
-- **Google Gemini AI**: AI チャットボット
-- **Python**: 3.13
-
-### 開発環境
-- **ESLint**: コード品質管理（フロントエンド）
-- **Prettier**: コードフォーマット
-- **Vitest**: テストフレームワーク（フロントエンド）
-- **Ruff**: リンター・フォーマッター（バックエンド）
-- **Pyright**: 型チェッカー（バックエンド）
-- **pre-commit**: Gitフック管理
-- **uv**: Pythonパッケージマネージャー
-
 ## 🚀 セットアップ・起動方法
 
 ### 1. 前提条件
