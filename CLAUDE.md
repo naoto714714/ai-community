@@ -33,9 +33,9 @@ gemini --prompt "WebSearch: <query>"
 
 ## 開発するときは以下のドキュメントをじっくり読み、実装したら必ずドキュメントも最新のものに更新する
 - [バックエンド API仕様書](docs/backend.md)
-- [バックエンド開発ガイドライン](prompts/backend-guideline.md)
+- [バックエンド開発ガイドライン](prompts/backend-guideline.md) // 更新禁止
 - [フロントエンド仕様書](docs/frontend.md)
-- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md)
+- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md) // 更新禁止
 - [テストガイド](docs/test.md)
 
 # このプロジェクトについて
