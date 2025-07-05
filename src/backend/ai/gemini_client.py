@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 import re
+import sys
 import threading
 from pathlib import Path
 
@@ -47,6 +48,14 @@ class GeminiAPIClient:
         self.client = genai.Client(api_key=self.api_key)  # type: ignore
         logger.info("Gemini 2.5 Flash Preview 05-20クライアント初期化完了")
         self.personality_manager = get_personality_manager()
+
+        # システム人格を作成
+        self.system_personality = AIPersonality(
+            file_name="system",
+            name=self.FALLBACK_AI_NAME,
+            prompt_content="システムメッセージ",
+            user_id=self.FALLBACK_AI_ID,
+        )
         self._fallback_prompt: str | None = None
         self._load_fallback_prompt()
 
@@ -208,16 +217,25 @@ class GeminiAPIClient:
             except Exception as e:
                 # より具体的な例外処理
                 error_type = type(e).__name__
-                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {e!s}")
+                error_message = str(e)
 
-                # 特定のエラータイプに対する処理が必要な場合
-                # if isinstance(e, SpecificAPIError):
-                #     # 特別な処理
+                # 429エラー（Rate Limit Exceeded）の特別処理
+                if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
+                    logger.error(
+                        "🚨 Gemini API Rate Limit超過エラー: 日次クォータ（250リクエスト/日）を超過しました。24時間待機してから再度お試しください。システムを停止します..."
+                    )
+
+                    # システムを停止
+                    sys.exit(1)
+
+                logger.error(
+                    f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {error_message}"
+                )
 
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
                     logger.error("Gemini API: 全リトライ試行が失敗、フォールバック応答を返す")
-                    return self.FALLBACK_MESSAGE, personality
+                    return self.FALLBACK_MESSAGE, self.system_personality
 
                 # 指数バックオフでリトライ
                 wait_time = 2**attempt
@@ -225,7 +243,7 @@ class GeminiAPIClient:
                 await asyncio.sleep(wait_time)
                 continue
 
-        return self.FALLBACK_MESSAGE, personality
+        return self.FALLBACK_MESSAGE, self.system_personality
 
     def _sync_generate(self, user_message: str, personality: AIPersonality) -> object:
         """同期的にコンテンツを生成する（run_in_executor用）.
