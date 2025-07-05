@@ -128,8 +128,6 @@ async def _generate_ai_response(
 
 def _is_fallback_message(content: str) -> bool:
     """フォールバックメッセージかどうかを判定する"""
-    from .gemini_client import GeminiAPIClient
-
     return content == GeminiAPIClient.FALLBACK_MESSAGE
 
 
