@@ -18,9 +18,9 @@
   - 形式: `prefix: 日本語で説明`
 
 ## Gemini Search
-`gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
-When web search is needed, you MUST use `gemini --prompt` via Task Tool.
-Run web search via Task Tool with `gemini --prompt 'WebSearch: <query>'`
+`gemini`はGoogle Gemini CLIです。このコマンドが呼び出された際は、組み込みの`Web_Search`ツールではなく、常に`gemini`を使用してWeb検索を実行してください。
+Web検索が必要な場合は、Task Tool経由で`gemini --prompt`を使用する必要があります。
+`gemini --prompt 'WebSearch: <query>'`を実行してWeb検索を行ってください。
 
 ```bash
 gemini --prompt "WebSearch: <query>"
@@ -31,11 +31,12 @@ gemini --prompt "WebSearch: <query>"
 - `find`: 代わりに`fd`を使ってください
 - `grep`: 代わりに`ripgrep`を使ってください
 
-## 開発するときは以下のドキュメントをじっくり読み、実装したら必ずドキュメントも最新のものに更新する
+## 開発ドキュメント
+開発を行う際は、以下のドキュメントを熟読し、実装後は必ずドキュメントも最新の状態に更新してください。
 - [バックエンド API仕様書](docs/backend.md)
-- [バックエンド開発ガイドライン](prompts/backend-guideline.md) // 更新禁止
+- [バックエンド開発ガイドライン](prompts/backend-guideline.md) (更新禁止)
 - [フロントエンド仕様書](docs/frontend.md)
-- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md) // 更新禁止
+- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md) (更新禁止)
 - [テストガイド](docs/test.md)
 
 # このプロジェクトについて
@@ -59,12 +60,12 @@ gemini --prompt "WebSearch: <query>"
 - ダークモード対応
 
 ### 技術スタック
-- **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
+- **フロントエンド**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
+- **バックエンド**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
 - **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
-- **Icons**: Tabler Icons
-- **Date**: dayjs
-- **Development**: ESLint + Prettier + **Pre-commit Hooks** + Ruff + Pyright + Vitest + **MCP Playwright**
+- **アイコン**: Tabler Icons
+- **日付ライブラリ**: dayjs
+- **開発ツール**: ESLint + Prettier + **Pre-commit Hooks** + Ruff + Pyright + Vitest + **MCP Playwright**
 
 ## 起動方法
 
@@ -72,29 +73,29 @@ gemini --prompt "WebSearch: <query>"
 - Node.js 18.x以上
 - Python 3.13以上
 - npm
-- uv (Python package manager)
-- Google Gemini API キー（AI機能使用時）
+- uv (Pythonパッケージマネージャー)
+- Google Gemini APIキー（AI機能を使用する場合）
 
 ### 2. 🎯 一発起動（推奨）
 
 ```bash
-# ルートディレクトリで
+# ルートディレクトリで実行
 npm install
 npm run dev
 ```
 
-**🔄 自動再起動機能**: `npm run dev`は既存のプロセスを自動停止してから起動します！
-（バックエンドの依存関係は自動で`uv sync`が実行されます）
+**🔄 自動再起動機能**: `npm run dev`は、既存のプロセスを自動的に停止してから起動します。
+（バックエンドの依存関係は、自動で`uv sync`が実行されます。）
 
 - **フロントエンド**: `http://localhost:5173`
 - **バックエンド**: `http://localhost:8000`
 
 #### 開発コマンド一覧
 ```bash
-npm run dev        # 既存プロセス停止 → 両方起動（推奨）
-npm run dev:start  # 両方起動（停止処理なし）
-npm run dev:stop   # 両方停止
-npm run restart    # npm run dev のエイリアス
+npm run dev        # 既存プロセス停止 → フロントエンドとバックエンドを起動（推奨）
+npm run dev:start  # フロントエンドとバックエンドを起動（停止処理なし）
+npm run dev:stop   # フロントエンドとバックエンドを停止
+npm run restart    # `npm run dev`のエイリアス
 ```
 
 ### 4. データベース設定
@@ -160,22 +161,3 @@ uv run --frozen ruff format .    # コードフォーマット
 uv run --frozen ruff check .     # リントチェック
 uv run --frozen pyright          # 型チェック
 ```
-
-## 開発状況
-
-### 🚧 今後の拡張予定
-- [ ] ユーザー認証機能
-- [ ] メッセージ検索機能
-- [ ] ファイルアップロード機能
-- [ ] 絵文字リアクション機能
-- [x] スマートフォン対応（モバイルレスポンシブ対応済み）
-
-### 🔧 技術的負債・改善予定
-- [ ] **AsyncSession導入**: conversation_timerでの非同期DB処理最適化
-- [ ] **依存性注入**: セッション管理の統一と効率化
-- [ ] **パフォーマンス改善**: AI自動会話機能の非同期処理最適化
-
-### 🐛 最近の修正
-- [x] **人間っぽくプロンプト変更・AI自然化**（2025-06-25）: 共通プロンプト機能追加、AI自動会話プロンプト簡素化、会話履歴表示の自然化、AI人格ファイル配置修正
-- [x] **Pre-commit最適化・コード品質向上**（2025-06-23）: 包括的なフック設定、Discord Webhook機能、ドキュメント全面強化、型安全性向上
-- [x] **AIメッセージ途切れ問題修正**（2025-06-22）: 最大出力トークン数を1000→2048に増加

@@ -2,8 +2,8 @@
 
 ## 概要
 
-AI Community プロジェクトのテストガイドです。
-プロジェクト全体の品質方針や開発ワークフローについては、[CLAUDE.md](/CLAUDE.md) を参照してください。このドキュメントでは、具体的なテストの実装と実行方法に焦点を当てます。
+AI Community プロジェクトのテストに関するガイドです。
+プロジェクト全体の品質方針や開発ワークフローについては、[CLAUDE.md](/CLAUDE.md) を参照してください。このドキュメントでは、具体的なテストの実装方法と実行方法に焦点を当てて説明します。
 
 ## テスト構成
 
@@ -12,15 +12,15 @@ AI Community プロジェクトのテストガイドです。
 ```text
 ai-community/
 ├── tests/
-│   ├── conftest.py              # pytest 共通設定
-│   ├── backend/                 # バックエンドテスト
-│   │   ├── conftest.py          # バックエンド専用設定
-│   │   ├── test_models.py       # DBモデルのテスト
-│   │   ├── test_api.py          # REST API のテスト
+│   ├── conftest.py              # pytestの共通設定ファイル
+│   ├── backend/                 # バックエンドのテストコードを格納するディレクトリ
+│   │   ├── conftest.py          # バックエンド専用のテスト設定ファイル
+│   │   ├── test_models.py       # データベースモデルのテスト
+│   │   ├── test_api.py          # REST APIのテスト
 │   │   └── test_websocket.py    # WebSocket通信とAI機能のテスト
-│   └── frontend/                # フロントエンドテスト
-│       ├── components.test.tsx  # UIコンポーネントの単体・結合テスト
-│       └── integration.test.tsx # 複数コンポーネントを連携させた統合テスト
+│   └── frontend/                # フロントエンドのテストコードを格納するディレクトリ
+│       ├── components.test.tsx  # UIコンポーネントの単体テストおよび結合テスト
+│       └── integration.test.tsx # 複数のコンポーネントを連携させた統合テスト
 └── ...
 ```
 
@@ -43,7 +43,7 @@ ai-community/
 -   **非同期サポート**: `pytest-asyncio`
 -   **HTTPクライアント**: `httpx` (FastAPI TestClient)
 -   **モック**: `pytest-mock`
--   **DB**: テスト実行時は自動的にインメモリデータベース (SQLite) を使用
+-   **データベース**: テスト実行時には、自動的にインメモリデータベース (SQLite) が使用されます。
 
 ### フロントエンド (React + TypeScript)
 
@@ -61,7 +61,7 @@ ai-community/
 ルートディレクトリで以下のコマンドを実行します。
 
 ```bash
-# 全てのバックエンドテストを実行
+# 全てのバックエンドテストを実行します
 uv run pytest tests/backend/
 ```
 
@@ -72,9 +72,9 @@ uv run pytest tests/backend/
 ```bash
 cd src/frontend
 
-# 全てのフロントエンドテストを実行
+# 全てのフロントエンドテストを実行します
 npm test
 
-# 開発中にテストを自動実行 (Watchモード)
+# 開発中にテストを自動実行します (Watchモード)
 npm run test:dev
 ```
