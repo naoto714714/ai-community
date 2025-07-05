@@ -10,6 +10,8 @@
 - 最大の効率を得るために、複数の独立した操作を実行する必要がある場合は、順次ではなく、関連するすべてのツールを同時に呼び出してください。
 - 反復のために一時的な新しいファイル、スクリプト、またはヘルパーファイルを作成した場合は、タスクの最後に作成したファイルのみをファイルを削除してクリーンアップしてください。
 - リファクタリングはMartin Fowlerが推奨する進め方に従ってください。
+- フロントエンド開発ガイドライン: @prompts/frontend-guideline.md
+- バックエンド開発ガイドライン: @prompts/backend-guideline.md
 
 ## git関連のルール
 - mainブランチでは作業せず、別のブランチで作業しなさい
@@ -18,9 +20,9 @@
   - 形式: `prefix: 日本語で説明`
 
 ## Gemini Search
-`gemini` is google gemini cli. **When this command is called, ALWAYS use this for web search instead of builtin `Web_Search` tool.**
-When web search is needed, you MUST use `gemini --prompt` via Task Tool.
-Run web search via Task Tool with `gemini --prompt 'WebSearch: <query>'`
+`gemini`はGoogle Gemini CLIです。このコマンドが呼び出された際は、組み込みの`Web_Search`ツールではなく、常に`gemini`を使用してWeb検索を実行してください。
+Web検索が必要な場合は、Task Tool経由で`gemini --prompt`を使用する必要があります。
+`gemini --prompt 'WebSearch: <query>'`を実行してWeb検索を行ってください。
 
 ```bash
 gemini --prompt "WebSearch: <query>"
@@ -31,11 +33,10 @@ gemini --prompt "WebSearch: <query>"
 - `find`: 代わりに`fd`を使ってください
 - `grep`: 代わりに`ripgrep`を使ってください
 
-## 開発するときは以下のドキュメントをじっくり読み、実装したら必ずドキュメントも最新のものに更新する
+## 開発ドキュメント
+開発を行う際は、以下のドキュメントを熟読し、実装後は必ずドキュメントも最新の状態に更新してください。
 - [バックエンド API仕様書](docs/backend.md)
-- [バックエンド開発ガイドライン](prompts/backend-guideline.md)
 - [フロントエンド仕様書](docs/frontend.md)
-- [フロントエンド開発ガイドライン](prompts/frontend-guideline.md)
 - [テストガイド](docs/test.md)
 
 # このプロジェクトについて
@@ -59,100 +60,12 @@ gemini --prompt "WebSearch: <query>"
 - ダークモード対応
 
 ### 技術スタック
-- **Frontend**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
-- **Backend**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
+- **フロントエンド**: React 19.x + TypeScript 5.x + Mantine 8.x + Vite
+- **バックエンド**: FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI
 - **AI**: Google Gemini 2.5 Flash Preview 05-20 モデル
-- **Icons**: Tabler Icons
-- **Date**: dayjs
-- **Development**: ESLint + Prettier + **Pre-commit Hooks** + Ruff + Pyright + Vitest + **MCP Playwright**
-
-## プロジェクト構成
-
-```text
-ai-community/
-├── docs/                      # ドキュメント
-│   ├── backend.md            # バックエンド仕様書・API リファレンス
-│   ├── frontend.md           # フロントエンド開発ガイド
-│   ├── test.md               # テストガイド
-│   └── contributing.md       # コントリビューションガイド
-├── prompts/                   # プロンプトテンプレート・開発ガイドライン
-│   ├── people/               # AI人格プロンプト（複数）
-│   │   ├── 001_レン.md      # AI人格：レン（話題提供型）
-│   │   ├── 002_ミナ.md      # AI人格：ミナ（質問・掘り下げ型）
-│   │   ├── 003_テツ.md      # AI人格：テツ（会話拡張型）
-│   │   ├── 004_ルナ.md      # AI人格：ルナ（おバカ・天然系）※話題転換役
-│   │   ├── 005_ソラ.md      # AI人格：ソラ（個性派・自由奔放型）
-│   │   └── common_prompt.md # 共通プロンプト（全AI人格共通の基本ルール）
-│   ├── backend-guideline.md  # バックエンド開発ガイドライン
-│   ├── frontend-guideline.md # フロントエンド開発ガイドライン
-│   ├── code_review_guide.md  # コードレビューガイド
-│   └── reviewer_personality.md # レビュー人格設定
-├── src/
-│   ├── backend/              # バックエンド（FastAPI + Supabase PostgreSQL + AI）
-│   │   ├── main.py          # FastAPIアプリケーション
-│   │   ├── database.py      # データベース設定
-│   │   ├── models.py        # SQLAlchemyモデル
-│   │   ├── schemas.py       # Pydanticスキーマ
-│   │   ├── crud.py          # データベース操作
-│   │   │   │   ├── ai/              # AI機能
-│   │   │   ├── __init__.py              # AI機能パッケージ初期化
-│   │   │   ├── gemini_client.py         # Gemini API クライアント
-│   │   │   ├── message_handlers.py      # AI応答処理
-│   │   │   ├── auto_conversation.py     # AI自律会話機能
-│   │   │   ├── conversation_timer.py    # 自動会話タイマー管理
-│   │   │   ├── conversation_config.py   # 自動会話設定管理
-│   │   │   └── personality_manager.py   # AI人格管理
-│   │   ├── constants/       # 共通定数モジュール
-│   │   │   ├── __init__.py      # パッケージ初期化
-│   │   │   ├── ai_config.py     # AI機能関連定数
-│   │   │   ├── logging.py       # ログ設定定数
-│   │   │   └── timezone.py      # タイムゾーン定数
-│   │   ├── websocket/       # WebSocket処理
-│   │   │   ├── handler.py   # WebSocketハンドラー
-│   │   │   ├── manager.py   # 接続管理
-│   │   │   └── types.py     # WebSocket型定義
-│   │   ├── utils/           # ユーティリティ
-│   │   │   ├── session_manager.py # セッション管理
-│   │   │   └── discord_webhook.py # Discord Webhook送信
-│   │   └── alembic/         # データベースマイグレーション
-│   │       ├── env.py       # マイグレーション環境設定
-│   │       ├── script.py.mako # マイグレーションスクリプトテンプレート
-│   │       └── versions/    # マイグレーションバージョン管理
-│   ├── frontend/            # フロントエンド（React + Mantine）
-│   │   ├── src/
-│   │   │   ├── App.tsx      # メインアプリケーション
-│   │   │   ├── main.tsx     # エントリーポイント
-│   │   │   ├── index.css    # グローバルスタイル
-│   │   │   ├── components/  # Reactコンポーネント
-│   │   │   │   ├── Layout.tsx       # アプリケーションレイアウト
-│   │   │   │   ├── ChannelList.tsx  # チャンネル一覧
-│   │   │   │   ├── ChatArea.tsx     # チャット画面
-│   │   │   │   ├── MessageList.tsx  # メッセージ一覧
-│   │   │   │   ├── MessageItem.tsx  # メッセージ表示
-│   │   │   │   └── MessageInput.tsx # メッセージ入力
-│   │   │   ├── types/       # TypeScript型定義
-│   │   │   │   └── chat.ts  # Message, Channel型
-│   │   │   └── data/        # 初期データ
-│   │   │       └── channels.ts # 初期チャンネルデータ
-│   │   ├── package.json     # フロントエンドNPM設定
-│   │   ├── vite.config.ts   # Vite設定
-│   │   └── tsconfig.json    # TypeScript設定
-│   └── shared/              # 共有モジュール（空）
-├── tests/                   # テスト
-│   ├── backend/             # バックエンドテスト
-│   │   ├── test_models.py   # モデルテスト
-│   │   ├── test_api.py      # REST APIテスト
-│   │   └── test_websocket.py # WebSocket + AI機能テスト
-│   └── frontend/            # フロントエンドテスト
-│       ├── components.test.tsx # コンポーネントテスト
-│       └── integration.test.tsx # 統合テスト
-├── z/                       # 一時ファイル・作業用
-├── CLAUDE.md                # AI開発ガイドライン（このファイル）
-├── README.md                # プロジェクトREADME
-├── package.json             # ルートNPM設定（並行実行用）
-├── pyproject.toml          # Python設定・依存関係
-└── uv.lock                 # UV依存関係ロック
-```
+- **アイコン**: Tabler Icons
+- **日付ライブラリ**: dayjs
+- **開発ツール**: ESLint + Prettier + **Pre-commit Hooks** + Ruff + Pyright + Vitest + **MCP Playwright**
 
 ## 起動方法
 
@@ -160,29 +73,29 @@ ai-community/
 - Node.js 18.x以上
 - Python 3.13以上
 - npm
-- uv (Python package manager)
-- Google Gemini API キー（AI機能使用時）
+- uv (Pythonパッケージマネージャー)
+- Google Gemini APIキー（AI機能を使用する場合）
 
 ### 2. 🎯 一発起動（推奨）
 
 ```bash
-# ルートディレクトリで
+# ルートディレクトリで実行
 npm install
 npm run dev
 ```
 
-**🔄 自動再起動機能**: `npm run dev`は既存のプロセスを自動停止してから起動します！
-（バックエンドの依存関係は自動で`uv sync`が実行されます）
+**🔄 自動再起動機能**: `npm run dev`は、既存のプロセスを自動的に停止してから起動します。
+（バックエンドの依存関係は、自動で`uv sync`が実行されます。）
 
 - **フロントエンド**: `http://localhost:5173`
 - **バックエンド**: `http://localhost:8000`
 
 #### 開発コマンド一覧
 ```bash
-npm run dev        # 既存プロセス停止 → 両方起動（推奨）
-npm run dev:start  # 両方起動（停止処理なし）
-npm run dev:stop   # 両方停止
-npm run restart    # npm run dev のエイリアス
+npm run dev        # 既存プロセス停止 → フロントエンドとバックエンドを起動（推奨）
+npm run dev:start  # フロントエンドとバックエンドを起動（停止処理なし）
+npm run dev:stop   # フロントエンドとバックエンドを停止
+npm run restart    # `npm run dev`のエイリアス
 ```
 
 ### 4. データベース設定
@@ -227,7 +140,7 @@ export AI_MAX_OUTPUT_TOKENS=2048             # AI応答の最大トークン数�
 - **発言条件**: 最後のメッセージ（ユーザー・AI問わず）から指定時間経過後にAIが自動発言
 - **AI自律会話**: AIたちが人間を介さずに自動的に会話を継続
 - **文脈理解**: 過去10件のメッセージ履歴を参照して自然な会話を継続
-- **人格選択**: 5つのAI人格（レン、ミナ、テツ、ルナ、ソラ）からランダム選択
+- **人格選択**: 複数のAI人格からランダム選択
 - **共通プロンプト機能**: 全AI人格に共通の基本ルールを適用（日本語使用、自然な会話、適度な長さ等）
 - **@AI機能との共存**: 従来の@AIメンション機能も引き続き利用可能
 
@@ -248,22 +161,3 @@ uv run --frozen ruff format .    # コードフォーマット
 uv run --frozen ruff check .     # リントチェック
 uv run --frozen pyright          # 型チェック
 ```
-
-## 開発状況
-
-### 🚧 今後の拡張予定
-- [ ] ユーザー認証機能
-- [ ] メッセージ検索機能
-- [ ] ファイルアップロード機能
-- [ ] 絵文字リアクション機能
-- [x] スマートフォン対応（モバイルレスポンシブ対応済み）
-
-### 🔧 技術的負債・改善予定
-- [ ] **AsyncSession導入**: conversation_timerでの非同期DB処理最適化
-- [ ] **依存性注入**: セッション管理の統一と効率化
-- [ ] **パフォーマンス改善**: AI自動会話機能の非同期処理最適化
-
-### 🐛 最近の修正
-- [x] **人間っぽくプロンプト変更・AI自然化**（2025-06-25）: 共通プロンプト機能追加、AI自動会話プロンプト簡素化、会話履歴表示の自然化、AI人格ファイル配置修正
-- [x] **Pre-commit最適化・コード品質向上**（2025-06-23）: 包括的なフック設定、Discord Webhook機能、ドキュメント全面強化、型安全性向上
-- [x] **AIメッセージ途切れ問題修正**（2025-06-22）: 最大出力トークン数を1000→2048に増加

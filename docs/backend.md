@@ -1,525 +1,243 @@
-# AI Community Backend
+# AI Community バックエンド仕様
 
-FastAPI + SQLAlchemy + WebSocket + Supabase PostgreSQL + Google Gemini AI によるリアルタイムチャットアプリケーションのバックエンド
+本ドキュメントは、FastAPI、SQLAlchemy、WebSocket、Supabase PostgreSQL、Google Gemini AI を活用したリアルタイムチャットアプリケーションのバックエンドに関する技術仕様を定めたものです。
 
-## 🚀 クイックスタート
+## 1. アーキテクチャ概要
 
-```bash
-# 依存関係インストール
-uv sync
+- **Webフレームワーク**: FastAPI
+- **データベース**: Supabase PostgreSQL
+- **ORM**: SQLAlchemy
+- **リアルタイム通信**: WebSocket
+- **AIチャットボット**: Google Gemini API
+- **非同期サーバー**: Uvicorn
 
-# 環境変数設定（AI機能使用時）
-export GEMINI_API_KEY="あなたのGemini APIキー"
-
-# AI自動会話機能の設定
-export AI_CONVERSATION_INTERVAL_SECONDS=60   # 自動会話の間隔（秒単位、デフォルト: 60秒）
-export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID（デフォルト: 1「雑談」）
-export AI_CONVERSATION_ENABLED=true          # 自動会話機能の有効/無効（デフォルト: true）
-
-# AI応答設定
-export AI_MAX_OUTPUT_TOKENS=2048             # AI応答の最大トークン数（デフォルト: 2048）
-
-# 環境変数設定（Supabase使用時）
-export DB_HOST="aws-0-ap-northeast-1.pooler.supabase.com"
-export DB_PORT="6543"
-export DB_NAME="postgres"
-export DB_USER="postgres.your-project-id"
-export DB_PASSWORD="your-database-password"
-
-# 開発サーバー起動
-uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-**サーバーURL:** `http://localhost:8000`
-
-## 📁 プロジェクト構造
+## 2. ディレクトリ構成
 
 ```text
 src/backend/
-├── main.py              # FastAPIアプリケーション
-├── database.py          # データベース設定
-├── models.py            # SQLAlchemyモデル
-├── schemas.py           # Pydanticスキーマ
-├── crud.py              # データベース操作
-├── ai/                  # AI機能
-│   ├── __init__.py              # AI機能パッケージ初期化
-│   ├── gemini_client.py         # Gemini API クライアント
-│   ├── message_handlers.py      # AI応答処理
-│   ├── auto_conversation.py     # AI自律会話機能
-│   ├── conversation_timer.py    # 自動会話タイマー管理
-│   ├── conversation_config.py   # 自動会話設定管理
-│   └── personality_manager.py   # AI人格管理
-├── constants/           # 共通定数モジュール
-│   ├── __init__.py      # パッケージ初期化
-│   ├── ai_config.py     # AI機能関連定数
-│   ├── logging.py       # ログ設定定数
-│   └── timezone.py      # タイムゾーン定数
-├── websocket/           # WebSocket処理
-│   ├── handler.py       # WebSocketハンドラー
-│   ├── manager.py       # 接続管理
-│   └── types.py         # WebSocket型定義
-├── utils/               # ユーティリティ
-│   ├── session_manager.py # セッション管理
-│   └── discord_webhook.py # Discord Webhook送信
-├── alembic/             # データベースマイグレーション
-│   ├── env.py           # マイグレーション環境設定
-│   ├── script.py.mako   # マイグレーションスクリプトテンプレート
-│   └── versions/        # マイグレーションバージョン管理
-# Supabase PostgreSQLを使用
+├── main.py              # FastAPIアプリケーションのエントリポイント
+├── database.py          # データベース接続とセッション管理
+├── models.py            # SQLAlchemyのデータモデル定義
+├── schemas.py           # Pydanticによるデータ検証スキーマ
+├── crud.py              # データベース操作（Create, Read, Update, Delete）
+├── ai/                  # AI関連機能モジュール
+│   ├── __init__.py              # AI機能パッケージの初期化
+│   ├── gemini_client.py         # Gemini APIとの連携クライアント
+│   ├── message_handlers.py      # AI応答メッセージの処理ロジック
+│   ├── auto_conversation.py     # AI自律会話機能の実装
+│   ├── conversation_timer.py    # AI自動会話のタイマー管理
+│   ├── conversation_config.py   # AI自動会話の設定管理
+│   └── personality_manager.py   # AI人格の管理
+├── constants/           # アプリケーション共通の定数定義モジュール
+│   ├── __init__.py      # パッケージの初期化
+│   ├── ai_config.py     # AI機能に関する定数
+│   ├── logging.py       # ロギング設定に関する定数
+│   └── timezone.py      # タイムゾーンに関する定数
+├── websocket/           # WebSocket通信処理モジュール
+│   ├── handler.py       # WebSocketイベントハンドラ
+│   ├── manager.py       # WebSocket接続の管理
+│   └── types.py         # WebSocketメッセージの型定義
+├── utils/               # 各種ユーティリティ関数モジュール
+│   ├── session_manager.py # セッション管理ユーティリティ
+│   └── discord_webhook.py # Discord Webhookへのメッセージ送信機能
+└── alembic/             # データベースマイグレーション関連ファイル
+    ├── env.py           # Alembic環境設定
+    ├── script.py.mako   # マイグレーションスクリプトのテンプレート
+    └── versions/        # マイグレーション履歴バージョン管理ディレクトリ
 ```
 
-## 🔧 技術スタック
+## 3. API仕様
 
-- **Python:** 3.13
-- **FastAPI:** Webフレームワーク
-- **SQLAlchemy:** ORM
-- **Supabase PostgreSQL:** データベース
-- **WebSocket:** リアルタイム通信
-- **Pydantic:** データバリデーション
-- **Google Gemini AI:** AI チャットボット
-- **uvicorn:** ASGIサーバー
+### 3.1. REST API
 
-## 🗄️ データモデル
-
-### Channel
-```python
-id: str              # 主キー
-name: str            # チャンネル名
-description: str     # 説明
-created_at: datetime # 作成時刻
-```
-
-### Message
-```python
-id: str              # 主キー
-channel_id: str      # チャンネルID
-user_id: str         # ユーザーID（AI応答時は人格に応じたID）
-user_name: str       # ユーザー名（AI応答時は人格に応じた名前）
-user_type: str       # ユーザータイプ（"human" または "ai"）
-content: str         # メッセージ内容
-timestamp: datetime  # 送信時刻
-is_own_message: bool # 自分のメッセージか
-created_at: datetime # 作成時刻
-```
-
-## 🤖 AI機能
-
-### 複数AI人格チャットボット
-
-- **AI モデル**: Google Gemini 2.5 Flash Preview 05-20
-- **トリガー**: メッセージに `@AI` を含める
-- **人格選択**: メッセージごとにランダム選択
-- **利用可能人格**: レン、ミナ、テツ、ルナ、ソラ（5つのAI人格）
-- **応答速度**: 平均2-3秒
-- **プロンプト**: `prompts/people/` ディレクトリで管理
-- **会話品質強化**: 具体的で実用的な会話を実現（抽象的・ありきたりな内容を回避）
-- **最適化**: チャット用途に最適化（思考機能を無効化して応答速度を重視）
-- **発言長調整**: 3-4文程度の適度な長さで自然なテンポを保持
-- **連続発言防止**: 同じAI人格による連続発言を防止し、会話の多様性を確保
-
-#### Gemini 2.5 Flash の特徴
-- **改良された推論能力**: 従来の1.5 Flashより高い品質の応答
-- **思考機能**: デフォルトで有効だが、チャット用途では無効化（応答速度優先）
-- **トークン効率**: 20-30%少ないトークン使用量で同等以上の品質を実現
-- **1.0M トークンのコンテキストウィンドウ**: 長い会話履歴も処理可能
-
-### AI応答フロー
-
-1. ユーザーが `@AI` を含むメッセージを送信
-2. WebSocketで受信・保存
-3. **ランダムにAI人格を選択**（prompts/people/から）
-4. **過去10件のメッセージ履歴を取得**（文脈理解のため）
-5. 選択された人格のプロンプトと会話履歴を含むプロンプトを構成
-6. Gemini APIで応答生成
-7. AI応答をデータベースに保存（選択された人格情報とともに）
-8. 全クライアントにブロードキャスト
-
-### 🆕 文脈理解機能
-
-**概要**: AIが過去の会話を理解してより自然な応答を生成
-
-**特徴**:
-- 同じチャンネル内の過去10件のメッセージを自動取得
-- 全ユーザーの発言とAI応答を含む完全な会話履歴
-- プロンプト内で「過去の会話履歴」と「現在の質問」を明確に区別
-- 適切なフォーマットでメッセージ発言者を識別（AI人格 vs ユーザー名）
-
-**プロンプト構成例**:
-```text
-[選択されたAI人格のシステムプロンプト]
-
-===== 過去の会話履歴 =====
-田中: おはよう！
-AI:レン: おはよう！今日は何か面白いことありそうだな😊
-田中: 今日は雨だよ...
-AI:ルナ: 雨の日も素敵よ♪ 音とか匂いとか、特別な気分になれるもん！
-
-===== 現在の質問 =====
-ユーザー: @AI 昨日話した件、どうだった？
-AI:
-```
-
-### 🤖 AI自律会話機能
-
-**概要**: AIたちが人間の介入なしに1分間隔で自動的に会話を継続する機能
-
-**特徴**:
-- **対象チャンネル**: 「雑談」チャンネル（ID=1）のみで動作
-- **発言間隔**: デフォルト60秒（`AI_CONVERSATION_INTERVAL_SECONDS`で設定可能）
-- **発言条件**: 最後のメッセージ（ユーザー・AI問わず）から指定時間経過後にAIが自動発言
-- **人格選択**: 5つのAI人格（レン、ミナ、テツ、ルナ、ソラ）からランダム選択（連続発言防止機能付き）
-- **文脈理解**: 過去10件のメッセージ履歴を参照して自然な会話を継続
-- **@AI機能との共存**: 従来の@AIメンション機能も引き続き利用可能
-
-**動作フロー**:
-1. バックグラウンドタイマーが15秒間隔でチェック
-2. 指定チャンネルの最新メッセージ時刻を確認
-3. 設定された間隔（デフォルト1分）が経過していれば自動発言を実行
-4. 連続発言防止：前回のAI発言者とは異なる人格を選択
-5. 過去10件の会話履歴を含むプロンプトでGemini APIに応答生成を依頼
-6. 生成されたAI応答をデータベースに保存し、全クライアントにブロードキャスト
-
-**設定環境変数**:
-```bash
-export AI_CONVERSATION_ENABLED=true          # 機能の有効/無効
-export AI_CONVERSATION_INTERVAL_SECONDS=60   # 発言間隔（秒）
-export AI_CONVERSATION_TARGET_CHANNEL=1      # 対象チャンネルID
-
-# 🌐 Discord Webhook連携（オプション）
-export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_WEBHOOK_URL"
-```
-
-> **注意**: Discord Webhook URLが未設定の場合は、AI発言の転送は無効化され、通常のチャット機能のみが動作します。エラーログは出力されず、内部でスキップ処理されます。
-
-## 🌐 Discord Webhook連携
-
-### 概要
-AIの発言をDiscordチャンネルに自動転送する機能です。AI自律会話や@AI応答が発生した際に、自動的にDiscordに投稿されます。
-
-### 特徴
-- **自動転送**: AI応答がDiscordに自動投稿
-- **レート制限対応**: 30件/分の制限に準拠
-- **メッセージ長制限**: 2000文字制限に対応（自動切り詰め）
-- **Markdownエスケープ**: Discord特殊文字の自動エスケープ処理
-- **エラー処理**: 送信失敗時のログ記録
-
-### 設定方法
-```bash
-# Discord Webhook URL設定（オプション）
-export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/YOUR_ID/YOUR_TOKEN"
-```
-
-### 送信フォーマット
-```text
-AI人格名
-メッセージ本文
---------------------
-```
-
-### API制限・安全対策
-- **レート制限**: 30件/分を監視・制御
-- **メッセージ長**: 2000文字を超える場合は自動切り詰め
-- **接続タイムアウト**: 10秒
-- **エラーログ**: 送信失敗時の詳細ログ記録
-
-## 🔗 API仕様
-
-**Base URL**: `http://localhost:8000` (開発環境)
-
-### 認証
-
-現在は認証機能を実装していませんが、将来的に JWT トークンベースの認証を予定しています。
-
-### エラーレスポンス
-
-#### 標準エラーフォーマット
-
-```json
-{
-  "detail": "エラーメッセージ"
-}
-```
-
-#### HTTPステータスコード
-
-- `200 OK`: 成功
-- `400 Bad Request`: 無効なリクエスト
-- `404 Not Found`: リソースが見つからない
-- `422 Unprocessable Entity`: バリデーションエラー
-- `500 Internal Server Error`: サーバーエラー
-
-### REST API エンドポイント
-
-#### GET /
-
-**概要**: APIサーバーの動作確認
-
-**レスポンス**:
-```json
-{
-  "message": "AI Community Backend API"
-}
-```
-
-#### GET /api/channels
-
-**概要**: 全チャンネルの一覧を取得
-
-**レスポンス**: `Array<ChannelResponse>`
-
-```typescript
-interface ChannelResponse {
-  id: string;        // チャンネルID
-  name: string;      // チャンネル名
-  createdAt: string; // 作成日時 (ISO 8601)
-}
-```
-
-#### GET /api/channels/{channel_id}/messages
-
-**概要**: 指定チャンネルのメッセージ履歴を取得
-
-**パラメータ**:
-
-| パラメータ | 型 | 必須 | デフォルト | 説明 |
-|-----------|----|----|-----------|------|
-| channel_id | string | ✅ | - | チャンネルID (パス) |
-| limit | integer | ❌ | 100 | 取得件数上限 (1-1000) |
-| offset | integer | ❌ | 0 | 取得開始位置 (0以上) |
-
-**レスポンス**: `MessagesListResponse`
-
-```typescript
-interface MessagesListResponse {
-  messages: MessageResponse[];
-  total: number;    // 総メッセージ数
-  hasMore: boolean; // さらにメッセージがあるか
-}
-
-interface MessageResponse {
-  id: string;          // メッセージID
-  channelId: string;   // チャンネルID
-  userId: string;      // 送信者ID
-  userName: string;    // 送信者名
-  userType: string;    // ユーザータイプ ("human" または "ai")
-  content: string;     // メッセージ本文
-  timestamp: string;   // 送信時刻 (ISO 8601)
-  isOwnMessage: boolean; // 送信者自身のメッセージか
-  createdAt: string;   // 作成日時 (ISO 8601)
-}
-```
-
-### WebSocket API
+**ベースURL**: `/`
 
 #### エンドポイント
 
-`ws://localhost:8000/ws`
+##### `GET /api/channels`
+
+- **概要**: 全てのチャンネルリストを取得します。
+- **成功レスポンス (200 OK)**: `application/json`
+  ```json
+  [
+    {
+      "id": "string",
+      "name": "string",
+      "createdAt": "string (ISO 8601)"
+    }
+  ]
+  ```
+
+##### `GET /api/channels/{channel_id}/messages`
+
+- **概要**: 指定されたチャンネルのメッセージ履歴を取得します。
+- **パスパラメータ**:
+  - `channel_id` (string, 必須): チャンネルの識別子
+- **クエリパラメータ**:
+  - `limit` (integer, オプション, デフォルト: 100): 取得するメッセージの最大件数 (1-1000)
+  - `offset` (integer, オプション, デフォルト: 0): 取得を開始する位置（オフセット）
+- **成功レスポンス (200 OK)**: `application/json`
+  ```json
+  {
+    "messages": [
+      {
+        "id": "string",
+        "channelId": "string",
+        "userId": "string",
+        "userName": "string",
+        "userType": "string (human or ai)",
+        "content": "string",
+        "timestamp": "string (ISO 8601)",
+        "isOwnMessage": "boolean",
+        "createdAt": "string (ISO 8601)"
+      }
+    ],
+    "total": "integer",
+    "hasMore": "boolean"
+  }
+  ```
+
+### 3.2. WebSocket API
+
+**エンドポイント**: `ws:///ws`
 
 #### メッセージプロトコル
 
-##### メッセージ送信
+クライアントとサーバーはJSON形式のメッセージを送受信します。各メッセージには `type` と `data` プロパティが含まれます。
 
-**リクエスト**:
-```typescript
-interface MessageSendRequest {
-  type: "message:send";
-  data: {
-    id: string;          // 一意のメッセージID
-    channel_id: string;  // 送信先チャンネルID
-    user_id: string;     // 送信者ID
-    user_name: string;   // 送信者名
-    user_type: string;   // ユーザータイプ ("human" または "ai")
-    content: string;     // メッセージ本文
-    timestamp: string;   // 送信時刻 (ISO 8601)
-    is_own_message: boolean; // 送信者自身のメッセージか
-  };
-}
-```
+##### クライアント → サーバー
 
-##### 成功レスポンス
+- **`message:send`**: メッセージを送信します。
+  ```json
+  {
+    "type": "message:send",
+    "data": {
+      "id": "string",
+      "channel_id": "string",
+      "user_id": "string",
+      "user_name": "string",
+      "user_type": "string (user)",
+      "content": "string",
+      "timestamp": "string (ISO 8601)",
+      "is_own_message": "boolean"
+    }
+  }
+  ```
 
-```typescript
-interface MessageSavedResponse {
-  type: "message:saved";
-  data: {
-    id: string;      // 保存されたメッセージID
-    success: true;
-  };
-}
-```
+##### サーバー → クライアント
 
-##### エラーレスポンス
+- **`message:saved`**: 送信されたメッセージが正常に保存されたことを通知します。
+  ```json
+  {
+    "type": "message:saved",
+    "data": {
+      "id": "string",
+      "success": true
+    }
+  }
+  ```
 
-```typescript
-interface MessageErrorResponse {
-  type: "message:error";
-  data: {
-    id: string;      // エラーが発生したメッセージID
-    success: false;
-    error: string;   // エラーメッセージ
-  };
-}
-```
+- **`message:broadcast`**: 新しいメッセージ（ユーザーまたはAI）を全てのクライアントにブロードキャストします。
+  ```json
+  {
+    "type": "message:broadcast",
+    "data": {
+      "id": "string",
+      "channel_id": "string",
+      "user_id": "string",
+      "user_name": "string",
+      "user_type": "string (human or ai)",
+      "content": "string",
+      "timestamp": "string (ISO 8601)",
+      "is_own_message": false
+    }
+  }
+  ```
 
-##### AI応答ブロードキャスト
+- **`message:error`**: メッセージ処理中にエラーが発生したことを通知します。
+  ```json
+  {
+    "type": "message:error",
+    "data": {
+      "id": "string",
+      "success": false,
+      "error": "string"
+    }
+  }
+  ```
 
-AI応答は自動的に全クライアントにブロードキャストされます：
+## 4. データモデル
 
-```typescript
-interface MessageBroadcastResponse {
-  type: "message:broadcast";
-  data: {
-    id: string;
-    channel_id: string;
-    user_id: string;         // AI応答時は人格に応じたID (ai_001, ai_002等)
-    user_name: string;       // AI応答時は人格に応じた名前 (レン, ミナ等)
-    user_type: string;       // ユーザータイプ ("human" または "ai")
-    content: string;
-    timestamp: string;
-    is_own_message: false;   // AI応答は常にfalse
-  };
-}
-```
+SQLAlchemyで定義されているデータモデルです。
 
-## 🔨 開発ルール
+### `Channel`
 
-### パッケージ管理
-- **必須:** `uv`のみ使用（`pip`は使用禁止）
-- インストール: `uv add package`
-- 開発依存: `uv add --dev package`
+| カラム名 | 型 | 説明 |
+|---|---|---|
+| `id` | `str` | 主キー |
+| `name` | `str` | チャンネル名 |
+| `description` | `str` | 説明 |
+| `created_at` | `datetime` | 作成日時 |
 
-### コード品質
-- 型ヒント必須
-- パブリック関数にdocstring
-- 行の長さ: 最大120文字
-- 関数は小さく、単一責任
+### `Message`
 
-### テスト
-- フレームワーク: `pytest`
-- 非同期テスト: `anyio`使用
-- 新機能・バグ修正時は必ずテスト追加
+| カラム名 | 型 | 説明 |
+|---|---|---|
+| `id` | `str` | 主キー |
+| `channel_id` | `str` | チャンネルID (外部キー) |
+| `user_id` | `str` | ユーザーID |
+| `user_name` | `str` | ユーザー名 |
+| `user_type` | `str` | `user` または `ai` |
+| `content` | `str` | メッセージ内容 |
+| `timestamp` | `datetime` | 送信日時 |
+| `is_own_message`| `bool` | クライアントが自身のメッセージであるかを判断するためのフラグ。APIレスポンスでは動的に設定されます。 |
+| `created_at` | `datetime` | 作成日時 |
 
-## 🔍 開発コマンド
+## 5. AI機能
 
-```bash
-# コードフォーマット
-uv run --frozen ruff format .
+### 5.1. @AI メンション応答
 
-# リントチェック
-uv run --frozen ruff check .
+- **トリガー**: メッセージ本文に `@AI` が含まれている場合に発動します。
+- **動作**:
+  1. `prompts/people/` ディレクトリからランダムにAI人格を選択します。
+  2. 過去10件のメッセージ履歴を文脈情報として取得します。
+  3. Gemini APIにプロンプトを送信し、AIからの応答を生成します。
+  4. 生成されたメッセージをデータベースに保存し、全てのクライアントにブロードキャストします。
+- **特徴**:
+  - **文脈理解**: 過去の会話の流れを考慮した応答を生成します。
+  - **人格の多様性**: 複数のAI人格がランダムに応答することで、会話に多様性をもたらします。
+  - **連続発言防止**: 同じAIが連続して応答しないように制御されます。
 
-# 型チェック
-uv run --frozen pyright
+### 5.2. AI自律会話
 
-# テスト実行
-uv run --frozen pytest
+- **概要**: 人間の介入なしに、AI同士が自動的に会話を継続する機能です。
+- **トリガー**:
+  - `AI_CONVERSATION_ENABLED=true` の場合、バックグラウンドでタイマーが作動します。
+  - `AI_CONVERSATION_TARGET_CHANNEL` で指定されたチャンネルが対象となります。
+  - 最後のメッセージから `AI_CONVERSATION_INTERVAL_SECONDS` で指定された時間が経過した場合に発言します。
+- **動作**: `@AI` メンション応答と同様のフローで、AIが選択されメッセージを生成・投稿します。
 
-# 開発サーバー起動
-uv run uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+### 5.3. Discord Webhook連携
 
-# 🆕 Pre-commit関連
-```bash
-# Pre-commitフックのインストール
-pre-commit install
+- **概要**: AIの発言をリアルタイムで指定されたDiscordチャンネルに転送する機能です。
+- **設定**: 環境変数 `DISCORD_WEBHOOK_URL` にWebhookのURLを設定することで有効になります。
+- **機能**:
+  - レート制限（30件/分）を考慮した送信制御を行います。
+  - メッセージ長の制限（2000文字）に対応しています。
+  - Markdownの特殊文字を適切にエスケープ処理します。
 
-# 手動でPre-commitチェック実行
-pre-commit run --all-files
+## 5. 開発者向け情報
 
-# Pre-commitフックの更新
-pre-commit autoupdate
-```
+### APIドキュメント
 
-## 📋 実装済み機能
+開発サーバー起動中、以下のURLでAPIドキュメントを確認できます。
 
-- ✅ FastAPI基本設定
-- ✅ SQLAlchemy + Supabase PostgreSQLデータベース
-- ✅ Channel/Messageモデル
-- ✅ REST API（チャンネル一覧、メッセージ履歴）
-- ✅ WebSocket通信
-- ✅ リアルタイムメッセージ配信
-- ✅ メッセージ永続化
-- ✅ **Google Gemini AI統合**
-- ✅ **複数AI人格チャットボット**
-- ✅ **@AI メンション機能**
-- ✅ **🤖 AI自律会話機能**（1分間隔・人間介入不要）
-- ✅ **過去10件メッセージ履歴による文脈理解機能**
-- ✅ **AI連続発言防止機能**
-- ✅ **AI発言長調整機能**（3-4文程度の適度な長さ）
-- ✅ 堅牢な接続管理システム
-- ✅ セッション管理ユーティリティ
-- ✅ CORS設定
-- ✅ エラーハンドリング
-- ✅ **Supabase PostgreSQL移行完了**
-- ✅ **🌐 Discord Webhook連携機能**（AI発言の自動転送）
-- ✅ **📝 包括的なドキュメント化**（全クラス・関数のdocstring追加）
-- ✅ **🔧 Pre-commit自動化**（Ruff、Prettier、Pyright、ESLint統合）
-- ✅ **🛡️ 型安全性強化**（厳密な型アノテーション全面適用）
-- ✅ **⚙️ MCP Playwright設定**（ブラウザ自動化テスト準備）
+- **Swagger UI**: `http://localhost:8000/docs`
+- **ReDoc**: `http://localhost:8000/redoc`
 
-## 🐛 最近の修正・改善
-
-### 2025-06-23: Pre-commit最適化・コード品質向上
-- **🔧 Pre-commit設定最適化**: 包括的なフック設定（Ruff、Prettier、ESLint、Pyright）
-- **🛡️ 型安全性向上**: 厳密な型アノテーション・TYPE_CHECKING活用、WebSocketハンドラーリファクタリング
-- **📝 ドキュメント全面強化**: 全クラス・関数にGoogle形式docstring追加
-- **🌐 Discord Webhook機能追加**: AI発言の自動転送（レート制限・メッセージ長制限対応）
-- **⚙️ 開発体験改善**: VSCode設定・MCP Playwright設定追加
-
-### 2025-06-22: AIメッセージ品質向上
-- **AIメッセージ途切れ問題修正**: 最大出力トークン数を1000→2048に増加
-- **AI連続発言防止機能**: 同じAI人格による連続発言を防止し、会話の多様性を確保
-- **AI発言長調整**: 各AI人格に3-4文程度の適度な長さで応答するよう指示を追加
-- **設定の柔軟性向上**: `AI_MAX_OUTPUT_TOKENS`環境変数でトークン数をカスタマイズ可能
-
-## 🚧 今後の拡張予定
-
-- [ ] ユーザー認証・セッション管理
-- [ ] メッセージ検索API
-- [ ] ファイルアップロード機能
-- [ ] AI応答のカスタマイズ機能
-- [ ] リアルタイム通知
-- [ ] メッセージ暗号化
-- [ ] レート制限機能
-
-## 📊 パフォーマンス・制約
-
-### 現在の制約
-
-- **Message.content**: 最大長 2000文字
-- **Message.id**: 一意（重複不可）
-- **Channel.id**: 事前定義済みのみ有効（1-5）
-- **timestamp**: ISO 8601 形式
-
-### レート制限（予定）
-
-- **WebSocket メッセージ**: 10件/分/接続
-- **REST API**: 60リクエスト/分/IP
-- **AI応答**: 3件/分/チャンネル
-
-### Supabase PostgreSQL環境
-
-- ✅ **データベース**: Supabase PostgreSQLを使用
-- ✅ **環境変数設定**: DB接続情報の環境変数化
-- ✅ **セッション管理**: Supabase PostgreSQL対応
-- ✅ **データ永続化**: クラウドベースのデータ保存
-
-## 🛠️ 開発者向けツール
-
-### API ドキュメント
-
-- **Swagger UI**: <http://localhost:8000/docs>
-- **ReDoc**: <http://localhost:8000/redoc>
-- **OpenAPI JSON**: <http://localhost:8000/openapi.json>
-
-### デバッグ用コマンド
+### 起動コマンド
 
 ```bash
-# WebSocket接続テスト
-curl -i -N -H "Connection: Upgrade" -H "Upgrade: websocket" \
-  -H "Sec-WebSocket-Key: test" -H "Sec-WebSocket-Version: 13" \
-  http://localhost:8000/ws
-
-# API動作確認
-curl -v http://localhost:8000/api/channels
-curl -v "http://localhost:8000/api/channels/1/messages?limit=10"
+# 開発サーバーをリロードモードで起動
+uvicorn src.backend.main:app --host 0.0.0.0 --port 8000 --reload
 ```
