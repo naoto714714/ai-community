@@ -47,6 +47,14 @@ class GeminiAPIClient:
         self.client = genai.Client(api_key=self.api_key)  # type: ignore
         logger.info("Gemini 2.5 Flash Preview 05-20クライアント初期化完了")
         self.personality_manager = get_personality_manager()
+
+        # システム人格を作成
+        self.system_personality = AIPersonality(
+            file_name="system",
+            name=self.FALLBACK_AI_NAME,
+            prompt_content="システムメッセージ",
+            user_id=self.FALLBACK_AI_ID,
+        )
         self._fallback_prompt: str | None = None
         self._load_fallback_prompt()
 
@@ -217,7 +225,7 @@ class GeminiAPIClient:
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
                     logger.error("Gemini API: 全リトライ試行が失敗、フォールバック応答を返す")
-                    return self.FALLBACK_MESSAGE, personality
+                    return self.FALLBACK_MESSAGE, self.system_personality
 
                 # 指数バックオフでリトライ
                 wait_time = 2**attempt
@@ -225,7 +233,7 @@ class GeminiAPIClient:
                 await asyncio.sleep(wait_time)
                 continue
 
-        return self.FALLBACK_MESSAGE, personality
+        return self.FALLBACK_MESSAGE, self.system_personality
 
     def _sync_generate(self, user_message: str, personality: AIPersonality) -> object:
         """同期的にコンテンツを生成する（run_in_executor用）.
