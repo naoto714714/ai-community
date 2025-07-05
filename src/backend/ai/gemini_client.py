@@ -221,15 +221,9 @@ class GeminiAPIClient:
 
                 # 429エラー（Rate Limit Exceeded）の特別処理
                 if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
-                    logger.critical("🚨 Gemini API Rate Limit超過エラーが発生しました")
-                    logger.critical("📊 Google Gemini APIの使用制限に達しました")
-                    logger.critical("💰 無料プランの日次クォータ（250リクエスト/日）を超過した可能性があります")
-                    logger.critical("⏰ 24時間後に自動的にクォータがリセットされます")
-                    logger.critical("🔧 解決方法：")
-                    logger.critical("   1. 24時間待機してから再度お試しください")
-                    logger.critical("   2. Google Cloud ConsoleでAPIプランをアップグレード")
-                    logger.critical("   3. 別のAPIキーを使用")
-                    logger.critical("🛑 システムを停止します...")
+                    logger.error(
+                        "🚨 Gemini API Rate Limit超過エラー: 日次クォータ（250リクエスト/日）を超過しました。24時間待機してから再度お試しください。システムを停止します..."
+                    )
 
                     # システムを停止
                     sys.exit(1)
