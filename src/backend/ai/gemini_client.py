@@ -4,6 +4,7 @@ import asyncio
 import logging
 import os
 import re
+import sys
 import threading
 from pathlib import Path
 
@@ -216,11 +217,26 @@ class GeminiAPIClient:
             except Exception as e:
                 # より具体的な例外処理
                 error_type = type(e).__name__
-                logger.error(f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {e!s}")
+                error_message = str(e)
 
-                # 特定のエラータイプに対する処理が必要な場合
-                # if isinstance(e, SpecificAPIError):
-                #     # 特別な処理
+                # 429エラー（Rate Limit Exceeded）の特別処理
+                if "429" in error_message or "RESOURCE_EXHAUSTED" in error_message:
+                    logger.critical("🚨 Gemini API Rate Limit超過エラーが発生しました")
+                    logger.critical("📊 Google Gemini APIの使用制限に達しました")
+                    logger.critical("💰 無料プランの日次クォータ（250リクエスト/日）を超過した可能性があります")
+                    logger.critical("⏰ 24時間後に自動的にクォータがリセットされます")
+                    logger.critical("🔧 解決方法：")
+                    logger.critical("   1. 24時間待機してから再度お試しください")
+                    logger.critical("   2. Google Cloud ConsoleでAPIプランをアップグレード")
+                    logger.critical("   3. 別のAPIキーを使用")
+                    logger.critical("🛑 システムを停止します...")
+
+                    # システムを停止
+                    sys.exit(1)
+
+                logger.error(
+                    f"Gemini API呼び出し失敗 (試行 {attempt + 1}/{max_retries}): {error_type}: {error_message}"
+                )
 
                 if attempt == max_retries - 1:
                     # 最後のリトライでも失敗した場合
