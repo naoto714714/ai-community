@@ -2,96 +2,79 @@
 
 ## 概要
 
-AI Community プロジェクトの**実用的でメンテナンス可能な**テストガイドです。
-Google Gemini AI統合チャットアプリケーションの品質を確保しつつ、開発効率を重視したテスト設計を採用しています。
+AI Community プロジェクトのテストガイドです。
+プロジェクト全体の品質方針や開発ワークフローについては、[CLAUDE.md](/CLAUDE.md) を参照してください。このドキュメントでは、具体的なテストの実装と実行方法に焦点を当てます。
 
-## 基本方針
+## テスト構成
 
-### 現実的な目標
-- **品質 > 完璧性**: 重要機能の確実な動作を優先
-- **保守性 > 網羅性**: メンテナンスしやすいテストを重視
-- **段階的導入**: 必要最小限から始めて徐々に拡張
-- **AI機能対応**: Google Gemini統合による複数AI人格チャットボットの応答品質とWebSocket通信の安定性を確保
-- **AI自律会話対応**: 設定可能間隔（デフォルト60秒）での自動会話機能とAI連続発言防止機能のテスト
-  - 境界値テスト（1秒・86400秒・範囲外値のバリデーション確認）
-
-### テストレベル
-
-1. **コアテスト**: 最重要機能のテスト（必須）
-
-2. **AI機能テスト**: チャットボット・WebSocket通信テスト（推奨）
-
-3. **拡張テスト**: 追加機能のテスト（任意）
-
-## 簡素なディレクトリ構成
+### ディレクトリ構成
 
 ```text
 ai-community/
 ├── tests/
-│   ├── conftest.py              # pytest設定
-│   ├── backend/                 # バックエンドテスト（5ファイル）
-│   │   ├── conftest.py         # バックエンド専用設定
-│   │   ├── test_models.py      # モデルテスト
-│   │   ├── test_api.py         # REST API テスト
-│   │   ├── test_websocket.py   # WebSocket + AI機能テスト
-│   │   └── test_supabase_integration.py # Supabase統合テスト
-│   └── frontend/               # フロントエンドテスト（1ファイル）
-│       └── components.test.tsx  # 包括的コンポーネントテスト
-├── src/
-│   ├── backend/                # バックエンドソースコード
-│   │   ├── main.py            # FastAPIアプリケーション
-│   │   ├── models.py          # SQLAlchemyモデル
-│   │   └── ...                # その他のバックエンドファイル
-│   └── frontend/              # フロントエンドソースコード
-│       ├── vitest.config.ts   # Vitestメイン設定
-│       └── package.json       # テストスクリプト定義
-└── pyproject.toml              # Pythonテスト設定
+│   ├── conftest.py              # pytest 共通設定
+│   ├── backend/                 # バックエンドテスト
+│   │   ├── conftest.py          # バックエンド専用設定
+│   │   ├── test_models.py       # DBモデルのテスト
+│   │   ├── test_api.py          # REST API のテスト
+│   │   └── test_websocket.py    # WebSocket通信とAI機能のテスト
+│   └── frontend/                # フロントエンドテスト
+│       ├── components.test.tsx  # UIコンポーネントの単体・結合テスト
+│       └── integration.test.tsx # 複数コンポーネントを連携させた統合テスト
+└── ...
 ```
 
-## テスト技術スタック
+### テストレベル
 
-### バックエンド（Python 3.13）
-- **pytest**: テストランナー・フィクスチャ管理
-- **pytest-asyncio**: 非同期テスト対応
-- **httpx**: 非同期HTTPクライアント（FastAPI テスト用）
-- **pytest-mock**: モック機能（AI応答テスト用）
-- **Supabase PostgreSQL**: 本番・開発データベース（統合テスト時）
-- **PostgreSQL**: インメモリテスト用データベース（テスト専用）
-- **anyio**: 非同期フレームワーク（uvと互換）
+1.  **バックエンド**
+    -   **単体テスト (`test_models.py`)**: SQLAlchemyモデルの属性やリレーションシップを検証します。
+    -   **APIテスト (`test_api.py`)**: FastAPIのTestClientを使用し、各エンドポイントの正常系・異常系の応答を検証します。
+    -   **WebSocketテスト (`test_websocket.py`)**: WebSocket接続、メッセージ送受信、AI応答生成（モック使用）をテストします。
 
-### フロントエンド（React 19 + TypeScript）
-- **Vitest**: 高速テストランナー（Jest互換）
-- **@testing-library/react**: Reactコンポーネントテスト
-- **@testing-library/user-event**: ユーザーインタラクションテスト
-- **@testing-library/jest-dom**: DOM assertion拡張
-- **jsdom**: ブラウザ環境シミュレーション
-- **msw**: WebSocket・API モック
+2.  **フロントエンド**
+    -   **コンポーネントテスト (`components.test.tsx`)**: `MessageItem` や `MessageInput` などのUIコンポーネントを個別にレンダリングし、Propsの受け渡しやイベントハンドリングを検証します。
+    -   **統合テスト (`integration.test.tsx`)**: 複数のコンポーネント（`ChatArea`, `MessageList`など）を組み合わせて、ユーザーの一連の操作（メッセージ入力から表示まで）をシミュレートします。APIやWebSocket通信は `msw` を用いてモック化します。
 
-## テスト実行方法
+## 技術スタック
 
-### バックエンドテスト
+### バックエンド (Python)
+
+-   **テストランナー**: `pytest`
+-   **非同期サポート**: `pytest-asyncio`
+-   **HTTPクライアント**: `httpx` (FastAPI TestClient)
+-   **モック**: `pytest-mock`
+-   **DB**: テスト実行時は自動的にインメモリデータベース (SQLite) を使用
+
+### フロントエンド (React + TypeScript)
+
+-   **テストランナー**: `Vitest`
+-   **コンポーネントテスト**: `@testing-library/react`
+-   **ユーザー操作シミュレーション**: `@testing-library/user-event`
+-   **DOMアサーション**: `@testing-library/jest-dom`
+-   **ブラウザ環境**: `jsdom`
+-   **API/WebSocketモック**: `msw` (Mock Service Worker)
+
+## テスト実行
+
+### バックエンド
+
+ルートディレクトリで以下のコマンドを実行します。
+
 ```bash
-# 全テスト実行
-cd src/backend && uv run --frozen pytest
-
-# 特定テストファイル実行
-uv run --frozen pytest tests/backend/test_models.py
-
-# カバレッジ付き実行
-uv run --frozen pytest --cov=src/backend
+# 全てのバックエンドテストを実行
+uv run pytest tests/backend/
 ```
 
-### フロントエンドテスト
-```bash
-# 全テスト実行
-cd src/frontend && npm run test:run
+### フロントエンド
 
-# ウォッチモード
+`src/frontend` ディレクトリに移動して実行します。
+
+```bash
+cd src/frontend
+
+# 全てのフロントエンドテストを実行
+npm test
+
+# 開発中にテストを自動実行 (Watchモード)
 npm run test:dev
-
-# カバレッジ付き実行
-npm run test:coverage
-
-# テストUI（ブラウザ表示）
-npm run test:ui
 ```
