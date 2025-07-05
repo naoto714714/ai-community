@@ -126,6 +126,11 @@ async def _generate_ai_response(
     return MessageCreate.model_validate(ai_message_data), generation_time
 
 
+def _is_fallback_message(content: str) -> bool:
+    """フォールバックメッセージかどうかを判定する"""
+    return content == GeminiAPIClient.FALLBACK_MESSAGE
+
+
 async def generate_and_save_ai_response(
     user_message: str, channel_id: str, db_session: Session | None = None
 ) -> MessageBroadcastData:
@@ -136,13 +141,19 @@ async def generate_and_save_ai_response(
     # セッションから切り離される前に必要な情報を取得
     message_id, user_id, user_name, user_type, content, timestamp = _extract_message_attributes(ai_message_create)
 
-    # データベースに保存
-    db_start = time.time()
-    save_message_with_session_management(
-        lambda session: crud.create_message(session, ai_message_create), db_session, auto_commit=(db_session is None)
-    )
-    db_time = time.time() - db_start
-    logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={message_id}")
+    # フォールバックメッセージの場合はデータベース保存をスキップ
+    if _is_fallback_message(content):
+        logger.info(f"フォールバックメッセージのため、DB保存をスキップ: message_id={message_id}")
+    else:
+        # データベースに保存
+        db_start = time.time()
+        save_message_with_session_management(
+            lambda session: crud.create_message(session, ai_message_create),
+            db_session,
+            auto_commit=(db_session is None),
+        )
+        db_time = time.time() - db_start
+        logger.info(f"AI応答DB保存完了: db_time={db_time:.2f}s, message_id={message_id}")
 
     return MessageBroadcastData(
         message_id=message_id,
