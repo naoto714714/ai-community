@@ -1,7 +1,6 @@
 fail_fast: false
 
 repos:
-  # Basic pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
@@ -13,17 +12,13 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/astral-sh/uv-pre-commit
-    # uv version.
     rev: 0.7.11
     hooks:
       - id: uv-lock
 
-  # Formatters (run first)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.11.12
     hooks:
-      # Run the formatter.
       - id: ruff-format
         files: ^(src/backend|tests)/.*\.py$
 
@@ -36,19 +31,15 @@ repos:
         additional_dependencies:
           - prettier@3.5.3
 
-  # Linters (run after formatters)
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    # Ruff version.
     rev: v0.11.12
     hooks:
-      # Run the linter.
       - id: ruff-check
         args: [--fix]
         files: ^(src/backend|tests)/.*\.py$
 
   - repo: local
     hooks:
-      # Frontend Code Quality
       - id: eslint
         name: ESLint
         entry: bash -c 'cd src/frontend && npm run lint:fix'
@@ -63,7 +54,6 @@ repos:
         files: ^(package\.json|package-lock\.json)$
         pass_filenames: false
 
-      # Type checking (run last)
       - id: pyright
         name: pyright
         entry: uv run pyright src/backend tests
