@@ -19,6 +19,9 @@ repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.11.12
     hooks:
+      - id: ruff-check
+        args: [--fix]
+        files: ^(src/backend|tests)/.*\.py$
       - id: ruff-format
         files: ^(src/backend|tests)/.*\.py$
 
@@ -30,13 +33,6 @@ repos:
         exclude: "node_modules/.*"
         additional_dependencies:
           - prettier@3.5.3
-
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.11.12
-    hooks:
-      - id: ruff-check
-        args: [--fix]
-        files: ^(src/backend|tests)/.*\.py$
 
   - repo: local
     hooks:
